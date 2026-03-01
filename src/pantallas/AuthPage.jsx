@@ -24,7 +24,7 @@ const AuthPage = () => {
           
           <div>
             <label className="block text-[#2d3748] mb-1 ml-1">Email</label>
-            <input type="email" placeholder="Lagartijo76@gmail.com" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none" />
+            <input type="email" placeholder="Email" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none" />
           </div>
 
           <div>
@@ -52,7 +52,7 @@ const AuthPage = () => {
             onClick={() => setIsLogin(!isLogin)} 
             className="ml-1 underline font-medium"
           >
-            {isLogin ? 'regístrate' : 'Inicia sesión'}
+            {isLogin ? 'Regístrate' : 'Inicia sesión'}
           </button>
         </p>
       </div>

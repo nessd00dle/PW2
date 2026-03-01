@@ -32,7 +32,7 @@ const Perfil = () => {
           <input 
             type="text" 
             className="w-full bg-[#3d7a67] rounded-full py-2 px-10 outline-none border-none placeholder-emerald-200 text-white"
-            placeholder="Buscar..." 
+            placeholder="Buscar" 
           />
           <span className="absolute left-3 top-2 opacity-50"></span>
         </div>
@@ -42,11 +42,7 @@ const Perfil = () => {
         <span className="text-[#1a202c] font-bold">Usuario</span>
         {/* Botón de Perfil / Avatar */}
         <button className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all">
-          <img 
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-            alt="avatar" 
-            className="w-full h-full object-cover"
-          />
+
         </button>
       </div>
     </nav>
@@ -58,13 +54,13 @@ const Perfil = () => {
           <div className="w-40 h-40 bg-[#56ab91] rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e]"></div>
           
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2">Nombre del usuario</h1>
+            <h1 className="text-4xl font-bold mb-2">Nombre de usuario</h1>
             <p className="text-emerald-400 mb-4">Fecha de registro: 04/02/26</p>
-            <p className="text-gray-300 max-w-md">Esta es una descripción corta del perfil. Aquí puedes poner tu bio o lo que quieras compartir con la comunidad.</p>
+            <p className="text-gray-300 max-w-md">descripciónndescripciónndescripciónndescripciónndescripciónndescripciónndescripciónndescripciónndescripciónndescripciónndescripciónn</p>
             
             {/* Espacio para badges o stats */}
             <div className="mt-6 flex gap-4 justify-center md:justify-start">
-               <button className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all">Configuraciones</button>
+               <button className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all">Configuracion</button>
                <button className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all text-red-400">Cerrar sesión</button>
             </div>
           </div>
