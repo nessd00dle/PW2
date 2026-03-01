@@ -50,7 +50,7 @@ const Perfil = () => {
       {/* 2. Header de Perfil (Caja grande) */}
       <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-          {/* Círculo de Avatar */}
+          {/* foto d perfil a la derecha */}
           <div className="w-40 h-40 bg-[#56ab91] rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e]"></div>
           
           <div className="flex-1 text-center md:text-left">
@@ -60,21 +60,37 @@ const Perfil = () => {
             
             {/* Espacio para badges o stats */}
             <div className="mt-6 flex gap-4 justify-center md:justify-start">
-               <button className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all">Configuracion</button>
                <button className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all text-red-400">Cerrar sesión</button>
             </div>
           </div>
 
-          {/* Gráfica simple decorativa (derecha) */}
-          <div className="hidden lg:block text-[#d946ef]">
-            <div className="flex items-end gap-1 h-20">
-              <div className="w-2 bg-pink-500 h-8 rounded-t"></div>
-              <div className="w-2 bg-pink-500 h-16 rounded-t"></div>
-              <div className="w-2 bg-pink-500 h-12 rounded-t"></div>
-              <div className="w-2 bg-pink-500 h-20 rounded-t"></div>
-            </div>
-            <p className="text-xs mt-2 text-center uppercase font-bold italic">Estadísticas</p>
-          </div>
+{/* Contenedor de Acciones (Derecha) */}
+<div className="hidden lg:flex items-center gap-4">
+  
+  {/* Botón de Estadísticas con Imagen */}
+  <button className="flex flex-col items-center group hover:scale-105 transition-transform">
+      <img 
+        src="img/bar_icon_pink.png" 
+        alt="Estadísticas" 
+        
+          className="w-12 h-12 opacity-80" 
+      />
+    
+    <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Estadísticas</span>
+  </button>
+
+  {/* Botón de Configuración */}
+  <button className="flex flex-col items-center group hover:scale-105 transition-transform">
+    <img 
+          src="img/config_icon.png" 
+          alt="config" 
+          className="w-12 h-12 opacity-80" 
+        />
+  
+    <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Configuración</span>
+  </button>
+
+</div>
         </div>
       </div>
 

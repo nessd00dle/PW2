@@ -5,7 +5,7 @@ import Perfil from './pantallas/perfil';
 function App() {
   return (
     <div className="App">
-      <AuthPage   />
+      <Perfil   />
     </div>
   );
 }
