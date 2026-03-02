@@ -34,6 +34,7 @@ const AuthPage = () => {
 
           {!isLogin && (
             <div>
+              {/* falta cmabiar en ve de text a q pueda agregar foto */}
               <label className="block text-[#2d3748] mb-1 ml-1">Foto</label>
               <input type="text" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none" />
             </div>

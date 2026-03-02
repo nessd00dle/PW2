@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthPage from './pantallas/AuthPage'; // Importamos tu diseño
+import AuthPage from './pantallas/AuthPage'; 
 import Perfil from './pantallas/perfil';
 
 function App() {
