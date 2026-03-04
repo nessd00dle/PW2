@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
+import { Camera } from 'lucide-react'; // Opcional: para un icono de cámara
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [preview, setPreview] = useState(null);
+
+  // Función para previsualizar la foto seleccionada
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
@@ -18,7 +28,7 @@ const AuthPage = () => {
           {!isLogin && (
             <div>
               <label className="block text-[#2d3748] mb-1 ml-1">Nombre de usuario</label>
-              <input type="text" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 focus:ring-2 focus:ring-emerald-400 outline-none" />
+              <input type="text" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none" />
             </div>
           )}
           
@@ -34,9 +44,31 @@ const AuthPage = () => {
 
           {!isLogin && (
             <div>
-              {/* falta cmabiar en ve de text a q pueda agregar foto */}
-              <label className="block text-[#2d3748] mb-1 ml-1">Foto</label>
-              <input type="text" className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none" />
+              <label className="block text-[#2d3748] mb-1 ml-1">Foto de Perfil</label>
+              <div className="relative">
+                {/* Input oculto pero funcional */}
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                  className="hidden" 
+                  id="foto-upload"
+                />
+                {/* Botón personalizado que actúa como el input */}
+                <label 
+                  htmlFor="foto-upload" 
+                  className="w-full bg-[#4a917a] rounded-2xl p-3 flex items-center justify-center gap-3 cursor-pointer hover:bg-[#3d7a67] transition-all border-2 border-dashed border-white/20"
+                >
+                  {preview ? (
+                    <img src={preview} alt="Vista previa" className="w-8 h-8 rounded-full object-cover border border-white" />
+                  ) : (
+                    <Camera className="text-emerald-200 w-5 h-5" />
+                  )}
+                  <span className="text-white text-sm">
+                    {preview ? 'Cambiar foto' : 'Seleccionar imagen'}
+                  </span>
+                </label>
+              </div>
             </div>
           )}
 
