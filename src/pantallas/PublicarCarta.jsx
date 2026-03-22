@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import Gallery from './Gallery'; // Asegúrate de importar el componente Gallery
+import Gallery from '../componentes/Modals/Gallery';
 
 const PublicarCarta = ({ setPantalla }) => {
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [selectedCarta, setSelectedCarta] = useState(null);
   const [tipoPublicacion, setTipoPublicacion] = useState('');
+  const [imagenesVenta, setImagenesVenta] = useState([]);
+  const [erroresImagen, setErroresImagen] = useState([]);
 
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
     setTipoPublicacion(tipo);
+    
+    // Limpiar imágenes al cambiar de tipo
+    if (tipo !== 'venta' && tipo !== 'intercambio') {
+      setImagenesVenta([]);
+    }
     
     // Si selecciona "colección", abrimos el modal de galería
     if (tipo === 'coleccion') {
@@ -21,6 +28,75 @@ const PublicarCarta = ({ setPantalla }) => {
     console.log('Carta seleccionada para colección:', carta);
   };
 
+  // Validar que el archivo sea una imagen
+  const validarImagen = (file) => {
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+    const extensionesPermitidas = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+    
+    const extension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!tiposPermitidos.includes(file.type) && !extensionesPermitidas.includes(extension)) {
+      return {
+        valido: false,
+        error: `Formato no permitido: ${file.name}. Solo se permiten imágenes (JPG, PNG, GIF, WEBP, BMP)`
+      };
+    }
+    
+    // Limitar tamaño máximo (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return {
+        valido: false,
+        error: `Archivo demasiado grande: ${file.name}. Máximo 5MB`
+      };
+    }
+    
+    return { valido: true, error: null };
+  };
+
+  const handleImagenesChange = (e) => {
+    const files = Array.from(e.target.files);
+    const nuevasImagenes = [];
+    const nuevosErrores = [];
+    
+    // Limitar a máximo 10 imágenes
+    if (imagenesVenta.length + files.length > 10) {
+      alert('Máximo 10 imágenes por publicación');
+      return;
+    }
+    
+    files.forEach(file => {
+      const validacion = validarImagen(file);
+      
+      if (validacion.valido) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          nuevasImagenes.push({
+            id: Date.now() + Math.random(),
+            file: file,
+            preview: reader.result,
+            nombre: file.name
+          });
+          
+          if (nuevasImagenes.length === files.length) {
+            setImagenesVenta(prev => [...prev, ...nuevasImagenes]);
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        nuevosErrores.push(validacion.error);
+      }
+    });
+    
+    if (nuevosErrores.length > 0) {
+      setErroresImagen(nuevosErrores);
+      setTimeout(() => setErroresImagen([]), 5000);
+    }
+  };
+
+  const eliminarImagen = (id) => {
+    setImagenesVenta(prev => prev.filter(img => img.id !== id));
+  };
+
   const handlePublicar = () => {
     if (tipoPublicacion === 'coleccion' && !selectedCarta) {
       alert('Debes seleccionar una carta para tu colección');
@@ -28,15 +104,24 @@ const PublicarCarta = ({ setPantalla }) => {
       return;
     }
     
+    if ((tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && imagenesVenta.length === 0) {
+      alert('Debes agregar al menos una imagen para la publicación');
+      return;
+    }
+    
     // Aquí va la lógica de publicación
-    console.log('Publicando:', { tipoPublicacion, selectedCarta });
+    console.log('Publicando:', { 
+      tipoPublicacion, 
+      selectedCarta, 
+      imagenes: imagenesVenta.map(img => img.file)
+    });
     setPantalla('perfil');
   };
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
       
-      {/* navbar (se mantiene igual) */}
+      {/* navbar */}
       <nav className="w-full bg-[#56ab91] rounded-full p-3 mb-10 flex items-center justify-between shadow-lg">
         <div className="flex gap-4 ml-4">
           <button 
@@ -104,6 +189,7 @@ const PublicarCarta = ({ setPantalla }) => {
               >
                 <option value="" disabled>Tipo</option>
                 <option value="venta">Venta</option>
+                <option value="intercambio">Intercambio</option>
                 <option value="coleccion">Colección</option>
               </select>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
@@ -114,6 +200,8 @@ const PublicarCarta = ({ setPantalla }) => {
                 <option value="" disabled selected>Fandom</option>
                 <option value="pokemon">Pokemon</option>
                 <option value="magic">Magic</option>
+                <option value="yugioh">Yu-Gi-Oh</option>
+                <option value="digimon">Digimon</option>
               </select>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
             </div>
@@ -134,50 +222,140 @@ const PublicarCarta = ({ setPantalla }) => {
                 type="number" 
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400 text-center"
                 placeholder="1"
+                min="1"
               />
             </div>
           </div>
 
-          {/* foto carta - MODIFICADO: muestra la carta seleccionada si existe */}
-          <div 
-            className={`w-full h-40 border-2 border-dashed rounded-3xl flex items-center justify-center transition-all cursor-pointer
-              ${selectedCarta 
-                ? 'border-[#d91a7a] bg-slate-800/40' 
-                : 'border-[#56ab91]/60 hover:bg-slate-800/20'
-              }`}
-            onClick={() => tipoPublicacion === 'coleccion' && setShowGalleryModal(true)}
-          >
-            {selectedCarta ? (
-              <div className="flex items-center gap-4">
-                <img 
-                  src={selectedCarta.imagen} 
-                  alt={selectedCarta.nombre}
-                  className="h-28 w-auto object-contain"
-                />
-                <div>
-                  <p className="font-bold text-[#d91a7a]">{selectedCarta.nombre}</p>
-                  <p className="text-sm text-gray-300">Carta seleccionada ✓</p>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedCarta(null);
-                    }}
-                    className="text-xs text-red-400 hover:text-red-300 mt-1 underline"
-                  >
-                    Cambiar carta
-                  </button>
+          {/* Precio (solo para venta) */}
+          {tipoPublicacion === 'venta' && (
+            <div>
+              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
+              <input 
+                type="number" 
+                className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
+                placeholder="$0.00"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          )}
+
+          {/* Área de imágenes - Para venta e intercambio - NUEVO DISEÑO */}
+          {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
+            <div>
+              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">
+                Imágenes de la carta
+                <span className="text-xs text-gray-400 ml-2">(Máximo 10 imágenes, solo formatos de imagen)</span>
+              </label>
+              
+              {/* Grid interactivo que muestra las imágenes y el botón para agregar más */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {/* Mostrar imágenes existentes */}
+                {imagenesVenta.map((img) => (
+                  <div key={img.id} className="relative group">
+                    <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-[#56ab91]/40 bg-slate-800/40 hover:border-[#56ab91] transition-all">
+                      <img 
+                        src={img.preview} 
+                        alt={img.nombre}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => eliminarImagen(img.id)}
+                        className="absolute top-2 right-2 w-7 h-7 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-700 hover:scale-110 shadow-lg"
+                      >
+                        <span className="text-white text-sm font-bold">✕</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Botón para agregar más imágenes (solo si no se ha alcanzado el límite) */}
+                {imagenesVenta.length < 10 && (
+                  <div className="relative group">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp"
+                      multiple
+                      onChange={handleImagenesChange}
+                      className="hidden"
+                      id="imagenes-input"
+                    />
+                    <label 
+                      htmlFor="imagenes-input" 
+                      className="cursor-pointer block"
+                    >
+                      <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-dashed border-[#56ab91]/60 bg-slate-800/20 hover:bg-slate-800/40 hover:border-[#56ab91] transition-all group">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                          <span className="text-3xl group-hover:scale-110 transition-transform">📸</span>
+                          <p className="text-xs text-gray-400 text-center px-2">
+                            {imagenesVenta.length === 0 ? 'Agregar imágenes' : 'Agregar más'}
+                          </p>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Contador de imágenes */}
+              {imagenesVenta.length > 0 && (
+                <p className="text-xs text-emerald-400 mt-3 text-center">
+                  {imagenesVenta.length} / 10 imágenes seleccionadas
+                </p>
+              )}
+
+              {/* Mostrar errores */}
+              {erroresImagen.length > 0 && (
+                <div className="mt-3 p-2 bg-red-900/50 border border-red-500 rounded-lg">
+                  {erroresImagen.map((error, idx) => (
+                    <p key={idx} className="text-xs text-red-300">{error}</p>
+                  ))}
                 </div>
-              </div>
-            ) : (
-              <div className="bg-[#4d5b61] px-6 py-2 rounded-xl border border-slate-500 shadow-lg group">
-                <span className="text-gray-200 font-bold text-xs uppercase tracking-wide group-hover:text-white">
-                  {tipoPublicacion === 'coleccion' 
-                    ? 'Seleccionar carta para colección' 
-                    : 'Agregar fotos (opcional)'}
-                </span>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
+
+          {/* Área para seleccionar carta de colección */}
+          {tipoPublicacion === 'coleccion' && (
+            <div 
+              className={`w-full h-40 border-2 border-dashed rounded-3xl flex items-center justify-center transition-all cursor-pointer
+                ${selectedCarta 
+                  ? 'border-[#d91a7a] bg-slate-800/40' 
+                  : 'border-[#56ab91]/60 hover:bg-slate-800/20'
+                }`}
+              onClick={() => setShowGalleryModal(true)}
+            >
+              {selectedCarta ? (
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={selectedCarta.imagen} 
+                    alt={selectedCarta.nombre}
+                    className="h-28 w-auto object-contain"
+                  />
+                  <div>
+                    <p className="font-bold text-[#d91a7a]">{selectedCarta.nombre}</p>
+                    <p className="text-sm text-gray-300">Carta seleccionada ✓</p>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCarta(null);
+                      }}
+                      className="text-xs text-red-400 hover:text-red-300 mt-1 underline"
+                    >
+                      Cambiar carta
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#4d5b61] px-6 py-2 rounded-xl border border-slate-500 shadow-lg group">
+                  <span className="text-gray-200 font-bold text-xs uppercase tracking-wide group-hover:text-white">
+                    Seleccionar carta para colección
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* descripción */}
           <div>
@@ -187,7 +365,9 @@ const PublicarCarta = ({ setPantalla }) => {
               className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-3xl py-4 px-4 outline-none focus:border-emerald-400 resize-none"
               placeholder={tipoPublicacion === 'coleccion' 
                 ? 'Describe tu colección...' 
-                : 'Describe la carta que vendes...'}
+                : tipoPublicacion === 'venta'
+                ? 'Describe la carta que vendes (estado, rareza, etc)...'
+                : 'Describe la carta que ofreces para intercambio...'}
             ></textarea>
           </div>
 
@@ -197,6 +377,7 @@ const PublicarCarta = ({ setPantalla }) => {
               onClick={handlePublicar}
               type="button"
               className="bg-[#d91a7a] hover:bg-[#f22c8e] text-white font-black py-3 px-24 rounded-xl shadow-lg transform active:scale-95 transition-all uppercase tracking-[0.2em] text-xs"
+              disabled={!tipoPublicacion}
             >
               Publicar
             </button>
@@ -210,11 +391,10 @@ const PublicarCarta = ({ setPantalla }) => {
         isOpen={showGalleryModal}
         onClose={() => {
           setShowGalleryModal(false);
-          // Si cierra sin seleccionar y ya había seleccionado antes, mantenemos la selección
         }}
         onSelectCarta={(carta) => {
           handleSelectCarta(carta);
-          setShowGalleryModal(false); // Cerramos el modal después de seleccionar
+          setShowGalleryModal(false);
         }}
       />
     </div>
