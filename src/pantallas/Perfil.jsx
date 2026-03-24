@@ -1,29 +1,68 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const Perfil = ({ setPantalla }) => {
-  // Datos de ejemplo para las cartas del usuario
+  const { usuario, logout } = useAuth();
   const [carruselIndex, setCarruselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  
-  const cartasUsuario = [
-    { id: 1, nombre: "Pikachu", imagen: "https://i.pinimg.com/736x/e7/02/c6/e702c62be77870ff68d2decd19cbd137.jpg", rareza: "Común" },
-    { id: 2, nombre: "Charizard", imagen: "https://i.pinimg.com/736x/46/7d/27/467d27d51e4a84775142a54a7534ac89.jpg", rareza: "Rara" },
-    { id: 3, nombre: "Mewtwo", imagen: "https://i.pinimg.com/736x/20/09/f5/2009f50fa35d86a8e34e2ea37f2db7be.jpg", rareza: "Épica" },
-    { id: 4, nombre: "Dragonite", imagen: "https://i.pinimg.com/736x/81/a0/d3/81a0d302b2800ae247b4833005fd894c.jpg", rareza: "Rara" },
-    { id: 5, nombre: "Gengar", imagen: "https://i.pinimg.com/736x/e3/37/d0/e337d055ca6e842896bb8f9fe2946fe4.jpg", rareza: "Épica" },
-    { id: 6, nombre: "Rayquaza", imagen: "https://i.pinimg.com/736x/69/52/da/6952da935f56233c9d64cc84d7aa92bc.jpg", rareza: "Legendaria" },
-    { id: 7, nombre: "Lucario", imagen: "https://i.pinimg.com/736x/13/d5/d4/13d5d4ad07886477d12d80260678f63c.jpg", rareza: "Rara" },
-    { id: 8, nombre: "Greninja", imagen: "https://i.pinimg.com/736x/08/c0/57/08c0575c74cc24351e72ec3e25e5ca53.jpg", rareza: "Épica" },
-    { id: 9, nombre: "Eevee", imagen: "https://i.pinimg.com/736x/b5/ef/f2/b5eff2853e29d5e4a7bcce6f9bc3152c.jpg", rareza: "Común" },
-    { id: 10, nombre: "Arceus", imagen: "https://i.pinimg.com/736x/42/68/28/4268280760490a1566c7089d75d6c022.jpg", rareza: "Legendaria" },
-  ];
+  const [cartasUsuario, setCartasUsuario] = useState([]);
+  const [loadingCartas, setLoadingCartas] = useState(true);
+
+  // Formatear fecha
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'Fecha no disponible';
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-MX', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  };
+
+  // Obtener iniciales del nombre
+  const getInitiales = () => {
+    if (!usuario?.nombre) return '??';
+    return usuario.nombre
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Obtener cartas del usuario (ejemplo - luego conectar con tu API)
+  useEffect(() => {
+    const fetchCartasUsuario = async () => {
+      try {
+        // Aquí iría la llamada a tu API para obtener las cartas del usuario
+        // const response = await axios.get(`http://localhost:3000/api/usuarios/${usuario.id}/cartas`);
+        // setCartasUsuario(response.data);
+        
+        // Datos de ejemplo mientras tanto
+        const cartasEjemplo = [
+          { id: 1, nombre: "Pikachu", imagen: "https://i.pinimg.com/736x/e7/02/c6/e702c62be77870ff68d2decd19cbd137.jpg", rareza: "Común" },
+          { id: 2, nombre: "Charizard", imagen: "https://i.pinimg.com/736x/46/7d/27/467d27d51e4a84775142a54a7534ac89.jpg", rareza: "Rara" },
+          { id: 3, nombre: "Mewtwo", imagen: "https://i.pinimg.com/736x/20/09/f5/2009f50fa35d86a8e34e2ea37f2db7be.jpg", rareza: "Épica" },
+          { id: 4, nombre: "Dragonite", imagen: "https://i.pinimg.com/736x/81/a0/d3/81a0d302b2800ae247b4833005fd894c.jpg", rareza: "Rara" },
+        ];
+        setCartasUsuario(cartasEjemplo);
+        setLoadingCartas(false);
+      } catch (error) {
+        console.error('Error obteniendo cartas:', error);
+        setLoadingCartas(false);
+      }
+    };
+
+    fetchCartasUsuario();
+  }, [usuario]);
 
   // Mostrar solo 10 cartas
   const cartasMostrar = cartasUsuario.slice(0, 10);
   const totalCartas = cartasMostrar.length;
 
   const siguienteCarrusel = () => {
-    if (!isAnimating) {
+    if (!isAnimating && totalCartas > 0) {
       setIsAnimating(true);
       setCarruselIndex((prev) => (prev + 1) % totalCartas);
       setTimeout(() => setIsAnimating(false), 500);
@@ -31,38 +70,28 @@ const Perfil = ({ setPantalla }) => {
   };
 
   const anteriorCarrusel = () => {
-    if (!isAnimating) {
+    if (!isAnimating && totalCartas > 0) {
       setIsAnimating(true);
       setCarruselIndex((prev) => (prev - 1 + totalCartas) % totalCartas);
       setTimeout(() => setIsAnimating(false), 500);
     }
   };
 
-  // Calcular la posición y estilo de cada carta en el carrusel 3D
   const getCartaStyle = (index) => {
     let relativeIndex = (index - carruselIndex + totalCartas) % totalCartas;
     
-
     if (relativeIndex > totalCartas / 2) {
       relativeIndex = relativeIndex - totalCartas;
     }
     
-    // Calcular posición en el carrusel (desde -2 a 2)
     const position = relativeIndex;
     const absolutePosition = Math.abs(position);
     
-    // Escala basada en la distancia al centro
     const scale = position === 0 ? 1.2 : 1 - (absolutePosition * 0.15);
     const opacity = position === 0 ? 1 : Math.max(0.4, 1 - (absolutePosition * 0.3));
     const zIndex = position === 0 ? 20 : 10 - absolutePosition;
-    
-   
     const translateX = position * 220;
-    
-    // Rotación 3D
     const rotateY = position * -25;
-    
-    
     const blur = position === 0 ? 0 : absolutePosition * 2;
     
     return {
@@ -77,11 +106,8 @@ const Perfil = ({ setPantalla }) => {
   const handleCartaClick = (carta, index) => {
     const relativeIndex = (index - carruselIndex + totalCartas) % totalCartas;
     if (relativeIndex === 0) {
-      // Si es la carta central
       console.log('Carta seleccionada:', carta);
-      // Aquí no se si hay que poner el detalle
     } else {
-      // Si no es la central, mover el carrusel para centrarla
       const diff = (index - carruselIndex + totalCartas) % totalCartas;
       if (diff <= totalCartas / 2) {
         for (let i = 0; i < diff; i++) siguienteCarrusel();
@@ -90,6 +116,19 @@ const Perfil = ({ setPantalla }) => {
       }
     }
   };
+
+  const handleLogout = () => {
+    logout();
+    setPantalla('auth');
+  };
+
+  if (!usuario) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <p className="text-white">Cargando perfil...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-windows p-4 overflow-x-hidden">
@@ -101,7 +140,7 @@ const Perfil = ({ setPantalla }) => {
             className="hover:scale-110 transition-transform focus:outline-none"
           >
             <img 
-              src="public/logo.png" 
+              src="/logo.png" 
               alt="Logo" 
               className="h-10 w-auto object-contain"
             />
@@ -141,15 +180,22 @@ const Perfil = ({ setPantalla }) => {
         </div>
 
         <div className="flex items-center gap-3 mr-4">
-          <span className="text-[#1a202c] font-bold">Usuario</span>
+          <span className="text-[#1a202c] font-bold">{usuario.nickname || usuario.nombre}</span>
           <button 
             onClick={() => setPantalla('perfil')}
-            className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all"
+            className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all flex items-center justify-center"
           >
-            <img
-              src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
-              alt="Perfil"
-            />
+            {usuario.fotoPerfil ? (
+              <img
+                src={usuario.fotoPerfil}
+                alt="Perfil"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-[#2d2a3e] font-bold text-sm">
+                {getInitiales()}
+              </span>
+            )}
           </button>
         </div>
       </nav>
@@ -157,23 +203,42 @@ const Perfil = ({ setPantalla }) => {
       {/* header perfil */}
       <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-          <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center">
-            <span className="text-6xl">⭐</span>
+          <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
+            {usuario.fotoPerfil ? (
+              <img 
+                src={usuario.fotoPerfil} 
+                alt="Foto de perfil"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-6xl font-bold text-white">
+                {getInitiales()}
+              </span>
+            )}
           </div>
           
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2">Nombre de usuario :p</h1>
-            <p className="text-gray-400 mb-2">Fecha de registro: 04/02/26</p>
-            <p className="text-emerald-400 mb-2">Colección: {cartasMostrar.length} cartas</p>
-            <p className="text-gray-300 max-w-md italic">Coleccionista apasionado de cartas, siempre buscando nuevas adquisiciones para mi colección.</p>
+            <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
+            <p className="text-emerald-400 mb-1">@{usuario.nickname}</p>
+            <p className="text-gray-400 mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
+            <p className="text-emerald-400 mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
+            <p className="text-gray-300 max-w-md italic">
+              {usuario.bio || "Coleccionista apasionado de cartas, siempre buscando nuevas adquisiciones para mi colección."}
+            </p>
             
             <div className="mt-6 flex gap-4 justify-center md:justify-start">
-               <button 
-                 onClick={() => setPantalla('auth')}
-                 className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all text-red-400"
-                >
-                  Cerrar sesión
-                </button>
+              <button 
+                onClick={handleLogout}
+                className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
+              >
+                Cerrar sesión
+              </button>
+              <button 
+                onClick={() => setPantalla('editarPerfil')}
+                className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
+              >
+                Editar perfil
+              </button>
             </div>
           </div>
 
@@ -182,11 +247,11 @@ const Perfil = ({ setPantalla }) => {
               onClick={() => setPantalla('estadistica')}
               className="flex flex-col items-center group hover:scale-105 transition-transform"
             >
-                <img 
-                  src="img/bar_icon_pink.png" 
-                  alt="Estadísticas" 
-                  className="w-12 h-12 opacity-80" 
-                />
+              <img 
+                src="/img/bar_icon_pink.png" 
+                alt="Estadísticas" 
+                className="w-12 h-12 opacity-80" 
+              />
               <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Estadísticas</span>
             </button>
 
@@ -195,10 +260,10 @@ const Perfil = ({ setPantalla }) => {
               className="flex flex-col items-center group hover:scale-105 transition-transform"
             >
               <img 
-                  src="img/config_icon.png" 
-                  alt="config" 
-                  className="w-12 h-12 opacity-80" 
-                />
+                src="/img/config_icon.png" 
+                alt="config" 
+                className="w-12 h-12 opacity-80" 
+              />
               <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Configuración</span>
             </button>
           </div>
@@ -206,144 +271,137 @@ const Perfil = ({ setPantalla }) => {
       </div>
 
       {/* Carrusel 3D estilo coverflow */}
-      <div className="mb-12">
-        <div className="flex justify-between items-center mb-6 px-4">
-          <h2 className="text-2xl font-bold text-emerald-400">Mi Colección 3D</h2>
-          <p className="text-sm text-gray-400">{cartasMostrar.length} / 10 cartas</p>
-        </div>
-        
-        <div className="relative min-h-[500px] flex items-center justify-center perspective-container">
-          {/* Efecto de luz de fondo */}
-          <div className="absolute inset-0 bg-gradient-radial from-emerald-500/10 via-transparent to-transparent pointer-events-none"></div>
+      {!loadingCartas && cartasMostrar.length > 0 && (
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6 px-4">
+            <h2 className="text-2xl font-bold text-emerald-400">Mi Colección</h2>
+            <p className="text-sm text-gray-400">{cartasMostrar.length} / {cartasUsuario.length} cartas</p>
+          </div>
           
-          {/* Contenedor del carrusel 3D */}
-          <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px' }}>
-            <div className="relative flex justify-center items-center" style={{ height: '450px' }}>
-              {cartasMostrar.map((carta, idx) => {
-                const style = getCartaStyle(idx);
-                const isCenter = (idx - carruselIndex + totalCartas) % totalCartas === 0;
-                
-                return (
-                  <div
-                    key={carta.id}
-                    onClick={() => handleCartaClick(carta, idx)}
-                    className="absolute cursor-pointer transition-all duration-500"
-                    style={style}
-                  >
-                    <div className={`relative w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
-                      isCenter 
-                        ? 'shadow-[0_0_30px_rgba(86,171,145,0.5)] ring-2 ring-emerald-400' 
-                        : 'shadow-lg hover:shadow-xl'
-                    }`}>
-                      <img 
-                        src={carta.imagen} 
-                        alt={carta.nombre}
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {/* Overlay con información */}
-                      <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 ${
-                        isCenter ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          <div className="relative min-h-[500px] flex items-center justify-center perspective-container">
+            <div className="absolute inset-0 bg-gradient-radial from-emerald-500/10 via-transparent to-transparent pointer-events-none"></div>
+            
+            <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px' }}>
+              <div className="relative flex justify-center items-center" style={{ height: '450px' }}>
+                {cartasMostrar.map((carta, idx) => {
+                  const style = getCartaStyle(idx);
+                  const isCenter = (idx - carruselIndex + totalCartas) % totalCartas === 0;
+                  
+                  return (
+                    <div
+                      key={carta.id}
+                      onClick={() => handleCartaClick(carta, idx)}
+                      className="absolute cursor-pointer transition-all duration-500"
+                      style={style}
+                    >
+                      <div className={`relative w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${
+                        isCenter 
+                          ? 'shadow-[0_0_30px_rgba(86,171,145,0.5)] ring-2 ring-emerald-400' 
+                          : 'shadow-lg hover:shadow-xl'
                       }`}>
-                        <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-0 transition-transform">
-                          <p className="text-white font-bold text-lg mb-1">{carta.nombre}</p>
-                          <div className="flex justify-between items-center">
-                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                              carta.rareza === 'Legendaria' ? 'bg-yellow-500 text-black' :
-                              carta.rareza === 'Épica' ? 'bg-purple-500 text-white' :
-                              carta.rareza === 'Rara' ? 'bg-blue-500 text-white' :
-                              'bg-gray-500 text-white'
-                            }`}>
-                              {carta.rareza}
-                            </span>
-                            <span className="text-emerald-400 font-bold text-sm">{carta.precio}</span>
+                        <img 
+                          src={carta.imagen} 
+                          alt={carta.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 ${
+                          isCenter ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        }`}>
+                          <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-0 transition-transform">
+                            <p className="text-white font-bold text-lg mb-1">{carta.nombre}</p>
+                            <div className="flex justify-between items-center">
+                              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                                carta.rareza === 'Legendaria' ? 'bg-yellow-500 text-black' :
+                                carta.rareza === 'Épica' ? 'bg-purple-500 text-white' :
+                                carta.rareza === 'Rara' ? 'bg-blue-500 text-white' :
+                                'bg-gray-500 text-white'
+                              }`}>
+                                {carta.rareza}
+                              </span>
+                            </div>
                           </div>
                         </div>
+                        
+                        {isCenter && (
+                          <div className="absolute top-2 right-2 bg-emerald-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg animate-pulse">
+                            <span className="text-white text-xs font-bold">★</span>
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Indicador de carta central */}
-                      {isCenter && (
-                        <div className="absolute top-2 right-2 bg-emerald-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg animate-pulse">
-                          <span className="text-white text-xs font-bold">★</span>
-                        </div>
-                      )}
                     </div>
-                    
-                    {/* Nombre de la carta (visible solo para la central en móvil) */}
-                    {isCenter && (
-                      <p className="text-center text-emerald-400 font-bold mt-3 md:hidden">
-                        {carta.nombre}
-                      </p>
-                    )}
-                  </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {totalCartas > 0 && (
+              <>
+                <button 
+                  onClick={anteriorCarrusel}
+                  className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <button 
+                  onClick={siguienteCarrusel}
+                  className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Indicadores de página */}
+          {totalCartas > 0 && (
+            <div className="flex justify-center gap-2 mt-8">
+              {cartasMostrar.map((_, idx) => {
+                const isActive = idx === carruselIndex;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      const diff = (idx - carruselIndex + totalCartas) % totalCartas;
+                      if (diff <= totalCartas / 2) {
+                        for (let i = 0; i < diff; i++) siguienteCarrusel();
+                      } else {
+                        for (let i = 0; i < totalCartas - diff; i++) anteriorCarrusel();
+                      }
+                    }}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-emerald-400 w-8' 
+                        : 'bg-emerald-400/30 w-2 hover:bg-emerald-400/50'
+                    }`}
+                  />
                 );
               })}
             </div>
-          </div>
-          
-          {/* Botones de navegación estilizados */}
-          <button 
-            onClick={anteriorCarrusel}
-            className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <button 
-            onClick={siguienteCarrusel}
-            className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
-          >
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          )}
         </div>
+      )}
 
-        {/* Indicadores de página */}
-        <div className="flex justify-center gap-2 mt-8">
-          {cartasMostrar.map((_, idx) => {
-            const isActive = idx === carruselIndex;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  const diff = (idx - carruselIndex + totalCartas) % totalCartas;
-                  if (diff <= totalCartas / 2) {
-                    for (let i = 0; i < diff; i++) siguienteCarrusel();
-                  } else {
-                    for (let i = 0; i < totalCartas - diff; i++) anteriorCarrusel();
-                  }
-                }}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  isActive 
-                    ? 'bg-emerald-400 w-8' 
-                    : 'bg-emerald-400/30 w-2 hover:bg-emerald-400/50'
-                }`}
-              />
-            );
-          })}
-        </div>
-        
-        {/* Información de la carta central */}
-        <div className="text-center mt-6">
-          <p className="text-gray-400 text-sm">
-           carta y cartota
-          </p>
-        </div>
-      </div>
-
-      {/* mensaje si no hay cartas */}
-      {cartasMostrar.length === 0 && (
+      {!loadingCartas && cartasMostrar.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-400">Aún no tienes cartas en tu colección</p>
           <button 
-            onClick={() => setPantalla('publicar')}
+            onClick={() => setPantalla('ventas')}
             className="mt-4 bg-emerald-600 px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
           >
-            Agregar mi primera carta
+            Explorar tienda
           </button>
+        </div>
+      )}
+
+      {loadingCartas && (
+        <div className="text-center py-12">
+          <p className="text-gray-400">Cargando tu colección...</p>
         </div>
       )}
 
@@ -374,7 +432,6 @@ const Perfil = ({ setPantalla }) => {
         </button>
       </div>
 
-      {/* Estilos adicionales */}
       <style jsx>{`
         .perspective-container {
           perspective: 1200px;

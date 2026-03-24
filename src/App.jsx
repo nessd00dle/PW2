@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-// IMPORTANTE: Los nombres deben coincidir exactos con tus archivos en la carpeta
+import React, { useState, useEffect } from 'react';
 import AuthPage from './pantallas/AuthPage'; 
 import Perfil from './pantallas/Perfil'; 
 import Configuracion from './pantallas/Configuracion';
@@ -7,13 +6,25 @@ import Estadistica from './pantallas/Estadistica';
 import PublicarCarta from './pantallas/PublicarCarta';
 import Coleccion from './pantallas/Coleccion';
 import DetalleCarta from './pantallas/DetalleCarta';
-import Feed from './pantallas/Feed'; // <--- Nueva importación del componente de tu amiga
+import Feed from './pantallas/Feed'; 
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
-function App() {
-  const [pantallaActual, setPantallaActual] = useState('perfil');
+// Componente interno que usa el contexto
+const AppContent = () => {
+  const [pantallaActual, setPantallaActual] = useState('auth');
+  const { isAuthenticated } = useAuth(); // ← Importante: usar el hook aquí
+
+  // Redirigir automáticamente si está autenticado
+  useEffect(() => {
+    if (isAuthenticated && pantallaActual === 'auth') {
+      setPantallaActual('perfil');
+    }
+  }, [isAuthenticated, pantallaActual]);
 
   const renderPantalla = () => {
     switch (pantallaActual) {
+      case 'auth':
+        return <AuthPage setPantalla={setPantallaActual} />;
       case 'perfil':
         return <Perfil setPantalla={setPantallaActual} />;
       case 'coleccion':
@@ -26,12 +37,10 @@ function App() {
         return <PublicarCarta setPantalla={setPantallaActual} />;
       case 'detalle':
         return <DetalleCarta setPantalla={setPantallaActual} />;
-      case 'ventas': // <--- Caso para ver la página de ventas/feed
+      case 'ventas':
         return <Feed setPantalla={setPantallaActual} />;
-      case 'auth':
-        return <AuthPage setPantalla={setPantallaActual} />;
       default:
-        return <Perfil setPantalla={setPantallaActual} />;
+        return <AuthPage setPantalla={setPantallaActual} />;
     }
   };
 
@@ -39,6 +48,15 @@ function App() {
     <div className="App">
       {renderPantalla()}
     </div>
+  );
+};
+
+// Componente principal que provee el contexto
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
