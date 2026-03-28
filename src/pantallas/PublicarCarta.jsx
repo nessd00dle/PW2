@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Gallery from '../componentes/Modals/Gallery';
 
+
 const PublicarCarta = ({ setPantalla }) => {
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [selectedCarta, setSelectedCarta] = useState(null);
@@ -121,51 +122,7 @@ const PublicarCarta = ({ setPantalla }) => {
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
       
-      {/* navbar */}
-      <nav className="w-full bg-[#56ab91] rounded-full p-3 mb-10 flex items-center justify-between shadow-lg">
-        <div className="flex gap-4 ml-4">
-          <button 
-            onClick={() => setPantalla('ventas')}
-            className="hover:scale-110 transition-transform focus:outline-none"
-          >
-            <img 
-              src="public/logo.png" 
-              alt="Logo" 
-              className="h-10 w-auto object-contain"
-            />
-          </button>
-          
-          <button 
-            onClick={() => setPantalla('ventas')}
-            className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all"
-          >
-            <img src="https://www.svgrepo.com/show/324791/store-business-marketplace-shop-sale-buy-marketing.svg" alt="Tienda" className="w-6 h-6 invert opacity-80" />
-          </button>
-
-          <button 
-            onClick={() => setPantalla('coleccion')}
-            className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all"
-          >
-            <img src="https://static.thenounproject.com/png/2221162-200.png" alt="Coleccion" className="w-6 h-6 invert opacity-80" />
-          </button>
-        </div>
-
-        <div className="flex-1 max-w-xl mx-8">
-          <input type="text" className="w-full bg-[#3d7a67] rounded-full py-2 px-10 outline-none placeholder-emerald-200 text-white" placeholder="Buscar" />
-        </div>
-
-        <div className="flex items-center gap-3 mr-4">
-          <span className="text-[#1a202c] font-bold text-sm">Usuario</span>
-
-          <button 
-            onClick={() => setPantalla('perfil')}
-            className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all"
-          >
-            <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Usuario" />
-          </button>
-        </div>
-      </nav>
-
+      
       {/* contenedor */}
       <div className="relative w-full max-w-2xl border-2 border-[#56ab91] rounded-3xl bg-slate-900/40 p-10 shadow-2xl">
         

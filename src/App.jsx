@@ -12,7 +12,7 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 // Componente interno que usa el contexto
 const AppContent = () => {
   const [pantallaActual, setPantallaActual] = useState('auth');
-  const { isAuthenticated } = useAuth(); // ← Importante: usar el hook aquí
+  const { isAuthenticated } = useAuth(); // Importante: usar el hook aquí
 
   // Redirigir automáticamente si está autenticado
   useEffect(() => {
@@ -51,7 +51,7 @@ const AppContent = () => {
   );
 };
 
-// Componente principal que provee el contexto
+
 function App() {
   return (
     <AuthProvider>

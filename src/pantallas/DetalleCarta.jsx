@@ -1,59 +1,12 @@
 import React from 'react';
+import Navbar from '../componentes/Layout/navbar';
 
 const DetalleCarta = ({ setPantalla }) => { 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4">
       
-      {/* navbar */}
-      <nav className="bg-[#56ab91] rounded-full p-3 mb-10 flex items-center justify-between shadow-lg w-full">
-        <div className="flex gap-4 ml-4">
-          {/* logo */}
-        <button 
-          onClick={() => setPantalla('ventas')}
-          className="hover:scale-110 transition-transform focus:outline-none"
-        >
-          <img 
-            src="public/logo.png" 
-            alt="Logo" 
-            className="h-10 w-auto object-contain"
-          />
-        </button>
-          <button 
-          onClick={() => setPantalla('ventas')}
-          className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all">
-            <img src="https://www.svgrepo.com/show/324791/store-business-marketplace-shop-sale-buy-marketing.svg" alt="Tienda" className="w-6 h-6 invert opacity-80" />
-          </button>
-          <button 
-            onClick={() => setPantalla('coleccion')}
-            className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all"
-          >
-            <img src="https://static.thenounproject.com/png/2221162-200.png" alt="Coleccion" className="w-6 h-6 invert opacity-80" />
-          </button>
-        </div>
-      
-        <div className="flex-1 max-w-xl mx-8">
-          <div className="relative">
-            <input 
-              type="text" 
-              className="w-full bg-[#3d7a67] rounded-full py-2 px-10 outline-none border-none placeholder-emerald-200 text-white"
-              placeholder="Buscar" 
-            />
-          </div>
-        </div>
+      <Navbar setPantalla={setPantalla} />
 
-        <div className="flex items-center gap-3 mr-4">
-          <span className="text-[#1a202c] font-bold">Usuario</span>
-
-          <button 
-            onClick={() => setPantalla('perfil')}
-            className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all"
-          >
-            <img
-              src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
-            />
-          </button>
-        </div>
-      </nav>
 
       {/* contendido detalle */}
       <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full max-w-7xl mx-auto px-4">

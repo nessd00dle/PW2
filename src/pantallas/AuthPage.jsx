@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Camera, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 
 const AuthPage = ({ setPantalla }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -49,49 +50,89 @@ const AuthPage = ({ setPantalla }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      let result;
-      
-      if (isLogin) {
-        // Login
-        result = await login(formData.correo, formData.contrasena);
-        
-        if (result.success) {
-          alert('¡Inicio de sesión exitoso!');
-          setPantalla('perfil'); // Redirigir al perfil después del login
+        if (isLogin) {
+            // Login
+            const result = await login(formData.correo, formData.contrasena);
+            
+            if (result.success) {
+                alert('¡Inicio de sesión exitoso!');
+                setPantalla('perfil');
+            } else {
+                setError(result.error);
+            }
         } else {
-          setError(result.error);
+            // Registro CON foto usando FormData
+            const formDataToSend = new FormData();
+            formDataToSend.append('nombre', formData.nombre);
+            formDataToSend.append('nickname', formData.nickname);
+            formDataToSend.append('correo', formData.correo);
+            formDataToSend.append('contrasena', formData.contrasena);
+            
+            if (formData.fotoPerfil) {
+                formDataToSend.append('fotoPerfil', formData.fotoPerfil);
+            }
+            
+            // Usar axios directamente para FormData
+            const response = await axios.post(
+                'http://localhost:3000/api/usuarios/registro-con-foto',
+                formDataToSend,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            
+            console.log('Respuesta del servidor:', response.data);
+            
+            // Verificar que la respuesta tenga los datos esperados
+            if (response.data && response.data.token && response.data.usuario) {
+                // Guardar en localStorage
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('usuario', JSON.stringify(response.data.usuario));
+                
+                // También actualizar el contexto de autenticación
+                // Necesitamos llamar a la función login del contexto o actualizar manualmente
+                // Por ahora, recargamos la página o usamos setTimeout para dar tiempo
+                
+                alert('¡Registro exitoso!');
+                
+                // Pequeño delay para asegurar que el localStorage se guardó
+                setTimeout(() => {
+                    setPantalla('perfil');
+                }, 100);
+            } else {
+                throw new Error('Respuesta del servidor incompleta');
+            }
         }
-      } else {
-        // Registro
-        const registroData = {
-          nombre: formData.nombre,
-          nickname: formData.nickname,
-          correo: formData.correo,
-          contrasena: formData.contrasena
-        };
-        
-        result = await registro(registroData);
-        
-        if (result.success) {
-          alert('¡Registro exitoso!');
-          setPantalla('perfil'); // Redirigir al perfil después del registro
-        } else {
-          setError(result.error);
-        }
-      }
     } catch (error) {
-      console.error('Error:', error);
-      setError('Error al procesar la solicitud');
+        console.error('Error detallado:', error);
+        if (error.response) {
+            console.log('Error response data:', error.response.data);
+            console.log('Error response status:', error.response.status);
+            
+            if (error.response.data && error.response.data.error) {
+                setError(error.response.data.error);
+            } else if (error.response.data && error.response.data.errores) {
+                setError(error.response.data.errores[0]?.msg || 'Error de validación');
+            } else {
+                setError('Error en la solicitud: ' + (error.response.statusText || 'Error desconocido'));
+            }
+        } else if (error.request) {
+            setError('No se pudo conectar con el servidor');
+        } else {
+            setError('Error al procesar la solicitud: ' + error.message);
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
