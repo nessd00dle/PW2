@@ -176,9 +176,16 @@ const Perfil = ({ setPantalla }) => {
             <p className="text-emerald-400 mb-1">@{usuario.nickname}</p>
             <p className="text-gray-400 mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
             <p className="text-emerald-400 mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
-            <p className="text-gray-300 max-w-md italic">
-              {usuario.bio || "Coleccionista apasionado de cartas, siempre buscando nuevas adquisiciones para mi colección."}
-            </p>
+           
+            {usuario.bio ? (
+                <p className="text-gray-300 max-w-md italic">
+                    {usuario.bio}
+                </p>
+            ) : (
+                <p className="text-gray-500 max-w-md italic">
+                    Sin descripción aún. ¡Agrega una en editar perfil!
+                </p>
+            )}
 
             <div className="mt-6 flex gap-4 justify-center md:justify-start">
               <button
@@ -209,22 +216,12 @@ const Perfil = ({ setPantalla }) => {
               <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Estadísticas</span>
             </button>
 
-            <button
-              onClick={() => setPantalla('configuracion')}
-              className="flex flex-col items-center group hover:scale-105 transition-transform"
-            >
-              <img
-                src="/img/config_icon.png"
-                alt="config"
-                className="w-12 h-12 opacity-80"
-              />
-              <span className="text-[10px] mt-1 text-pink-500 uppercase font-black italic">Configuración</span>
-            </button>
+          
           </div>
         </div>
       </div>
 
-      {/* Carrusel 3D estilo coverflow */}
+      {/* Carrusel */}
       {!loadingCartas && cartasMostrar.length > 0 && (
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6 px-4">

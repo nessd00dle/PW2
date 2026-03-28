@@ -6,6 +6,7 @@ import Estadistica from './pantallas/Estadistica';
 import PublicarCarta from './pantallas/PublicarCarta';
 import Coleccion from './pantallas/Coleccion';
 import DetalleCarta from './pantallas/DetalleCarta';
+import EditarPerfil from './pantallas/EditarPerfil';
 import Feed from './pantallas/Feed'; 
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
@@ -27,6 +28,8 @@ const AppContent = () => {
         return <AuthPage setPantalla={setPantallaActual} />;
       case 'perfil':
         return <Perfil setPantalla={setPantallaActual} />;
+      case 'editarPerfil': 
+        return <EditarPerfil setPantalla={setPantallaActual} />;
       case 'coleccion':
         return <Coleccion setPantalla={setPantallaActual} />;
       case 'configuracion':

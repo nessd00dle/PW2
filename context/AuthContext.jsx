@@ -90,22 +90,68 @@ export const AuthProvider = ({ children }) => {
         delete axios.defaults.headers.common['Authorization'];
     };
 
-    // Actualizar perfil
-    const actualizarPerfil = async (datosActualizados) => {
-        try {
-            const response = await axios.put('http://localhost:3000/api/usuarios/perfil', datosActualizados);
-            const usuarioActualizado = response.data.usuario;
-            setUsuario(usuarioActualizado);
-            localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
-            return { success: true, usuario: usuarioActualizado };
-        } catch (error) {
-            console.error('Error actualizando perfil:', error);
-            return { 
-                success: false, 
-                error: error.response?.data?.error || 'Error al actualizar perfil' 
-            };
-        }
-    };
+    
+    const actualizarPerfil = async (datos) => {
+    try {
+        const response = await axios.put(
+            'http://localhost:3000/api/usuarios/perfil',
+            datos,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        
+        const { token: nuevoToken, usuario: usuarioActualizado } = response.data;
+        
+        // Actualizar estado y localStorage
+        setToken(nuevoToken);
+        setUsuario(usuarioActualizado);
+        localStorage.setItem('token', nuevoToken);
+        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+        
+        return { success: true, usuario: usuarioActualizado };
+    } catch (error) {
+        console.error('Error actualizando perfil:', error);
+        return { 
+            success: false, 
+            error: error.response?.data?.error || 'Error al actualizar perfil' 
+        };
+    }
+};
+
+// Actualizar foto de perfil
+const actualizarFotoPerfil = async (formData) => {
+    try {
+        const response = await axios.put(
+            'http://localhost:3000/api/usuarios/perfil/foto',
+            formData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        );
+        
+        const { token: nuevoToken, usuario: usuarioActualizado } = response.data;
+        
+        // Actualizar estado y localStorage
+        setToken(nuevoToken);
+        setUsuario(usuarioActualizado);
+        localStorage.setItem('token', nuevoToken);
+        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+        
+        return { success: true, usuario: usuarioActualizado };
+    } catch (error) {
+        console.error('Error actualizando foto:', error);
+        return { 
+            success: false, 
+            error: error.response?.data?.error || 'Error al actualizar foto' 
+        };
+    }
+};
 
     const value = {
         usuario,
@@ -115,9 +161,12 @@ export const AuthProvider = ({ children }) => {
         registro,
         logout,
         actualizarPerfil,
+        actualizarFotoPerfil,  
         isAuthenticated: !!usuario && !!token
     };
 
+
+    
     return (
         <AuthContext.Provider value={value}>
             {children}
