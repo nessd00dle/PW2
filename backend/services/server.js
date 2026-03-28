@@ -1,26 +1,31 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/dbClient.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
 
-// Cargar variables de entorno
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
 const app = express();
 
-// Conectar a MongoDB
 connectDB();
 
 // Middlewares
 app.use(cors({
-    origin: 'http://localhost:5173', // el frontend corre en este puerto
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: 'http://localhost:5173',
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir archivos estáticos 
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+console.log('Sirviendo archivos estáticos desde:', path.join(__dirname, '../uploads'));
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
@@ -34,9 +39,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
-    console.log(`Rutas disponibles:`);
-    console.log(`- POST http://localhost:${PORT}/api/usuarios/registro`);
-    console.log(`- POST http://localhost:${PORT}/api/usuarios/login`);
-    console.log(`- GET  http://localhost:${PORT}/api/usuarios`);
-    console.log(`JWT_SECRET configurado: ${process.env.JWT_SECRET ? 'Sí' : 'No'}`);
+    console.log(`Las imágenes se sirven en: http://localhost:${PORT}/uploads/perfiles/`);
 });

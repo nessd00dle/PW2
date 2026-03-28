@@ -4,10 +4,14 @@ import {
     obtenerUsuarios, 
     loginUsuario,
     obtenerUsuarioPorId,
-    cerrarSesion
+    cerrarSesion,
+    crearUsuarioConFoto,  
+    actualizarFotoPerfil,
+    obtenerPerfil
 } from "../controllers/usuarioController.js";
 import { autenticarToken } from "../middleware/authMiddleware.js";
 import { body } from 'express-validator';
+import upload from "../middleware/uploadMiddleware.js"; 
 
 const router = express.Router();
 
@@ -27,32 +31,21 @@ const validarLogin = [
 
 // Rutas públicas
 router.post('/registro', validarRegistro, crearUsuario);
+router.post('/registro-con-foto', upload.single('fotoPerfil'), validarRegistro, crearUsuarioConFoto); // ← ¡AGREGA ESTA LÍNEA!
 router.post('/login', validarLogin, loginUsuario);
 
 // Rutas protegidas (requieren autenticación)
 router.get('/', autenticarToken, obtenerUsuarios);
+router.get('/perfil', autenticarToken, obtenerPerfil);
 router.get('/:id', autenticarToken, obtenerUsuarioPorId);
 router.post('/logout', autenticarToken, cerrarSesion);
-
-router.get('/perfil', autenticarToken, async (req, res) => {
-    try {
-        const usuario = await Usuario.findById(req.usuario.id).select('-contrasena');
-        if (!usuario) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        res.json(usuario);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
+router.put('/perfil/foto', autenticarToken, upload.single('fotoPerfil'), actualizarFotoPerfil);
 router.put('/perfil', autenticarToken, async (req, res) => {
     try {
-        const { nombre, nickname, bio, fotoPerfil } = req.body;
+        const { nombre, nickname, bio } = req.body;
         const usuario = await Usuario.findByIdAndUpdate(
             req.usuario.id,
-            { nombre, nickname, bio, fotoPerfil },
+            { nombre, nickname, bio },
             { new: true, runValidators: true }
         ).select('-contrasena');
         
