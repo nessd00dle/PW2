@@ -25,16 +25,20 @@ const usuarioSchema = new mongoose.Schema({
     contrasena: {
         type: String,
         required: [true, 'La contraseña es obligatoria'],
-        minlength: [6, 'La contraseña debe tener al menos 6 caracteres']
+        minlength: [8, 'La contraseña debe tener al menos 8 caracteres']
     },
     fotoPerfil: {
         type: String,
         default: null
+    },
+    bio: {  
+        type: String,
+        default: null,
+        maxlength: [500, 'La biografía no puede exceder los 500 caracteres']
     }
 }, {
-    timestamps: true // esto agrega la fecha de creación y actualización automáticamente
+    timestamps: true
 });
-
 
 usuarioSchema.methods.toJSON = function() {
     const usuario = this.toObject();

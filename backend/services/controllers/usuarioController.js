@@ -162,49 +162,7 @@ export const crearUsuarioConFoto = async (req, res) => {
     }
 };
 
-// Actualizar foto de perfil
-export const actualizarFotoPerfil = async (req, res) => {
-    try {
-        console.log('=== ACTUALIZANDO FOTO DE PERFIL ===');
-        
-        if (!req.file) {
-            return res.status(400).json({ error: 'No se envió ninguna imagen' });
-        }
 
-        // Buscar usuario actual
-        const usuario = await Usuario.findById(req.usuario.id);
-        if (!usuario) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-
-        // Eliminar foto anterior si existe
-        if (usuario.fotoPerfil) {
-            const oldImagePath = path.join(__dirname, '../../', usuario.fotoPerfil);
-            eliminarImagen(oldImagePath);
-        }
-
-        // Procesar nueva foto
-        const uploadDir = path.join(__dirname, '../../uploads/perfiles');
-        const optimizedPath = path.join(uploadDir, `opt_${req.file.filename}`);
-        
-        await optimizarImagen(req.file.path, optimizedPath);
-        
-        const fotoPerfilUrl = `/uploads/perfiles/opt_${req.file.filename}`;
-        
-        // Actualizar usuario
-        usuario.fotoPerfil = fotoPerfilUrl;
-        await usuario.save();
-
-        res.json({
-            mensaje: 'Foto de perfil actualizada exitosamente',
-            fotoPerfil: fotoPerfilUrl
-        });
-
-    } catch (error) {
-        console.error('Error actualizando foto:', error);
-        res.status(500).json({ error: 'Error al actualizar foto de perfil' });
-    }
-};
 
 // Obtener perfil con foto (ya existe, solo asegurar que devuelve la foto)
 export const obtenerPerfil = async (req, res) => {
@@ -298,6 +256,111 @@ export const obtenerUsuarioPorId = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const actualizarPerfil = async (req, res) => {
+    try {
+        console.log('=== ACTUALIZANDO PERFIL ===');
+        console.log('Body recibido:', req.body);
+        
+        const { nombre, nickname, bio } = req.body;
+        const userId = req.usuario.id;
+        
+        // Buscar usuario actual
+        const usuario = await Usuario.findById(userId);
+        if (!usuario) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        
+        // Verificar si el nuevo nickname ya está en uso (si se cambió)
+        if (nickname && nickname !== usuario.nickname) {
+            const nicknameExistente = await Usuario.findOne({ nickname, _id: { $ne: userId } });
+            if (nicknameExistente) {
+                return res.status(400).json({ error: 'El nickname ya está en uso por otro usuario' });
+            }
+        }
+        
+        // Verificar si el nuevo nombre ya está en uso (si se cambió)
+        if (nombre && nombre !== usuario.nombre) {
+            const nombreExistente = await Usuario.findOne({ nombre, _id: { $ne: userId } });
+            if (nombreExistente) {
+                return res.status(400).json({ error: 'El nombre ya está en uso por otro usuario' });
+            }
+        }
+        
+        // Actualizar campos
+        if (nombre) usuario.nombre = nombre;
+        if (nickname) usuario.nickname = nickname;
+        if (bio !== undefined) usuario.bio = bio;
+        
+        await usuario.save();
+        
+        // Generar nuevo token con los datos actualizados
+        const nuevoToken = generarToken(usuario);
+        
+        console.log('Perfil actualizado exitosamente');
+        
+        res.json({
+            mensaje: 'Perfil actualizado exitosamente',
+            usuario: usuario.toJSON(),
+            token: nuevoToken
+        });
+        
+    } catch (error) {
+        console.error('Error actualizando perfil:', error);
+        res.status(500).json({ error: 'Error al actualizar perfil: ' + error.message });
+    }
+};
+
+// Actualizar solo la foto de perfil
+export const actualizarFotoPerfil = async (req, res) => {
+    try {
+        console.log('=== ACTUALIZANDO FOTO DE PERFIL ===');
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'No se envió ninguna imagen' });
+        }
+
+        // Buscar usuario actual
+        const usuario = await Usuario.findById(req.usuario.id);
+        if (!usuario) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // Eliminar foto anterior si existe
+        if (usuario.fotoPerfil) {
+            const oldImagePath = path.join(__dirname, '../../', usuario.fotoPerfil);
+            eliminarImagen(oldImagePath);
+        }
+
+        // Procesar nueva foto
+        const uploadDir = path.join(__dirname, '../../uploads/perfiles');
+        const optimizedPath = path.join(uploadDir, `opt_${req.file.filename}`);
+        
+        await optimizarImagen(req.file.path, optimizedPath);
+        
+        const fotoPerfilUrl = `/uploads/perfiles/opt_${req.file.filename}`;
+        
+        // Actualizar usuario
+        usuario.fotoPerfil = fotoPerfilUrl;
+        await usuario.save();
+        
+        // Generar nuevo token
+        const nuevoToken = generarToken(usuario);
+
+        res.json({
+            mensaje: 'Foto de perfil actualizada exitosamente',
+            fotoPerfil: fotoPerfilUrl,
+            usuario: usuario.toJSON(),
+            token: nuevoToken
+        });
+
+    } catch (error) {
+        console.error('Error actualizando foto:', error);
+        res.status(500).json({ error: 'Error al actualizar foto de perfil' });
+    }
+};
+
+
 
 // Cerrar sesión
 export const cerrarSesion = async (req, res) => {
