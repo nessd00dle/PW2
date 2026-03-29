@@ -8,7 +8,10 @@ import {
     crearUsuarioConFoto,  
     actualizarFotoPerfil,
     obtenerPerfil,
-    actualizarPerfil
+    actualizarPerfil,
+    buscarUsuarios,
+    obtenerPerfilPublico,
+    obtenerColeccionPublica
 } from "../controllers/usuarioController.js";
 import { autenticarToken } from "../middleware/authMiddleware.js";
 import { body } from 'express-validator';
@@ -41,13 +44,16 @@ router.post('/registro-con-foto', upload.single('fotoPerfil'), validarRegistro, 
 router.post('/login', validarLogin, loginUsuario);
 //actualizaciones de perfil
 router.put('/perfil', autenticarToken, validarActualizacion, actualizarPerfil);
-router.put('/perfil/foto', autenticarToken, upload.single('fotoPerfil'), actualizarFotoPerfil);
-
+//busquedas
+router.get('/buscar', buscarUsuarios);
+router.get('/publico/:identificador', obtenerPerfilPublico);
+router.get('/publico/:usuarioId/coleccion', obtenerColeccionPublica);
 // Rutas protegidas (requieren autenticación)
 router.get('/', autenticarToken, obtenerUsuarios);
 router.get('/perfil', autenticarToken, obtenerPerfil);
 router.get('/:id', autenticarToken, obtenerUsuarioPorId);
 router.post('/logout', autenticarToken, cerrarSesion);
+//Rutas para actualizar el perfil del usuario   
 router.put('/perfil/foto', autenticarToken, upload.single('fotoPerfil'), actualizarFotoPerfil);
 router.put('/perfil', autenticarToken, async (req, res) => {
     try {

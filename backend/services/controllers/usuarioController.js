@@ -162,9 +162,7 @@ export const crearUsuarioConFoto = async (req, res) => {
     }
 };
 
-
-
-// Obtener perfil con foto (ya existe, solo asegurar que devuelve la foto)
+// Obtener perfil con foto 
 export const obtenerPerfil = async (req, res) => {
     try {
         const usuario = await Usuario.findById(req.usuario.id).select('-contrasena');
@@ -184,7 +182,6 @@ export const obtenerPerfil = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 // Iniciar sesión
 export const loginUsuario = async (req, res) => {
@@ -359,7 +356,72 @@ export const actualizarFotoPerfil = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar foto de perfil' });
     }
 };
+// Buscar usuarios por nombre o nickname
+export const buscarUsuarios = async (req, res) => {
+    try {
+        const { q } = req.query; // query parameter: ?q=blanca
+        
+        if (!q || q.trim() === '') {
+            return res.status(400).json({ error: 'Se requiere un término de búsqueda' });
+        }
+        
+        // Buscar por nombre o nickname (insensible a mayúsculas)
+        const usuarios = await Usuario.find({
+            $or: [
+                { nombre: { $regex: q, $options: 'i' } },
+                { nickname: { $regex: q, $options: 'i' } }
+            ]
+        }).select('-contrasena').limit(10); // Limitar a 10 resultados
+        
+        res.json(usuarios);
+    } catch (error) {
+        console.error('Error buscando usuarios:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
+// Obtener perfil público de un usuario por ID o nickname
+export const obtenerPerfilPublico = async (req, res) => {
+    try {
+        const { identificador } = req.params;
+        
+        // Buscar por ID o nickname
+        const usuario = await Usuario.findOne({
+            $or: [
+                { _id: identificador },
+                { nickname: identificador }
+            ]
+        }).select('-contrasena');
+        
+        if (!usuario) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        
+        res.json(usuario);
+    } catch (error) {
+        console.error('Error obteniendo perfil público:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Obtener colección pública de un usuario
+export const obtenerColeccionPublica = async (req, res) => {
+    try {
+        const { usuarioId } = req.params;
+        
+        // Aquí iría la lógica para obtener las cartas del usuario
+        // Por ahora devolvemos datos de ejemplo
+        const coleccionEjemplo = [
+            { id: 1, nombre: "Pikachu", imagen: "https://i.pinimg.com/736x/e7/02/c6/e702c62be77870ff68d2decd19cbd137.jpg", rareza: "Común" },
+            { id: 2, nombre: "Charizard", imagen: "https://i.pinimg.com/736x/46/7d/27/467d27d51e4a84775142a54a7534ac89.jpg", rareza: "Rara" },
+        ];
+        
+        res.json(coleccionEjemplo);
+    } catch (error) {
+        console.error('Error obteniendo colección pública:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 
 // Cerrar sesión
