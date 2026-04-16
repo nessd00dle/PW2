@@ -200,6 +200,7 @@ const PublicarCarta = ({ setPantalla }) => {
                 <option value="" disabled selected>Fandom</option>
                 <option value="pokemon">Pokemon</option>
                 <option value="magic">Magic</option>
+                <option value="dragonball">Dragon Ball</option>
                 <option value="yugioh">Yu-Gi-Oh</option>
                 <option value="digimon">Digimon</option>
               </select>

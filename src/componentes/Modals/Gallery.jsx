@@ -153,6 +153,104 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
       franquicia: 'dragonball', 
       imagen: '/imagesDB/super_saiyan2.png', 
     },
+    // YU-GI-OH
+    { 
+      id: 28, 
+      nombre: 'Chica Maga Oscura', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/chica_maga_oscura.jpg', 
+    },
+    { 
+      id: 29, 
+      nombre: 'D Contragolpe', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/d-contragolpe.jpg', 
+    },
+    { 
+      id: 30, 
+      nombre: 'Ciber Dragón', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/ciber_dragon.jpg', 
+    },
+    { 
+      id: 31, 
+      nombre: 'Coraza del Caos', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/coraza_del_caos.jpg', 
+    },
+    { 
+      id: 32, 
+      nombre: 'Dragón Blanco de ojos Azules', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/dragon_blanco_de_ojos_azules.jpg', 
+    },
+    { 
+      id: 33, 
+      nombre: 'El Dragón alado de Ra', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/el_dragon_alado_de_ra.jpg', 
+    },
+    { 
+      id: 34, 
+      nombre: 'Gil Garth', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/gil_garth.png', 
+    },
+    { 
+      id: 35, 
+      nombre: 'Buey de Batalla', 
+      franquicia: 'yugioh', 
+      imagen: '/imagesYugioh/buey_de_batalla.jpg', 
+    },
+    // DIGIMON
+    { 
+      id: 36, 
+      nombre: 'Patamon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/patamon.jpg', 
+    },
+    { 
+      id: 37, 
+      nombre: 'AncientKazemon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/ancient_kazemon.jpg', 
+    },
+    { 
+      id: 38, 
+      nombre: 'Yellow Scramble', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/yellow_scramble.jpg', 
+    },
+    { 
+      id: 39, 
+      nombre: 'BurningGreymon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/burningGreymon.png', 
+    },
+    { 
+      id: 40, 
+      nombre: 'Pulsemon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/pulsemon.jpg', 
+    },
+    { 
+      id: 41, 
+      nombre: 'Jijimon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/jijimon.png', 
+    },
+    { 
+      id: 42, 
+      nombre: 'GoldVeedramon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/goldveedramon.jpg', 
+    },
+    { 
+      id: 43, 
+      nombre: 'Elecmon', 
+      franquicia: 'digimon', 
+      imagen: '/imagesDigimon/elecmon.jpg', 
+    },
   ];
 
   if (!isOpen) return null;
@@ -189,6 +287,8 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
                   <option value="pokemon">Pokémon</option>
                   <option value="magic">Magic</option>
                   <option value="dragonball">Dragon Ball</option>
+                  <option value="yugioh">Yu-Gi-Oh</option>
+                  <option value="digimon">Digimon</option>
                 </select>
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
               </div>
