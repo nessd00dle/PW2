@@ -5,7 +5,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
   // Estado para controlar qué franquicia se muestra
   const [franquicia, setFranquicia] = useState('all'); 
 
-  // Datos con tus rutas locales corregidas (Recuerda respetar las mayúsculas en .PNG)
+
   const cartas = [
     // POKEMON
     { 
@@ -13,56 +13,48 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
       nombre: 'Raichu', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/raichu.PNG', 
-      precio: '$100.00' 
     },
     { 
       id: 2, 
       nombre: 'Pikachu ex', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/pikachu_ex.PNG', 
-      precio: '$300.00' 
     },
     { 
       id: 3, 
       nombre: 'Jolteon', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/jolteon.PNG', 
-      precio: '$60.00' 
     },
     { 
       id: 4, 
       nombre: 'Clefairy', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/clefairy.PNG', 
-      precio: '$20.00' 
     },
     { 
       id: 5, 
       nombre: 'Minccino', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/minccino.PNG', 
-      precio: '$25.00' 
     },
     { 
       id: 6, 
       nombre: 'Rapidash', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/rapidash.PNG', 
-      precio: '$300.00' 
     },
     { 
       id: 7, 
       nombre: 'Lapras', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/lapras.PNG', 
-      precio: '$300.00' 
     },
     { 
       id: 8, 
       nombre: 'Charizad ex', 
       franquicia: 'pokemon', 
       imagen: '/imagesPokemon/charizard_ex.PNG', 
-      precio: '$300.00' 
     },
     // MAGIC
     { 
@@ -70,56 +62,47 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
       nombre: 'Caballero Templario', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/caballero_templario.png', 
-      precio: '$99.99' 
     },
     { 
       id: 11, 
       nombre: 'Albóndiga Siempre Leal', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/albondiga_siempre_leal.png', 
-      precio: '$250.00' 
     },
     { 
       id: 12, 
       nombre: 'Herbívoro arbóreo', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/herbivoro_arboreo.png', 
-      precio: '$35.00' 
     },
     { 
       id: 13, 
       nombre: 'Astillas Oseas', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/astillas_oseas.jpg', 
-      precio: '$29.00' 
     },
     { 
       id: 14, 
       nombre: 'Hurgar Cerebro', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/hurgar_cerebro.png', 
-      precio: '$60.00' 
     },
     { 
       id: 15, 
       nombre: 'Contendiente Aclamada', 
-      franquicia: 'magic', 
       imagen: '/imagesMagic/contendiente_aclamda.png', 
-      precio: '$25.00' 
     },
     { 
       id: 16, 
       nombre: 'Rastrero de la Cripta', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/rastrero_de_la_cripta.jpg', 
-      precio: '$70.00' 
     },
     { 
       id: 17, 
       nombre: 'Sueños Desenfrenados', 
       franquicia: 'magic', 
       imagen: '/imagesMagic/suenos_desenfrenados.png', 
-      precio: '$140.00' 
     },
     // DRAGON BALL
     { 
@@ -127,56 +110,48 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
       nombre: 'Exploradores', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/exploradores.jpg', 
-      precio: '$28.00' 
     },
     { 
       id: 21, 
       nombre: 'Sabemos quien ganará', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/sabemos_quien_ganara.jpg', 
-      precio: '$80.00' 
     },
     { 
       id: 22, 
       nombre: 'Big bang kame hame ha', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/big_bang_kame_hame_ha.jpg', 
-      precio: '$190.00' 
     },
     { 
       id: 23, 
       nombre: 'Detener Ataque', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/detener_ataque.jpg', 
-      precio: '$74.00' 
     },
     { 
       id: 24, 
       nombre: 'Humillando', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/humillando.jpg', 
-      precio: '$67.00' 
     },
     { 
       id: 25, 
       nombre: 'Big Bang', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/big_bang.jpg', 
-      precio: '$200.00' 
     },
     { 
       id: 26, 
       nombre: 'Quita aire', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/quita_aire.jpg', 
-      precio: '$69.00' 
     },
     { 
       id: 27, 
       nombre: 'Súper Saiyan 2', 
       franquicia: 'dragonball', 
       imagen: '/imagesDB/super_saiyan2.png', 
-      precio: '$400.00' 
     },
   ];
 
