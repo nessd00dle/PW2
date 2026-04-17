@@ -19,7 +19,7 @@ import { uploadPerfil } from '../config/upload.js';
 
 const router = express.Router();
 
-// Middleware simple para manejar upload de foto
+// Middleware para manejar la foto
 const uploadFoto = (req, res, next) => {
     uploadPerfil.single('fotoPerfil')(req, res, (err) => {
         if (err) {
@@ -32,7 +32,7 @@ const uploadFoto = (req, res, next) => {
     });
 };
 
-// Validaciones comunes
+// Validaciones 
 const validarRegistro = [
     body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
     body('nickname').notEmpty().withMessage('El nickname es obligatorio'),

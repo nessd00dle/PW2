@@ -15,16 +15,16 @@ export const optimizarImagen = async (file, tipo = 'publicaciones') => {
         
         // Validar que el archivo existe
         if (!file || !file.path) {
-            console.error('❌ Archivo no válido:', file);
+            console.error(' Archivo no válido:', file);
             return false;
         }
         
-        console.log(`🖼️ Optimizando imagen ${tipo}:`, file.path);
-        console.log(`📏 Dimensiones objetivo: ${config.width}x${config.height}`);
+        console.log(` Optimizando imagen ${tipo}:`, file.path);
+        console.log(` Dimensiones objetivo: ${config.width}x${config.height}`);
         
         // Verificar que el archivo existe en el sistema
         if (!fs.existsSync(file.path)) {
-            console.error(`❌ Archivo no encontrado: ${file.path}`);
+            console.error(` Archivo no encontrado: ${file.path}`);
             return false;
         }
         
@@ -44,10 +44,10 @@ export const optimizarImagen = async (file, tipo = 'publicaciones') => {
         // Escribir el buffer optimizado al archivo original
         fs.writeFileSync(file.path, optimizedBuffer);
         
-        console.log(`✅ Imagen optimizada: ${file.filename}`);
+        console.log(` Imagen optimizada: ${file.filename}`);
         return true;
     } catch (error) {
-        console.error('❌ Error optimizando imagen:', error);
+        console.error('Error optimizando imagen:', error);
         return false;
     }
 };
@@ -56,13 +56,13 @@ export const eliminarImagen = (filename, tipo = 'publicaciones') => {
     try {
         
         if (!filename) {
-            console.log('⚠️ No se proporcionó nombre de archivo para eliminar');
+            console.log(' No se proporcionó nombre de archivo para eliminar');
             return false;
         }
         
         const directorio = DIRECTORIOS[tipo];
         if (!directorio) {
-            console.error(`❌ Directorio no encontrado para tipo: ${tipo}`);
+            console.error(` Directorio no encontrado para tipo: ${tipo}`);
             return false;
         }
         
@@ -74,21 +74,21 @@ export const eliminarImagen = (filename, tipo = 'publicaciones') => {
         // Limpiar el nombre si tiene opt_ al inicio
         if (nombreArchivo.startsWith('opt_')) {
             nombreArchivo = nombreArchivo.substring(4);
-            console.log(`📝 Limpiando nombre de archivo: ${filename} -> ${nombreArchivo}`);
+            console.log(` Limpiando nombre de archivo: ${filename} -> ${nombreArchivo}`);
         }
         
         const filePath = path.join(directorio, nombreArchivo);
         
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
-            console.log(`🗑️ Imagen eliminada: ${nombreArchivo}`);
+            console.log(` Imagen eliminada: ${nombreArchivo}`);
             return true;
         } else {
-            console.log(`⚠️ Imagen no encontrada: ${filePath}`);
+            console.log(` Imagen no encontrada: ${filePath}`);
             return false;
         }
     } catch (error) {
-        console.error('❌ Error eliminando imagen:', error);
+        console.error('Error eliminando imagen:', error);
         return false;
     }
 };
