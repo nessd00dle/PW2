@@ -2,17 +2,18 @@ import React from "react";
 import LeftSidebar from "../Sidebar/LeftSidebar";
 import FeedControls from "../Filtros/FeedControls";
 import Navbar from './navbar';
+import { useNavigation } from '../../context/NavigationContext';
 
 const MainLayout = ({ 
   children, 
   selectedFandoms, 
   onFandomChange, 
-  setPantalla, 
   sortBy, 
   onSortChange, 
   filterType, 
   onFilterChange 
 }) => {
+  
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans flex flex-col p-4">
       
