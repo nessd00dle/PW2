@@ -84,7 +84,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-[#56ab91] rounded-full p-3 mb-6 flex items-center justify-between shadow-lg">
+  <div className='App' data-theme={isDark ? "dark" : "light"}>
+    <nav className="header rounded-full p-3 mb-6 flex items-center justify-between shadow-lg">
       <div className="flex gap-4 ml-4">
         <button
           onClick={() => setPantallaActual('ventas')}
@@ -99,7 +100,7 @@ const Navbar = () => {
 
         <button
           onClick={() => setPantallaActual('ventas')}
-          className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
+          className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
         >
           <img
             src="https://www.svgrepo.com/show/324791/store-business-marketplace-shop-sale-buy-marketing.svg"
@@ -110,7 +111,7 @@ const Navbar = () => {
 
         <button
           onClick={() => setPantallaActual('coleccion')}
-          className="w-10 h-10 bg-[#2d2a3e] rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
+          className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
         >
           <img
             src="https://static.thenounproject.com/png/2221162-200.png"
@@ -127,7 +128,7 @@ const Navbar = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => searchResults.length > 0 && setShowResults(true)}
-            className="w-full bg-[#3d7a67] rounded-full py-2 px-10 outline-none border-none placeholder-emerald-200 text-white"
+            className="w-full search-bar rounded-full py-2 px-10 outline-none border-none placeholder-emerald-200 text-white"
             placeholder="Buscar usuarios..."
           />
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -143,7 +144,7 @@ const Navbar = () => {
         </div>
 
         {showResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-[#2d2a3e] rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border border-[#56ab91]/30">
+          <div className="absolute top-full left-0 right-0 mt-2 search-result rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border border-[#56ab91]/30">
             {searchResults.map((user) => (
               <button
                 key={user._id}
@@ -158,13 +159,13 @@ const Navbar = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-white font-bold text-sm">
+                    <span className="primary-text font-bold text-sm">
                       {user.nombre?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
                     </span>
                   )}
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-white font-semibold">{user.nombre}</p>
+                  <p className="primary-text font-semibold">{user.nombre}</p>
                   <p className="text-emerald-400 text-sm">@{user.nickname}</p>
                 </div>
                 {user._id === usuario?._id && (
@@ -178,14 +179,15 @@ const Navbar = () => {
         )}
       </div>
       <div className="flex items-center gap-3 mr-4">
-        <Toggle
-          isChecked={isDark}
-          handleChange={() => setIsDark(!isDark)}
-        />
-      </div>
 
-      <div className="flex items-center gap-3 mr-4">
-        <span className="text-[#1a202c] font-bold">
+
+        <div className="flex items-center gap-3 mr-4">
+          <Toggle
+            isChecked={isDark}
+            handleChange={() => setIsDark(!isDark)}
+          />
+        </div>
+        <span className="primary-text font-bold">
           {usuario?.nickname || usuario?.nombre || 'Usuario'}
         </span>
         <button
@@ -214,6 +216,8 @@ const Navbar = () => {
         </button>
       </div>
     </nav>
+  </div>
+
   );
 };
 

@@ -104,122 +104,125 @@ const Coleccion = ({ setPantalla }) => {
     if (!modalAbierto || !publicacionActual) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-y-auto">
-        <div className="relative w-full max-w-7xl mx-auto">
+      <div className='App' data-theme={isDark ? "dark" : "light"}>
 
-          {/* Botón cerrar */}
-          <button
-            onClick={cerrarModal}
-            className="absolute -top-12 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold border-2 border-white hover:bg-red-700 transition-colors shadow-lg z-10"
-          >
-            <span className="text-white text-xl">✕</span>
-          </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-7xl mx-auto">
 
-          {/* Contenido del modal */}
-          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+            {/* Botón cerrar */}
+            <button
+              onClick={cerrarModal}
+              className="absolute -top-12 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold border-2 border-white hover:bg-red-700 transition-colors shadow-lg z-10"
+            >
+              <span className="text-white text-xl">✕</span>
+            </button>
 
-            {/* Columna izquierda - Imagen con navegación */}
-            <div className="w-full lg:w-[500px] xl:w-[600px] min-h-[500px] border-2 border-[#56ab91] rounded-3xl bg-slate-900/80 flex items-center justify-center relative shadow-2xl p-4">
-              {imagenesPublicacion.length > 1 && (
-                <>
-                  <button
-                    onClick={imagenAnterior}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
-                  >
-                    <span className="text-white text-2xl">‹</span>
-                  </button>
-                  <button
-                    onClick={imagenSiguiente}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
-                  >
-                    <span className="text-white text-2xl">›</span>
-                  </button>
-                </>
-              )}
+            {/* Contenido del modal */}
+            <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
 
-              <div className="relative w-full h-full flex items-center justify-center">
-                <img
-                  src={imagenesPublicacion[imagenActual]}
-                  alt={`Imagen ${imagenActual + 1}`}
-                  className="max-w-full max-h-[500px] object-contain rounded-xl"
-                />
+              {/* Columna izquierda - Imagen con navegación */}
+              <div className="w-full lg:w-[500px] xl:w-[600px] min-h-[500px] border-2 border-[#56ab91] rounded-3xl bg-slate-900/80 flex items-center justify-center relative shadow-2xl p-4">
                 {imagenesPublicacion.length > 1 && (
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 px-3 py-1 rounded-full text-xs text-white">
-                    {imagenActual + 1} / {imagenesPublicacion.length}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Columna derecha - Información */}
-            <div className="w-full lg:w-[450px] xl:w-[500px] flex flex-col gap-4">
-
-              {/* Info de la carta */}
-              <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 relative shadow-xl">
-                <div className="space-y-3 text-sm text-gray-200">
-                  <div className="flex justify-between items-start">
-                    <h2 className="text-2xl font-bold text-white mb-2">{publicacionActual.titulo}</h2>
-                    <button className="text-pink-500 text-2xl hover:scale-110 transition-transform">
-                      ♥
+                  <>
+                    <button
+                      onClick={imagenAnterior}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
+                    >
+                      <span className="text-white text-2xl">‹</span>
                     </button>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-300">
-                      <span className="text-emerald-400 font-semibold">Usuario:</span> {publicacionActual.usuario}
-                    </p>
+                    <button
+                      onClick={imagenSiguiente}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
+                    >
+                      <span className="text-white text-2xl">›</span>
+                    </button>
+                  </>
+                )}
 
-                    <p className="text-sm text-gray-300">
-                      <span className="text-emerald-400 font-semibold">Fandom:</span> {publicacionActual.franquicia}
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-[#56ab91]/20">
-                    <p className="font-bold text-emerald-400 text-xs uppercase italic">Descripción:</p>
-                    <p className="text-gray-300 text-sm leading-relaxed mt-1">
-                      {publicacionActual.descripcion}
-                    </p>
-                  </div>
-                  <div className="mt-2 pt-2">
-                    <p className="text-xs text-gray-400">
-                      Publicado: {publicacionActual.timestamp}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      ❤️ {publicacionActual.likes} Me gusta
-                    </p>
-                  </div>
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img
+                    src={imagenesPublicacion[imagenActual]}
+                    alt={`Imagen ${imagenActual + 1}`}
+                    className="max-w-full max-h-[500px] object-contain rounded-xl"
+                  />
+                  {imagenesPublicacion.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 px-3 py-1 rounded-full text-xs text-white">
+                      {imagenActual + 1} / {imagenesPublicacion.length}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Comentarios */}
-              <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 flex flex-col gap-4 shadow-xl">
-                <h3 className="text-xs font-black uppercase tracking-widest text-emerald-500">
-                  Comentarios ({publicacionActual.comentarios.length})
-                </h3>
+              {/* Columna derecha - Información */}
+              <div className="w-full lg:w-[450px] xl:w-[500px] flex flex-col gap-4">
 
-                <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                  {publicacionActual.comentarios.map((comentario, idx) => (
-                    <div key={idx} className="bg-[#2d2a3e]/60 p-3 rounded-2xl flex items-start gap-3 border border-[#56ab91]/10">
-                      <div className="w-8 h-8 bg-[#56ab91] rounded-full shrink-0 overflow-hidden border-2 border-[#2d2a3e]">
-                        <img src={comentario.avatar} alt={comentario.usuario} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-xs font-bold text-emerald-400 block">{comentario.usuario}</span>
-                        <p className="text-xs text-gray-200">{comentario.texto}</p>
-                      </div>
+                {/* Info de la carta */}
+                <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 relative shadow-xl">
+                  <div className="space-y-3 text-sm text-gray-200">
+                    <div className="flex justify-between items-start">
+                      <h2 className="text-2xl font-bold text-white mb-2">{publicacionActual.titulo}</h2>
+                      <button className="text-pink-500 text-2xl hover:scale-110 transition-transform">
+                        ♥
+                      </button>
                     </div>
-                  ))}
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-300">
+                        <span className="text-emerald-400 font-semibold">Usuario:</span> {publicacionActual.usuario}
+                      </p>
+
+                      <p className="text-sm text-gray-300">
+                        <span className="text-emerald-400 font-semibold">Fandom:</span> {publicacionActual.franquicia}
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-[#56ab91]/20">
+                      <p className="font-bold text-emerald-400 text-xs uppercase italic">Descripción:</p>
+                      <p className="text-gray-300 text-sm leading-relaxed mt-1">
+                        {publicacionActual.descripcion}
+                      </p>
+                    </div>
+                    <div className="mt-2 pt-2">
+                      <p className="text-xs text-gray-400">
+                        Publicado: {publicacionActual.timestamp}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        ❤️ {publicacionActual.likes} Me gusta
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Escribir comentario */}
-                <div className="mt-2 border-2 border-dashed border-[#56ab91]/60 rounded-2xl p-3 flex items-center gap-3 bg-black/30 focus-within:border-emerald-400 transition-colors">
-                  <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
-                    <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
+                {/* Comentarios */}
+                <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 flex flex-col gap-4 shadow-xl">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-emerald-500">
+                    Comentarios ({publicacionActual.comentarios.length})
+                  </h3>
+
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                    {publicacionActual.comentarios.map((comentario, idx) => (
+                      <div key={idx} className="bg-[#2d2a3e]/60 p-3 rounded-2xl flex items-start gap-3 border border-[#56ab91]/10">
+                        <div className="w-8 h-8 bg-[#56ab91] rounded-full shrink-0 overflow-hidden border-2 border-[#2d2a3e]">
+                          <img src={comentario.avatar} alt={comentario.usuario} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xs font-bold text-emerald-400 block">{comentario.usuario}</span>
+                          <p className="text-xs text-gray-200">{comentario.texto}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Escribir comentario..."
-                    className="bg-transparent flex-1 outline-none text-sm placeholder-gray-500 text-white"
-                  />
-                  <button className="text-emerald-500 hover:scale-125 transition-transform">➤</button>
+
+                  {/* Escribir comentario */}
+                  <div className="mt-2 border-2 border-dashed border-[#56ab91]/60 rounded-2xl p-3 flex items-center gap-3 bg-black/30 focus-within:border-emerald-400 transition-colors">
+                    <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
+                      <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Escribir comentario..."
+                      className="bg-transparent flex-1 outline-none text-sm placeholder-gray-500 text-white"
+                    />
+                    <button className="text-emerald-500 hover:scale-125 transition-transform">➤</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -229,12 +232,13 @@ const Coleccion = ({ setPantalla }) => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4">
+  return (      
+  <div className='App' data-theme={isDark ? "dark" : "light"}>
+
+    <div className="min-h-screen primary-text font-sans p-4">
 
       {/* Modal */}
       <ModalDetalle />
-      <div className='App' data-theme={isDark ? "dark" : "light"}>
 
         {/* Navbar reutilizable */}
         <Navbar setPantalla={setPantalla} />
@@ -351,7 +355,7 @@ const Coleccion = ({ setPantalla }) => {
         </div>
       </div>
     </div>
-  );
-};
+    );
+  };
 
 export default Coleccion;

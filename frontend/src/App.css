@@ -1,6 +1,50 @@
+:root {
+  --background-color: #0f172a;
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #9CA3AF;
+  --link-color: #61dafb;
+  --border-color: #56ab91;
+  --hightlight-text-color: #34D399;
+  --paragraph-color: #A9A9A9;
+  --header-color: #56ab91;
+  --button-color: #2d2a3e;
+  --hover-button-color: #065F46;
+  --toggle-bg: #020247;
+  --toggle-fg: #1c31cc;
+  --background-slate: #102e258d;
+  --search-bar: #3d7a67;
+  --search-result: #2d2a3e;
+  --search-hover: #3d7a67;
+}
+
+[data-theme="light"] {
+  --background-color: #d7dae8;
+  --primary-text-color: #000000;
+  --secondary-text-color: #606060;
+  --link-color: #61dafb;
+  --border-color: #56ab91;
+  --hightlight-text-color: #34D399;
+  --paragraph-color: #b1b1b1;
+  --header-color: #56ab91;
+  --button-color: #2d2a3e;
+  --toggle-bg: #f8f8ac;
+  --toggle-fg: #e7e712;
+  --search-bar: #3d7a67;
+  --search-result: #c7e9cc;
+  --search-hover: #3d7a67;
+}
+
+#theme-pokemon {
+
+}
+
+#theme-digimon {
+
+}
+
 .App {
-  text-align: center;
   background-color: var(--background-color);
+  text-align: center;
   transition: background-color 250ms ease-in-out;
 }
 
@@ -24,7 +68,8 @@
   background-color: var(--button-hover-color);
 }
 
-h1 {
+h1,
+.primary-text {
   color: var(--primary-text-color);
 }
 
@@ -34,6 +79,18 @@ p {
 
 .highlight {
   color: var(--hightlight-text-color)
+}
+
+.search-bar {
+  background-color: var(--search-bar);
+}
+
+.search-result {
+  background-color: var(--search-result);
+}
+
+.search-hover {
+  background-color: var(--search-hover);
 }
 
 .App-logo {
