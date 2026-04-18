@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigation } from '../../../context/NavigationContext';
 import axios from 'axios';
+import '../../App.css'
+import '../../pantallas/index.css'
+import { Toggle } from "../Toggle/toggle";
+import useLocalStorage from 'use-local-storage';
 
 const Navbar = () => {
   const { usuario } = useAuth();
@@ -12,6 +16,8 @@ const Navbar = () => {
   const [loading, setLoading] = useState(false);
   const [fotoKey, setFotoKey] = useState(Date.now());
   const searchRef = useRef(null);
+  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   const getInitiales = () => {
     if (!usuario?.nombre) return '??';
@@ -170,6 +176,12 @@ const Navbar = () => {
             ))}
           </div>
         )}
+      </div>
+      <div className="flex items-center gap-3 mr-4">
+        <Toggle
+          isChecked={isDark}
+          handleChange={() => setIsDark(!isDark)}
+        />
       </div>
 
       <div className="flex items-center gap-3 mr-4">

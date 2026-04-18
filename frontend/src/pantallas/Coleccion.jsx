@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import Navbar from '../componentes/Layout/navbar';
-
+import '../App.css'
+import './index.css'
+import { Toggle } from '../componentes/Toggle/toggle';
+import useLocalStorage from 'use-local-storage';
 
 const Coleccion = ({ setPantalla }) => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [imagenesPublicacion, setImagenesPublicacion] = useState([]);
   const [imagenActual, setImagenActual] = useState(0);
   const [publicacionActual, setPublicacionActual] = useState(null);
+  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   // Datos de ejemplo para las publicaciones
   const publicaciones = [
@@ -22,7 +27,7 @@ const Coleccion = ({ setPantalla }) => {
         "https://i.pinimg.com/736x/de/2e/b6/de2eb6fa73ee8ca0207f369c27d93a41.jpg",
         "https://i.pinimg.com/736x/07/82/77/078277c4800956801743a953bd5f99a1.jpg"
       ],
-      
+
       likes: 24,
       comentarios: [
         { usuario: "Carlos", texto: "Muy buena elección de cartas", avatar: "https://i.pravatar.cc/150?img=8" },
@@ -62,7 +67,7 @@ const Coleccion = ({ setPantalla }) => {
         "https://i.pinimg.com/736x/b0/55/0b/b0550bb7717419b7f745e92c94753ec3.jpg",
         "https://i.pinimg.com/736x/c1/09/de/c109de8ec00ce6e1f0bd7262a75bfb28.jpg"
       ],
-      
+
       likes: 87,
       comentarios: [
         { usuario: "Roberto", texto: "¡Impresionante colección!", avatar: "https://i.pravatar.cc/150?img=12" },
@@ -101,9 +106,9 @@ const Coleccion = ({ setPantalla }) => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-y-auto">
         <div className="relative w-full max-w-7xl mx-auto">
-          
+
           {/* Botón cerrar */}
-          <button 
+          <button
             onClick={cerrarModal}
             className="absolute -top-12 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold border-2 border-white hover:bg-red-700 transition-colors shadow-lg z-10"
           >
@@ -112,18 +117,18 @@ const Coleccion = ({ setPantalla }) => {
 
           {/* Contenido del modal */}
           <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-            
+
             {/* Columna izquierda - Imagen con navegación */}
             <div className="w-full lg:w-[500px] xl:w-[600px] min-h-[500px] border-2 border-[#56ab91] rounded-3xl bg-slate-900/80 flex items-center justify-center relative shadow-2xl p-4">
               {imagenesPublicacion.length > 1 && (
                 <>
-                  <button 
+                  <button
                     onClick={imagenAnterior}
                     className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
                   >
                     <span className="text-white text-2xl">‹</span>
                   </button>
-                  <button 
+                  <button
                     onClick={imagenSiguiente}
                     className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
                   >
@@ -131,10 +136,10 @@ const Coleccion = ({ setPantalla }) => {
                   </button>
                 </>
               )}
-              
+
               <div className="relative w-full h-full flex items-center justify-center">
-                <img 
-                  src={imagenesPublicacion[imagenActual]} 
+                <img
+                  src={imagenesPublicacion[imagenActual]}
                   alt={`Imagen ${imagenActual + 1}`}
                   className="max-w-full max-h-[500px] object-contain rounded-xl"
                 />
@@ -148,7 +153,7 @@ const Coleccion = ({ setPantalla }) => {
 
             {/* Columna derecha - Información */}
             <div className="w-full lg:w-[450px] xl:w-[500px] flex flex-col gap-4">
-              
+
               {/* Info de la carta */}
               <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 relative shadow-xl">
                 <div className="space-y-3 text-sm text-gray-200">
@@ -162,7 +167,7 @@ const Coleccion = ({ setPantalla }) => {
                     <p className="text-sm text-gray-300">
                       <span className="text-emerald-400 font-semibold">Usuario:</span> {publicacionActual.usuario}
                     </p>
-                  
+
                     <p className="text-sm text-gray-300">
                       <span className="text-emerald-400 font-semibold">Fandom:</span> {publicacionActual.franquicia}
                     </p>
@@ -209,16 +214,14 @@ const Coleccion = ({ setPantalla }) => {
                   <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
                     <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
                   </div>
-                  <input 
-                    type="text" 
-                    placeholder="Escribir comentario..." 
+                  <input
+                    type="text"
+                    placeholder="Escribir comentario..."
                     className="bg-transparent flex-1 outline-none text-sm placeholder-gray-500 text-white"
                   />
                   <button className="text-emerald-500 hover:scale-125 transition-transform">➤</button>
                 </div>
               </div>
-
-             
             </div>
           </div>
         </div>
@@ -228,126 +231,124 @@ const Coleccion = ({ setPantalla }) => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4">
-      
+
       {/* Modal */}
       <ModalDetalle />
-      
-     
-   
-      {/* Navbar reutilizable */}
-      <Navbar setPantalla={setPantalla} />
+      <div className='App' data-theme={isDark ? "dark" : "light"}>
 
-      {/* Feed de publicaciones  */}
-      <div className="max-w-4xl mx-auto space-y-6">
-        {publicaciones.map((pub) => (
-          <div 
-            key={pub.id} 
-            className="bg-slate-900/60 rounded-2xl border border-[#56ab91]/30 overflow-hidden hover:border-[#56ab91]/60 transition-all shadow-xl"
-          >
-            {/* Header de la publicación */}
-            <div className="flex justify-between items-center p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#56ab91]">
-                  <img 
-                    src={pub.avatar} 
-                    alt={pub.usuario}
-                    className="w-full h-full object-cover"
-                  />
+        {/* Navbar reutilizable */}
+        <Navbar setPantalla={setPantalla} />
+
+        {/* Feed de publicaciones  */}
+        <div className="max-w-4xl mx-auto space-y-6">
+          {publicaciones.map((pub) => (
+            <div
+              key={pub.id}
+              className="bg-slate-900/60 rounded-2xl border border-[#56ab91]/30 overflow-hidden hover:border-[#56ab91]/60 transition-all shadow-xl"
+            >
+              {/* Header de la publicación */}
+              <div className="flex justify-between items-center p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#56ab91]">
+                    <img
+                      src={pub.avatar}
+                      alt={pub.usuario}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white hover:underline cursor-pointer">
+                        {pub.usuario}
+                      </span>
+                      <span className="text-gray-400 text-sm">•</span>
+                      <span className="text-gray-400 text-sm">{pub.timestamp}</span>
+                    </div>
+                    <span className="text-xs text-emerald-400">{pub.franquicia}</span>
+                  </div>
+                </div>
+                <button className="text-gray-400 hover:text-white transition-colors">
+                  ⋯
+                </button>
+              </div>
+
+              {/* Contenido de la publicación */}
+              <div className="px-4 pb-3">
+                <h3 className="font-bold text-lg text-white mb-2">{pub.titulo}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">{pub.descripcion}</p>
+              </div>
+
+              {/* Grid de imágenes - Estilo Facebook con click para abrir modal */}
+              {pub.imagenes.length > 0 && (
+                <div className={`grid gap-1 bg-black/20 ${pub.imagenes.length === 1 ? 'grid-cols-1' :
+                  pub.imagenes.length === 2 ? 'grid-cols-2' :
+                    pub.imagenes.length === 3 ? 'grid-cols-2' :
+                      'grid-cols-2'
+                  }`}>
+                  {pub.imagenes.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className={`relative overflow-hidden bg-slate-800 cursor-pointer ${pub.imagenes.length === 3 && idx === 0 ? 'row-span-2' : ''
+                        }`}
+                      style={{ paddingBottom: '75%' }}
+                      onClick={() => abrirModal(pub, idx)}
+                    >
+                      <img
+                        src={img}
+                        alt={`Imagen ${idx + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                      {pub.imagenes.length === 4 && idx === 3 && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center hover:bg-black/60 transition-colors">
+                          <span className="text-white font-bold text-lg">+{pub.imagenes.length - 3}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Estadísticas de interacción */}
+              <div className="px-4 py-2 border-t border-[#56ab91]/20 flex justify-between text-sm text-gray-400">
+                <div className="flex items-center gap-1">
+                  <span>❤️</span>
+                  <span>{pub.likes}</span>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-white hover:underline cursor-pointer">
-                      {pub.usuario}
-                    </span>
-                    <span className="text-gray-400 text-sm">•</span>
-                    <span className="text-gray-400 text-sm">{pub.timestamp}</span>
-                  </div>
-                  <span className="text-xs text-emerald-400">{pub.franquicia}</span>
+                  <span>{pub.comentarios.length} comentarios</span>
                 </div>
               </div>
-              <button className="text-gray-400 hover:text-white transition-colors">
-                ⋯
-              </button>
-            </div>
 
-            {/* Contenido de la publicación */}
-            <div className="px-4 pb-3">
-              <h3 className="font-bold text-lg text-white mb-2">{pub.titulo}</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{pub.descripcion}</p>
-            </div>
+              {/* Botones de interacción */}
+              <div className="px-4 py-2 border-t border-[#56ab91]/20 flex gap-4">
+                <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-pink-400 group">
+                  <span className="text-xl group-hover:scale-110 transition-transform">❤️</span>
+                  <span className="text-sm font-medium">Me gusta</span>
+                </button>
+                <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-emerald-400">
+                  <span className="text-xl">💬</span>
+                  <span className="text-sm font-medium">Comentar</span>
+                </button>
+              </div>
 
-            {/* Grid de imágenes - Estilo Facebook con click para abrir modal */}
-            {pub.imagenes.length > 0 && (
-              <div className={`grid gap-1 bg-black/20 ${
-                pub.imagenes.length === 1 ? 'grid-cols-1' :
-                pub.imagenes.length === 2 ? 'grid-cols-2' :
-                pub.imagenes.length === 3 ? 'grid-cols-2' :
-                'grid-cols-2'
-              }`}>
-                {pub.imagenes.map((img, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`relative overflow-hidden bg-slate-800 cursor-pointer ${
-                      pub.imagenes.length === 3 && idx === 0 ? 'row-span-2' : ''
-                    }`}
-                    style={{ paddingBottom: '75%' }}
-                    onClick={() => abrirModal(pub, idx)}
-                  >
-                    <img 
-                      src={img} 
-                      alt={`Imagen ${idx + 1}`}
-                      className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              {/* Input de comentario */}
+              <div className="px-4 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
+                    <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      className="w-full bg-slate-800 rounded-full py-2 px-4 outline-none border border-[#56ab91]/30 focus:border-[#56ab91] text-sm text-white placeholder-gray-500"
+                      placeholder="Escribe un comentario..."
                     />
-                    {pub.imagenes.length === 4 && idx === 3 && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center hover:bg-black/60 transition-colors">
-                        <span className="text-white font-bold text-lg">+{pub.imagenes.length - 3}</span>
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Estadísticas de interacción */}
-            <div className="px-4 py-2 border-t border-[#56ab91]/20 flex justify-between text-sm text-gray-400">
-              <div className="flex items-center gap-1">
-                <span>❤️</span>
-                <span>{pub.likes}</span>
-              </div>
-              <div>
-                <span>{pub.comentarios.length} comentarios</span>
-              </div>
-            </div>
-
-            {/* Botones de interacción */}
-            <div className="px-4 py-2 border-t border-[#56ab91]/20 flex gap-4">
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-pink-400 group">
-                <span className="text-xl group-hover:scale-110 transition-transform">❤️</span>
-                <span className="text-sm font-medium">Me gusta</span>
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-emerald-400">
-                <span className="text-xl">💬</span>
-                <span className="text-sm font-medium">Comentar</span>
-              </button>
-            </div>
-
-            {/* Input de comentario */}
-            <div className="px-4 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
-                  <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1">
-                  <input 
-                    type="text" 
-                    className="w-full bg-slate-800 rounded-full py-2 px-4 outline-none border border-[#56ab91]/30 focus:border-[#56ab91] text-sm text-white placeholder-gray-500"
-                    placeholder="Escribe un comentario..."
-                  />
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
