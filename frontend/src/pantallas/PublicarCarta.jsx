@@ -154,7 +154,7 @@ const PublicarCarta = ({ setPantalla }) => {
 
             <div className="relative">
               <select className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
-                <option value="" disabled selected>Fandom</option>
+                <option value="" disabled value>Fandom</option>
                 <option value="pokemon">Pokemon</option>
                 <option value="magic">Magic</option>
                 <option value="yugioh">Yu-Gi-Oh</option>

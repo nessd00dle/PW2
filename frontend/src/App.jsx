@@ -69,10 +69,10 @@ const AppContent = () => {
         return <Estadistica />;
         
       case 'publicar':
-        return <PublicarCarta />;
+         return <PublicarCarta setPantalla={setPantallaActual} />;
         
       case 'detalle':
-        // Pasar los datos según el tipo
+        
         return (
           <DetalleCarta 
             carta={cartaSeleccionada}
@@ -81,7 +81,7 @@ const AppContent = () => {
         );
         
       case 'ventas':
-        return <Feed />;
+         return <Feed setPantalla={setPantallaActual} />
         
       default:
         return <AuthPage />;
