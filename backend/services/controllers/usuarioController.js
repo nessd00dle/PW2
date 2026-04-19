@@ -325,23 +325,23 @@ export const actualizarFotoPerfil = async (req, res) => {
             return res.status(400).json({ error: 'No se envió ninguna imagen' });
         }
 
-        // Buscar usuario actual
+        
         const usuario = await Usuario.findById(req.usuario.id);
         if (!usuario) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        // Guardar la foto anterior ANTES de optimizar la nueva
+        
         const fotoAnterior = usuario.fotoPerfil;
         
-        // Optimizar la nueva imagen
+        
         const optimizado = await optimizarImagen(req.file, 'perfiles');
         
         if (!optimizado) {
             return res.status(500).json({ error: 'Error al procesar la imagen' });
         }
         
-        // La imagen optimizada ya está en el disco, actualizar la URL
+       
         const fotoPerfilUrl = `/uploads/perfiles/${req.file.filename}`;
         
         console.log('Nueva URL de foto:', fotoPerfilUrl);
@@ -350,12 +350,12 @@ export const actualizarFotoPerfil = async (req, res) => {
         usuario.fotoPerfil = fotoPerfilUrl;
         await usuario.save();
         
-        // Eliminar la foto anterior DESPUÉS de guardar la nueva (si existe)
+     
         if (fotoAnterior && fotoAnterior !== fotoPerfilUrl) {
             const oldFileName = fotoAnterior.split('/').pop();
             console.log('Intentando eliminar foto anterior:', oldFileName);
             
-            // Llamar a eliminarImagen sin .catch (no es una Promise)
+           
             try {
                 eliminarImagen(oldFileName, 'perfiles');
             } catch (deleteError) {
@@ -363,11 +363,11 @@ export const actualizarFotoPerfil = async (req, res) => {
             }
         }
         
-        // Generar nuevo token con los datos actualizados
+        
         const usuarioActualizado = usuario.toJSON();
         const nuevoToken = generarToken(usuario);
 
-        // Agregar URL completa para el frontend
+        
         usuarioActualizado.fotoPerfilUrl = `http://localhost:3000${fotoPerfilUrl}`;
 
         console.log('Foto actualizada exitosamente para usuario:', usuario.nickname);
@@ -408,12 +408,12 @@ export const buscarUsuarios = async (req, res) => {
     }
 };
 
-// Obtener perfil público de un usuario por ID o nickname
+
 export const obtenerPerfilPublico = async (req, res) => {
     try {
         const { identificador } = req.params;
         
-        // Buscar por ID o nickname
+        
         const usuario = await Usuario.findOne({
             $or: [
                 { _id: identificador },
