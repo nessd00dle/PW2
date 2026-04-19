@@ -159,7 +159,7 @@ const Perfil = () => {
                     console.error('Error cargando imagen:', `http://localhost:3000${usuario.fotoPerfil}`);
                     e.target.style.display = 'none';
                     if (e.target.parentElement) {
-                      e.target.parentElement.innerHTML = `<span class="text-6xl font-bold text-white">${getInitiales()}</span>`;
+                      e.target.parentElement.innerHTML = `<span className="text-6xl font-bold text-white">${getInitiales()}</span>`;
                     }
                   }}
                 />
@@ -199,12 +199,18 @@ const Perfil = () => {
                 >
                   Editar perfil
                 </button>
+                {/* Botón de Estadísticas */}
+                <button
+                  onClick={() => setPantallaActual('estadistica')}
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
+                >
+                  Ver Estadísticas
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Carrusel - resto del código igual */}
         {!loadingCartas && cartasMostrar.length > 0 && (
           <div className="mb-12">
             <div className="flex justify-between items-center mb-6 px-4">

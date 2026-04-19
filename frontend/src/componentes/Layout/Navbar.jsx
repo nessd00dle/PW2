@@ -35,7 +35,7 @@ const Navbar = () => {
   }, [usuario?.fotoPerfil]);
 
   const buscarUsuarios = async (query) => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < 1) {
       setSearchResults([]);
       return;
     }
