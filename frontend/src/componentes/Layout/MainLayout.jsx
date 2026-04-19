@@ -4,7 +4,7 @@ import FeedControls from "../Filtros/FeedControls";
 import Navbar from './navbar';
 import '../../App.css'
 import '../../pantallas/index.css'
-import { Toggle } from "../Toggle/toggle";
+import ThemeOption from "../Toggle/ThemeOptions";
 import useLocalStorage from 'use-local-storage';
 import { useNavigation } from "../../../context/NavigationContext";
 const MainLayout = ({
@@ -18,10 +18,9 @@ const MainLayout = ({
   onFilterChange
 }) => {
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   return (
-    <div className='App' data-theme={isDark ? "dark" : "light"}>
+    <div className='App' id='App'>
 
       <div className="min-h-screen text-white font-sans flex flex-col p-4">
 

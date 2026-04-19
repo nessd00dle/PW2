@@ -16,7 +16,6 @@ const Perfil = () => {
   const [loadingCartas, setLoadingCartas] = useState(true);
   const [fotoKey, setFotoKey] = useState(Date.now());
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {

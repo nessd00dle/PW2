@@ -4,6 +4,7 @@ const ThemeOption = ({ bg, border, theme }) => {
     const changeTheme = (theme) => {
         console.log("Change theme");
         document.getElementById("App").setAttribute("data-theme", theme);
+        localStorage.setItem('theme', theme);
     };
 
     return (

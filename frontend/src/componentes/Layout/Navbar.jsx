@@ -17,7 +17,6 @@ const Navbar = () => {
   const [fotoKey, setFotoKey] = useState(Date.now());
   const searchRef = useRef(null);
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   const getInitiales = () => {
     if (!usuario?.nombre) return '??';
@@ -100,7 +99,7 @@ const Navbar = () => {
 
           <button
             onClick={() => setPantallaActual('ventas')}
-            className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
+            className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-[--hover-button-color] transition-all group"
           >
             <img
               src="https://www.svgrepo.com/show/324791/store-business-marketplace-shop-sale-buy-marketing.svg"
@@ -111,7 +110,7 @@ const Navbar = () => {
 
           <button
             onClick={() => setPantallaActual('coleccion')}
-            className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-slate-700 transition-all group"
+            className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-[--hover-button-color] transition-all group"
           >
             <img
               src="https://static.thenounproject.com/png/2221162-200.png"
@@ -144,14 +143,14 @@ const Navbar = () => {
           </div>
 
           {showResults && searchResults.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 search-result rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border border-[#56ab91]/30">
+            <div className="absolute top-full left-0 right-0 mt-2 search-result rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border ">
               {searchResults.map((user) => (
                 <button
                   key={user._id}
                   onClick={() => verPerfilUsuario(user)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-[#3d7a67] transition-colors border-b border-[#56ab91]/20 last:border-b-0"
+                  className="w-full flex items-center gap-3 p-3 hover:bg-[--search-hover] transition-colors border-b border last:border-b-0"
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border flex items-center justify-center">
                     {user.fotoPerfil ? (
                       <img
                         src={`http://localhost:3000${user.fotoPerfil}`}
@@ -166,10 +165,10 @@ const Navbar = () => {
                   </div>
                   <div className="flex-1 text-left">
                     <p className="primary-text font-semibold">{user.nombre}</p>
-                    <p className="text-emerald-400 text-sm">@{user.nickname}</p>
+                    <p className="highlight text-sm">@{user.nickname}</p>
                   </div>
                   {user._id === usuario?._id && (
-                    <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
+                    <span className="text-xs search-bar px-2 py-1 rounded-full">
                       Tú
                     </span>
                   )}
@@ -186,6 +185,8 @@ const Navbar = () => {
               <ThemeOption bg="#000000" theme="dark" />
               <ThemeOption bg="#ffffff" theme="light"/>
               <ThemeOption bg="#ca4646" theme="pokemon" />
+              <ThemeOption bg="#46ca51" theme="digimon" />
+              <ThemeOption bg="#c8ca46" theme="dragonball" />
             </div>
 
             {/* <Toggle

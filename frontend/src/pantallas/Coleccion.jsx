@@ -11,7 +11,6 @@ const Coleccion = ({ setPantalla }) => {
   const [imagenActual, setImagenActual] = useState(0);
   const [publicacionActual, setPublicacionActual] = useState(null);
   const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const [isDark, setIsDark] = useLocalStorage("isDark", preference);
 
   // Datos de ejemplo para las publicaciones
   const publicaciones = [

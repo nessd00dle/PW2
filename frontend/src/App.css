@@ -1,6 +1,6 @@
 :root,
 #theme-dark {
-  --background-color: #0f172a;
+  background-image: url("../img/dark-bg.png");
   --primary-text-color: #000000;
   --secondary-text-color: #9CA3AF;
   --link-color: #61dafb;
@@ -9,9 +9,7 @@
   --paragraph-color: #A9A9A9;
   --header-color: #56ab91;
   --button-color: #2d2a3e;
-  --hover-button-color: #065F46;
-  --toggle-bg: #020247;
-  --toggle-fg: #1c31cc;
+  --hover-button-color: #054231;
   --background-slate: #102e258d;
   --search-bar: #3d7a67;
   --search-result: #2d2a3e;
@@ -20,7 +18,7 @@
 
 [data-theme="light"],
 #theme-light {
-  --background-color: #d7dae8;
+  background-image: url("../img/light-bg.png");
   --primary-text-color: #ffffff;
   --secondary-text-color: #606060;
   --link-color: #61dafb;
@@ -29,10 +27,9 @@
   --paragraph-color: #b1b1b1;
   --header-color: #56ab91;
   --button-color: #2d2a3e;
-  --toggle-bg: #f8f8ac;
-  --toggle-fg: #e7e712;
+  --hover-button-color: #36c29a;
   --search-bar: #3d7a67;
-  --search-result: #c7e9cc;
+  --search-result: #144420;
   --search-hover: #3d7a67;
 }
 
@@ -45,16 +42,61 @@
   --border-color: #5666ab;
   --hightlight-text-color: #36489b;
   --paragraph-color: #b1b1b1;
-  --header-color: #36489b;
-  --button-color: #2d2a3e;
-  --toggle-bg: #f8f8ac;
-  --toggle-fg: #e7e712;
-  --search-bar: #3e3d7a;
-  --search-result: #c8c7e9;
-  --search-hover: #413d7a;
+  --header-color: #657ff0;
+  --button-color: #31456b;
+  --hover-button-color: #3c52b3;
+  --search-bar: #4d68dd;
+  --search-result: #273d9e;
+  --search-hover: #1c267c;
 }
 
-#theme-digimon {}
+[data-theme="digimon"],
+#theme-digimon {
+  background-image: url("../img/digimon-bg.jpg");
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #606060;
+  --link-color: #61dafb;
+  --border-color: #7056ab;
+  --hightlight-text-color: #ffffff;
+  --paragraph-color: #b1b1b1;
+  --header-color: #0f2db1;
+  --button-color: #2c3769;
+  --hover-button-color: #14277e;
+  --search-bar: #3e3d7a;
+  --search-result: #303991;
+  --search-hover: #2637ce;
+}
+
+[data-theme="dragonball"],
+#theme-dragonball {
+  background-image: url("../img/dragonball-bg.jpg");
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #606060;
+  --link-color: #61dafb;
+  --border-color: #5666ab;
+  --hightlight-text-color: #ffffff;
+  --paragraph-color: #b1b1b1;
+  --header-color: #e29828;
+  --button-color: #3e352a;
+  --hover-button-color: #885b17;
+  --search-bar: #aa671a;
+  --search-result: #e09e5f;
+  --search-hover: #ad631e;
+}
+
+.App {
+   background-color: if(
+    style(data-theme: dragonball): url("../img/dragonball-bg.jpg");
+    style(data-theme: digimon): url("../img/digimon-bg.jpg");
+    style(data-theme: pokemon): url("../img/pokemon-bg.jpg");
+    style(data-theme: light): url("../img/light-bg.png");
+    style(data-theme: dark): url("../img/dark-bg.png");
+    else: none;
+  );
+    text-align: center;
+  transition: background-color 250ms ease-in-out;
+}
+
 
 .theme-options {
   display: flex;
@@ -69,14 +111,11 @@
   cursor: pointer;
 }
 
-
-
-
-.App {
+/* .App {
   background-color: var(--background-color);
   text-align: center;
   transition: background-color 250ms ease-in-out;
-}
+} */
 
 .header {
   background-color: var(--header-color);
