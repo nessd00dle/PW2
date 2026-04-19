@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../componentes/Layout/navbar';
 import '../App.css'
 import './index.css'
-import ThemeOption from '../componentes/Toggle/ThemeOptions';
-import useLocalStorage from 'use-local-storage';
 
 const Coleccion = ({ setPantalla }) => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [imagenesPublicacion, setImagenesPublicacion] = useState([]);
   const [imagenActual, setImagenActual] = useState(0);
   const [publicacionActual, setPublicacionActual] = useState(null);
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   // Datos de ejemplo para las publicaciones
   const publicaciones = [
@@ -26,7 +23,6 @@ const Coleccion = ({ setPantalla }) => {
         "https://i.pinimg.com/736x/de/2e/b6/de2eb6fa73ee8ca0207f369c27d93a41.jpg",
         "https://i.pinimg.com/736x/07/82/77/078277c4800956801743a953bd5f99a1.jpg"
       ],
-
       likes: 24,
       comentarios: [
         { usuario: "Carlos", texto: "Muy buena elección de cartas", avatar: "https://i.pravatar.cc/150?img=8" },
@@ -66,7 +62,6 @@ const Coleccion = ({ setPantalla }) => {
         "https://i.pinimg.com/736x/b0/55/0b/b0550bb7717419b7f745e92c94753ec3.jpg",
         "https://i.pinimg.com/736x/c1/09/de/c109de8ec00ce6e1f0bd7262a75bfb28.jpg"
       ],
-
       likes: 87,
       comentarios: [
         { usuario: "Roberto", texto: "¡Impresionante colección!", avatar: "https://i.pravatar.cc/150?img=12" },
@@ -75,6 +70,18 @@ const Coleccion = ({ setPantalla }) => {
       timestamp: "Hace 1 día"
     }
   ];
+
+  // Prevenir scroll cuando el modal está abierto
+  useEffect(() => {
+    if (modalAbierto) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [modalAbierto]);
 
   const abrirModal = (publicacion, indiceImagen) => {
     setPublicacionActual(publicacion);
@@ -98,129 +105,295 @@ const Coleccion = ({ setPantalla }) => {
     setImagenActual((prev) => (prev - 1 + imagenesPublicacion.length) % imagenesPublicacion.length);
   };
 
-  // Modal de detalle de carta
+  // Modal de detalle de carta - Diseño de dos columnas
   const ModalDetalle = () => {
     if (!modalAbierto || !publicacionActual) return null;
 
     return (
-    <div className='App' id='App'>
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-7xl mx-auto">
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          zIndex: 999999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem',
+          overflowY: 'auto'
+        }}
+        onClick={cerrarModal}
+      >
+        <div 
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '80rem',
+            margin: '0 auto'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Botón cerrar */}
+          <button
+            onClick={cerrarModal}
+            style={{
+              position: 'absolute',
+              top: '-3rem',
+              right: 0,
+              width: '2.5rem',
+              height: '2.5rem',
+              backgroundColor: '#dc2626',
+              borderRadius: '9999px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              border: '2px solid white',
+              cursor: 'pointer',
+              zIndex: 10
+            }}
+          >
+            <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
+          </button>
 
-            {/* Botón cerrar */}
-            <button
-              onClick={cerrarModal}
-              className="absolute -top-12 right-0 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold border-2 border-white hover:bg-red-700 transition-colors shadow-lg z-10"
-            >
-              <span className="text-white text-xl">✕</span>
-            </button>
+          {/* Contenido del modal - DISEÑO DE DOS COLUMNAS */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: '2rem',
+            alignItems: 'flex-start',
+            justifyContent: 'center'
+          }}>
+            {/* Columna izquierda - Imagen con navegación (60%) */}
+            <div style={{
+              flex: '1 1 500px',
+              minWidth: '300px',
+              minHeight: '500px',
+              border: '2px solid #56ab91',
+              borderRadius: '1.5rem',
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              padding: '1rem'
+            }}>
+              {imagenesPublicacion.length > 1 && (
+                <>
+                  <button
+                    onClick={imagenAnterior}
+                    style={{
+                      position: 'absolute',
+                      left: '0.5rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      borderRadius: '9999px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #56ab91',
+                      cursor: 'pointer',
+                      zIndex: 10
+                    }}
+                  >
+                    <span style={{ color: 'white', fontSize: '1.5rem' }}>‹</span>
+                  </button>
+                  <button
+                    onClick={imagenSiguiente}
+                    style={{
+                      position: 'absolute',
+                      right: '0.5rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      borderRadius: '9999px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #56ab91',
+                      cursor: 'pointer',
+                      zIndex: 10
+                    }}
+                  >
+                    <span style={{ color: 'white', fontSize: '1.5rem' }}>›</span>
+                  </button>
+                </>
+              )}
 
-            {/* Contenido del modal */}
-            <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-
-              {/* Columna izquierda - Imagen con navegación */}
-              <div className="w-full lg:w-[500px] xl:w-[600px] min-h-[500px] border-2 border-[#56ab91] rounded-3xl bg-slate-900/80 flex items-center justify-center relative shadow-2xl p-4">
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <img
+                  src={imagenesPublicacion[imagenActual]}
+                  alt={`Imagen ${imagenActual + 1}`}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '500px',
+                    objectFit: 'contain',
+                    borderRadius: '0.75rem'
+                  }}
+                />
                 {imagenesPublicacion.length > 1 && (
-                  <>
-                    <button
-                      onClick={imagenAnterior}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
-                    >
-                      <span className="text-white text-2xl">‹</span>
-                    </button>
-                    <button
-                      onClick={imagenSiguiente}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/70 rounded-full flex items-center justify-center border border-[#56ab91] hover:bg-emerald-900 transition-colors z-10"
-                    >
-                      <span className="text-white text-2xl">›</span>
-                    </button>
-                  </>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '0.5rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    color: 'white'
+                  }}>
+                    {imagenActual + 1} / {imagenesPublicacion.length}
+                  </div>
                 )}
+              </div>
+            </div>
 
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <img
-                    src={imagenesPublicacion[imagenActual]}
-                    alt={`Imagen ${imagenActual + 1}`}
-                    className="max-w-full max-h-[500px] object-contain rounded-xl"
-                  />
-                  {imagenesPublicacion.length > 1 && (
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 px-3 py-1 rounded-full text-xs text-white">
-                      {imagenActual + 1} / {imagenesPublicacion.length}
-                    </div>
-                  )}
+            {/* Columna derecha - Información (35%) */}
+            <div style={{
+              flex: '1 1 400px',
+              minWidth: '280px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              {/* Info de la carta */}
+              <div style={{
+                border: '2px solid #56ab91',
+                borderRadius: '1rem',
+                padding: '1.5rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: '#e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>{publicacionActual.titulo}</h2>
+                    <button style={{ color: '#ec4899', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>♥</button>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
+                      <span style={{ color: '#34d399', fontWeight: 'bold' }}>Usuario:</span> {publicacionActual.usuario}
+                    </p>
+                    <p style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
+                      <span style={{ color: '#34d399', fontWeight: 'bold' }}>Fandom:</span> {publicacionActual.franquicia}
+                    </p>
+                  </div>
+                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(86, 171, 145, 0.2)' }}>
+                    <p style={{ fontWeight: 'bold', color: '#34d399', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción:</p>
+                    <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginTop: '0.25rem', lineHeight: '1.5' }}>
+                      {publicacionActual.descripcion}
+                    </p>
+                  </div>
+                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>
+                      Publicado: {publicacionActual.timestamp}
+                    </p>
+                    <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>
+                      ❤️ {publicacionActual.likes} Me gusta
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Columna derecha - Información */}
-              <div className="w-full lg:w-[450px] xl:w-[500px] flex flex-col gap-4">
+              {/* Comentarios */}
+              <div style={{
+                border: '2px solid #56ab91',
+                borderRadius: '1rem',
+                padding: '1.5rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <h3 style={{ fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#34d399' }}>
+                  Comentarios ({publicacionActual.comentarios.length})
+                </h3>
 
-                {/* Info de la carta */}
-                <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 relative shadow-xl">
-                  <div className="space-y-3 text-sm text-gray-200">
-                    <div className="flex justify-between items-start">
-                      <h2 className="text-2xl font-bold text-white mb-2">{publicacionActual.titulo}</h2>
-                      <button className="text-pink-500 text-2xl hover:scale-110 transition-transform">
-                        ♥
-                      </button>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.75rem', 
+                  maxHeight: '250px', 
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin'
+                }}>
+                  {publicacionActual.comentarios.map((comentario, idx) => (
+                    <div key={idx} style={{
+                      backgroundColor: 'rgba(45, 42, 62, 0.6)',
+                      padding: '0.75rem',
+                      borderRadius: '1rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.75rem',
+                      border: '1px solid rgba(86, 171, 145, 0.1)'
+                    }}>
+                      <div style={{
+                        width: '2rem',
+                        height: '2rem',
+                        backgroundColor: '#56ab91',
+                        borderRadius: '9999px',
+                        overflow: 'hidden',
+                        flexShrink: 0
+                      }}>
+                        <img src={comentario.avatar} alt={comentario.usuario} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#34d399', display: 'block' }}>{comentario.usuario}</span>
+                        <p style={{ fontSize: '0.75rem', color: '#e5e7eb', marginTop: '0.2rem' }}>{comentario.texto}</p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-300">
-                        <span className="text-emerald-400 font-semibold">Usuario:</span> {publicacionActual.usuario}
-                      </p>
-
-                      <p className="text-sm text-gray-300">
-                        <span className="text-emerald-400 font-semibold">Fandom:</span> {publicacionActual.franquicia}
-                      </p>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-[#56ab91]/20">
-                      <p className="font-bold text-emerald-400 text-xs uppercase italic">Descripción:</p>
-                      <p className="text-gray-300 text-sm leading-relaxed mt-1">
-                        {publicacionActual.descripcion}
-                      </p>
-                    </div>
-                    <div className="mt-2 pt-2">
-                      <p className="text-xs text-gray-400">
-                        Publicado: {publicacionActual.timestamp}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        ❤️ {publicacionActual.likes} Me gusta
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
-                {/* Comentarios */}
-                <div className="border-2 border-[#56ab91] rounded-2xl p-6 bg-slate-900/80 flex flex-col gap-4 shadow-xl">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-emerald-500">
-                    Comentarios ({publicacionActual.comentarios.length})
-                  </h3>
-
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                    {publicacionActual.comentarios.map((comentario, idx) => (
-                      <div key={idx} className="bg-[#2d2a3e]/60 p-3 rounded-2xl flex items-start gap-3 border border-[#56ab91]/10">
-                        <div className="w-8 h-8 bg-[#56ab91] rounded-full shrink-0 overflow-hidden border-2 border-[#2d2a3e]">
-                          <img src={comentario.avatar} alt={comentario.usuario} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-xs font-bold text-emerald-400 block">{comentario.usuario}</span>
-                          <p className="text-xs text-gray-200">{comentario.texto}</p>
-                        </div>
-                      </div>
-                    ))}
+                {/* Escribir comentario */}
+                <div style={{
+                  marginTop: '0.25rem',
+                  border: '2px dashed rgba(86, 171, 145, 0.6)',
+                  borderRadius: '1rem',
+                  padding: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)'
+                }}>
+                  <div style={{
+                    width: '2rem',
+                    height: '2rem',
+                    backgroundColor: '#2d2a3e',
+                    borderRadius: '9999px',
+                    overflow: 'hidden',
+                    flexShrink: 0
+                  }}>
+                    <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
-
-                  {/* Escribir comentario */}
-                  <div className="mt-2 border-2 border-dashed border-[#56ab91]/60 rounded-2xl p-3 flex items-center gap-3 bg-black/30 focus-within:border-emerald-400 transition-colors">
-                    <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
-                      <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Escribir comentario..."
-                      className="bg-transparent flex-1 outline-none text-sm placeholder-gray-500 text-white"
-                    />
-                    <button className="text-emerald-500 hover:scale-125 transition-transform">➤</button>
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Escribe un comentario..."
+                    style={{
+                      background: 'transparent',
+                      flex: 1,
+                      outline: 'none',
+                      fontSize: '0.8rem',
+                      color: 'white',
+                      border: 'none'
+                    }}
+                  />
+                  <button style={{ color: '#34d399', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>➤</button>
                 </div>
               </div>
             </div>
@@ -232,16 +405,14 @@ const Coleccion = ({ setPantalla }) => {
 
   return (      
     <div className='App' id='App'>
-
-    <div className="min-h-screen primary-text font-sans p-4">
-
-      {/* Modal */}
-      <ModalDetalle />
+      <div className="min-h-screen primary-text font-sans p-4">
+        {/* Modal */}
+        <ModalDetalle />
 
         {/* Navbar reutilizable */}
         <Navbar setPantalla={setPantalla} />
 
-        {/* Feed de publicaciones  */}
+        {/* Feed de publicaciones */}
         <div className="max-w-4xl mx-auto space-y-6">
           {publicaciones.map((pub) => (
             <div
@@ -280,7 +451,7 @@ const Coleccion = ({ setPantalla }) => {
                 <p className="text-gray-300 text-sm leading-relaxed">{pub.descripcion}</p>
               </div>
 
-              {/* Grid de imágenes - Estilo Facebook con click para abrir modal */}
+              {/* Grid de imágenes */}
               {pub.imagenes.length > 0 && (
                 <div className={`grid gap-1 bg-black/20 ${pub.imagenes.length === 1 ? 'grid-cols-1' :
                   pub.imagenes.length === 2 ? 'grid-cols-2' :
@@ -353,7 +524,7 @@ const Coleccion = ({ setPantalla }) => {
         </div>
       </div>
     </div>
-    );
-  };
+  );
+};
 
 export default Coleccion;

@@ -85,7 +85,7 @@
 }
 
 .App {
-   background-color: if(
+  background-color: if(
     style(data-theme: dragonball): url("../img/dragonball-bg.jpg");
     style(data-theme: digimon): url("../img/digimon-bg.jpg");
     style(data-theme: pokemon): url("../img/pokemon-bg.jpg");
@@ -93,10 +93,9 @@
     style(data-theme: dark): url("../img/dark-bg.png");
     else: none;
   );
-    text-align: center;
+  text-align: center;
   transition: background-color 250ms ease-in-out;
 }
-
 
 .theme-options {
   display: flex;
@@ -110,12 +109,6 @@
   border-radius: 50%;
   cursor: pointer;
 }
-
-/* .App {
-  background-color: var(--background-color);
-  text-align: center;
-  transition: background-color 250ms ease-in-out;
-} */
 
 .header {
   background-color: var(--header-color);
@@ -193,8 +186,83 @@ p {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+}
+
+.modal-content {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 64rem !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  z-index: 999999 !important;
+}
+
+/* Scroll personalizado para modales */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: var(--background-slate);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--hightlight-text-color);
+}
+
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--background-slate);
+}
+
+body.modal-open {
+  overflow: hidden !important;
+}
+
+/* Asegurar que ningún otro elemento tenga z-index más alto */
+.App,
+#App,
+main,
+aside,
+nav,
+header,
+div[class*="sticky"],
+div[class*="fixed"]:not(.modal-backdrop) {
+  z-index: auto !important;
+}
+
+
+#root {
+  isolation: isolate;
+}
+
+.modal-backdrop * {
+  z-index: 999999 !important;
 }

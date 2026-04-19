@@ -10,7 +10,7 @@ const FandomFilter = ({ selectedFandoms, onFandomChange }) => {
   ];
 
   return (
-    <div className="bg-slate-900/60 p-4 rounded-3xl border-2 border-[#56ab91]/30 shadow-xl">
+    <div className="w-full bg-slate-900/60 p-4 rounded-3xl border-2 border-[#56ab91]/30 shadow-xl">
       <h3 className="font-semibold text-[#56ab91] mb-3 flex items-center gap-2">
         <Filter className="w-4 h-4" /> Filtrar por franquicia
       </h3>
@@ -18,7 +18,7 @@ const FandomFilter = ({ selectedFandoms, onFandomChange }) => {
         {fandoms.map(fandom => (
           <label 
             key={fandom.id} 
-            className={`flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer border border-transparent
+            className={`flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer border border-transparent w-full
               ${selectedFandoms.includes(fandom.id) 
                 ? `bg-[#56ab91]/20 border-[#56ab91]/50 shadow-[0_0_10px_rgba(86,171,145,0.2)]` 
                 : 'hover:bg-white/5'}`}

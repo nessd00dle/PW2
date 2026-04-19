@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigation } from '../../../context/NavigationContext';
 import axios from 'axios';
-import style from '../../App.css'
+import style from "../../App.css?inline";
 import '../../pantallas/index.css'
 import useLocalStorage from 'use-local-storage';
 import ThemeOption from '../Toggle/ThemeOptions';
