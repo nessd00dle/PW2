@@ -4,9 +4,8 @@ import FeedControls from "../Filtros/FeedControls";
 import Navbar from './navbar';
 import '../../App.css'
 import '../../pantallas/index.css'
-import ThemeOption from "../Toggle/ThemeOptions";
-import useLocalStorage from 'use-local-storage';
-import { useNavigation } from "../../../context/NavigationContext";
+import ReportesAside from "./ReportesAside";
+
 const MainLayout = ({
   children,
   selectedFandoms,
@@ -17,26 +16,26 @@ const MainLayout = ({
   filterType,
   onFilterChange
 }) => {
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
   return (
-    <div className='App' id='App'>
-
+    <div className='App' id='App' style={{ isolation: 'isolate' }}>
       <div className="min-h-screen text-white font-sans flex flex-col p-4">
-
+        
         <Navbar setPantalla={setPantalla} />
-
-        {/* contendio inf */}
+       
         <div className="flex w-full max-w-[1400px] mx-auto px-2 gap-6 pb-10">
-
-          {/* sidebar izq */}
-          <aside className="hidden md:block w-64 flex-shrink-0">
-            <LeftSidebar selectedFandoms={selectedFandoms} onFandomChange={onFandomChange} />
+         
+          <aside className="hidden md:block w-[280px] flex-shrink-0">
+            <div className="sticky top-4 space-y-6">
+              <LeftSidebar 
+                selectedFandoms={selectedFandoms} 
+                onFandomChange={onFandomChange} 
+              />
+              <ReportesAside />
+            </div>
           </aside>
-
-          {/* derecga */}
-          <main className="flex-1 flex flex-col">
-            <div className="relative z-30">
+          
+          <main className="flex-1 flex flex-col min-w-0" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="relative">
               <FeedControls
                 sortBy={sortBy}
                 onSortChange={onSortChange}
@@ -45,11 +44,8 @@ const MainLayout = ({
                 onPublicarClick={() => setPantalla('publicar')}
               />
             </div>
-            <div className="flex items-center gap-3 mr-4">
-
-            </div>
-
-            <div className="bg-slate-900/40 p-6 rounded-[40px] border-2 border-[#56ab91]/20 shadow-2xl mt-4 relative z-10">
+            
+            <div className="bg-slate-900/40 p-6 rounded-[40px] border-2 border-[#56ab91]/20 shadow-2xl mt-4">
               {children}
             </div>
           </main>

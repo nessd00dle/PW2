@@ -1,18 +1,14 @@
 import React from "react";
 import FandomFilter from "../Filtros/FandomFilter";
 
-const LeftSidebar = ({ selectedFandoms, onFandomChange }) => { // recibir props
+const LeftSidebar = ({ selectedFandoms, onFandomChange }) => {
   return (
-    <aside className="w-64 space-y-6">
-      
-    
-
-      {/* filtro fandom */}
+    <div className="w-full">
       <FandomFilter 
-        selectedFandoms={selectedFandoms} // pasar props
-        onFandomChange={onFandomChange}
+        selectedFandoms={selectedFandoms} 
+        onFandomChange={onFandomChange} 
       />
-    </aside>
+    </div>
   );
 };
 
