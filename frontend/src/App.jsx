@@ -66,7 +66,7 @@ const AppContent = () => {
         return <Configuracion />;
         
       case 'estadistica':
-        return <Estadistica />;
+        return <Estadistica setPantalla={setPantallaActual} />;
         
       case 'publicar':
          return <PublicarCarta setPantalla={setPantallaActual} />;
@@ -77,6 +77,7 @@ const AppContent = () => {
           <DetalleCarta 
             carta={cartaSeleccionada}
             publicacion={publicacionSeleccionada}
+            setPantalla={setPantallaActual}
           />
         );
         

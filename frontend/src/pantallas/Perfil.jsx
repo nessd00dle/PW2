@@ -140,65 +140,72 @@ const Perfil = () => {
   return (
     <div className="min-h-screen bg-[#0f172a] text-white p-4 overflow-x-hidden">
       <Navbar />
-      <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
-        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-          <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
-            {usuario.fotoPerfil ? (
-              <img
-                key={fotoKey}
-                src={`http://localhost:3000${usuario.fotoPerfil}?t=${fotoKey}`}
-                alt="Foto de perfil"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  console.error('Error cargando imagen:', `http://localhost:3000${usuario.fotoPerfil}`);
-                  e.target.style.display = 'none';
-                  if (e.target.parentElement) {
-                    e.target.parentElement.innerHTML = `<span class="text-6xl font-bold text-white">${getInitiales()}</span>`;
-                  }
-                }}
-              />
-            ) : (
-              <span className="text-6xl font-bold text-white">
-                {getInitiales()}
-              </span>
-            )}
-          </div>
+    <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
+      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+        <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
+          {usuario.fotoPerfil ? (
+            <img
+              key={fotoKey}
+              src={`http://localhost:3000${usuario.fotoPerfil}?t=${fotoKey}`}
+              alt="Foto de perfil"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Error cargando imagen:', `http://localhost:3000${usuario.fotoPerfil}`);
+                e.target.style.display = 'none';
+                if (e.target.parentElement) {
+                  e.target.parentElement.innerHTML = `<span className="text-6xl font-bold text-white">${getInitiales()}</span>`;
+                }
+              }}
+            />
+          ) : (
+            <span className="text-6xl font-bold text-white">
+              {getInitiales()}
+            </span>
+          )}
+        </div>
 
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
-            <p className="text-emerald-400 mb-1">@{usuario.nickname}</p>
-            <p className="text-gray-400 mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
-            <p className="text-emerald-400 mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
+          <p className="text-emerald-400 mb-1">@{usuario.nickname}</p>
+          <p className="text-gray-400 mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
+          <p className="text-emerald-400 mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
 
-            {usuario.bio ? (
-              <p className="text-gray-300 max-w-md italic">
-                {usuario.bio}
-              </p>
-            ) : (
-              <p className="text-gray-500 max-w-md italic">
-                Sin descripción aún. ¡Agrega una en editar perfil!
-              </p>
-            )}
+          {usuario.bio ? (
+            <p className="text-gray-300 max-w-md italic">
+              {usuario.bio}
+            </p>
+          ) : (
+            <p className="text-gray-500 max-w-md italic">
+              Sin descripción aún. ¡Agrega una en editar perfil!
+            </p>
+          )}
 
-            <div className="mt-6 flex gap-4 justify-center md:justify-start">
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
-              >
-                Cerrar sesión
-              </button>
-              <button
-                onClick={() => setPantallaActual('editarPerfil')}
-                className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
-              >
-                Editar perfil
-              </button>
-            </div>
+          <div className="mt-6 flex gap-4 justify-center md:justify-start flex-wrap">
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
+            >
+              Cerrar sesión
+            </button>
+            <button
+              onClick={() => setPantallaActual('editarPerfil')}
+              className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
+            >
+              Editar perfil
+            </button>
+            {/* Botón de Estadísticas */}
+            <button
+              onClick={() => setPantallaActual('estadistica')}
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
+            >
+               Ver Estadísticas
+            </button>
           </div>
         </div>
       </div>
+    </div>
 
-      {/* Carrusel - resto del código igual */}
+     
       {!loadingCartas && cartasMostrar.length > 0 && (
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6 px-4">
