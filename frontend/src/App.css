@@ -1,6 +1,7 @@
-:root {
+:root,
+#theme-dark {
   --background-color: #0f172a;
-  --primary-text-color: #ffffff;
+  --primary-text-color: #000000;
   --secondary-text-color: #9CA3AF;
   --link-color: #61dafb;
   --border-color: #56ab91;
@@ -17,13 +18,14 @@
   --search-hover: #3d7a67;
 }
 
-[data-theme="light"] {
+[data-theme="light"],
+#theme-light {
   --background-color: #d7dae8;
-  --primary-text-color: #000000;
+  --primary-text-color: #ffffff;
   --secondary-text-color: #606060;
   --link-color: #61dafb;
   --border-color: #56ab91;
-  --hightlight-text-color: #34D399;
+  --hightlight-text-color: #05ad70;
   --paragraph-color: #b1b1b1;
   --header-color: #56ab91;
   --button-color: #2d2a3e;
@@ -34,13 +36,41 @@
   --search-hover: #3d7a67;
 }
 
+[data-theme="pokemon"],
 #theme-pokemon {
-
+  background-image: url("../img/pokemon-bg.jpg");
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #606060;
+  --link-color: #61dafb;
+  --border-color: #5666ab;
+  --hightlight-text-color: #36489b;
+  --paragraph-color: #b1b1b1;
+  --header-color: #36489b;
+  --button-color: #2d2a3e;
+  --toggle-bg: #f8f8ac;
+  --toggle-fg: #e7e712;
+  --search-bar: #3e3d7a;
+  --search-result: #c8c7e9;
+  --search-hover: #413d7a;
 }
 
-#theme-digimon {
+#theme-digimon {}
 
+.theme-options {
+  display: flex;
+  gap: 10px;
 }
+
+.theme-option {
+  height: 25px;
+  width: 25px;
+  border: 1px solid;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+
+
 
 .App {
   background-color: var(--background-color);
@@ -83,6 +113,7 @@ p {
 
 .search-bar {
   background-color: var(--search-bar);
+  color: var(--hightlight-text-color);
 }
 
 .search-result {

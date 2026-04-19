@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../componentes/Layout/navbar';
 import '../App.css'
 import './index.css'
-import { Toggle } from '../componentes/Toggle/toggle';
+import ThemeOption from '../componentes/Toggle/ThemeOptions';
 import useLocalStorage from 'use-local-storage';
 
 const Coleccion = ({ setPantalla }) => {
@@ -104,8 +104,7 @@ const Coleccion = ({ setPantalla }) => {
     if (!modalAbierto || !publicacionActual) return null;
 
     return (
-      <div className='App' data-theme={isDark ? "dark" : "light"}>
-
+    <div className='App' id='App'>
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm overflow-y-auto">
           <div className="relative w-full max-w-7xl mx-auto">
 
@@ -233,7 +232,7 @@ const Coleccion = ({ setPantalla }) => {
   };
 
   return (      
-  <div className='App' data-theme={isDark ? "dark" : "light"}>
+    <div className='App' id='App'>
 
     <div className="min-h-screen primary-text font-sans p-4">
 

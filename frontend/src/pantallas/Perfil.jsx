@@ -4,8 +4,8 @@ import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
 import '../App.css'
 import '../pantallas/index.css'
-import { Toggle } from '../componentes/Toggle/toggle';
 import useLocalStorage from 'use-local-storage';
+import ThemeOption from '../componentes/Toggle/ThemeOptions';
 
 const Perfil = () => {
   const { usuario, logout, isAuthenticated, loading: authLoading } = useAuth();
@@ -144,13 +144,12 @@ const Perfil = () => {
   }
 
   return (
-    <div className='App' data-theme={isDark ? "dark" : "light"}>
-
+    <div className='App' id='App'>
       <div className="min-h-screen text-white p-4 overflow-x-hidden">
         <Navbar />
-        <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
+        <div className="border-2 border rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-            <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
+            <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border flex items-center justify-center overflow-hidden">
               {usuario.fotoPerfil ? (
                 <img
                   key={fotoKey}
@@ -174,16 +173,16 @@ const Perfil = () => {
 
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
-              <p className="text-emerald-400 mb-1">@{usuario.nickname}</p>
-              <p className="text-gray-400 mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
-              <p className="text-emerald-400 mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
+              <p className="highlight mb-1">@{usuario.nickname}</p>
+              <p className="mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
+              <p className="highlight mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
 
               {usuario.bio ? (
-                <p className="text-gray-300 max-w-md italic">
+                <p className="max-w-md italic">
                   {usuario.bio}
                 </p>
               ) : (
-                <p className="text-gray-500 max-w-md italic">
+                <p className="max-w-md italic">
                   Sin descripción aún. ¡Agrega una en editar perfil!
                 </p>
               )}
@@ -210,8 +209,8 @@ const Perfil = () => {
         {!loadingCartas && cartasMostrar.length > 0 && (
           <div className="mb-12">
             <div className="flex justify-between items-center mb-6 px-4">
-              <h2 className="text-2xl font-bold text-emerald-400">Mi Colección</h2>
-              <p className="text-sm text-gray-400">{cartasMostrar.length} / {cartasUsuario.length} cartas</p>
+              <h2 className="text-2xl font-bold highlight">Mi Colección</h2>
+              <p className="text-sm highlight">{cartasMostrar.length} / {cartasUsuario.length} cartas</p>
             </div>
 
             <div className="relative min-h-[500px] flex items-center justify-center">
@@ -229,7 +228,7 @@ const Perfil = () => {
                         style={style}
                       >
                         <div className={`relative w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isCenter
-                          ? 'shadow-[0_0_30px_rgba(86,171,145,0.5)] ring-2 ring-emerald-400'
+                          ? 'shadow-[0_0_30px_rgba(86,171,145,0.5)] ring-2 border'
                           : 'shadow-lg hover:shadow-xl'
                           }`}>
                           <img
@@ -261,7 +260,7 @@ const Perfil = () => {
                 <>
                   <button
                     onClick={anteriorCarrusel}
-                    className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
+                    className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border hover:bg-emerald-600 transition-all z-30 hover:scale-110"
                   >
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -269,7 +268,7 @@ const Perfil = () => {
                   </button>
                   <button
                     onClick={siguienteCarrusel}
-                    className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-emerald-400 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
+                    className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border hover:bg-emerald-600 transition-all z-30 hover:scale-110"
                   >
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
