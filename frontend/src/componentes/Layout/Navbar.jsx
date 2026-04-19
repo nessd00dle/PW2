@@ -30,7 +30,7 @@ const Navbar = () => {
   }, [usuario?.fotoPerfil]);
 
   const buscarUsuarios = async (query) => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < 1) {
       setSearchResults([]);
       return;
     }
@@ -137,13 +137,14 @@ const Navbar = () => {
         </div>
 
         {showResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-[#2d2a3e] rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border border-[#56ab91]/30">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-[#2d2a3e] rounded-2xl shadow-xl z-50 max-h-96 overflow-y-auto border border-[#56ab91]/30 custom-scrollbar">
             {searchResults.map((user) => (
               <button
                 key={user._id}
                 onClick={() => verPerfilUsuario(user)}
                 className="w-full flex items-center gap-3 p-3 hover:bg-[#3d7a67] transition-colors border-b border-[#56ab91]/20 last:border-b-0"
               >
+                {/* Contenido existente */}
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
                   {user.fotoPerfil ? (
                     <img
