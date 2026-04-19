@@ -17,8 +17,8 @@ import Feed from './pantallas/Feed';
 // Componente que maneja la lógica de navegación
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
-  const { 
-    pantallaActual, 
+  const {
+    pantallaActual,
     setPantallaActual,
     usuarioPublico,
     cartaSeleccionada,
@@ -28,7 +28,7 @@ const AppContent = () => {
   // Proteger rutas que requieren autenticación
   useEffect(() => {
     const rutasProtegidas = ['perfil', 'coleccion', 'publicar', 'configuracion', 'estadistica', 'editarPerfil'];
-    
+
     if (!loading && !isAuthenticated && rutasProtegidas.includes(pantallaActual)) {
       setPantallaActual('auth');
     }
@@ -36,7 +36,7 @@ const AppContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
           <p className="text-white">Cargando...</p>
@@ -49,40 +49,41 @@ const AppContent = () => {
     switch (pantallaActual) {
       case 'auth':
         return <AuthPage />;
-        
+
       case 'perfil':
         return <Perfil />;
-        
+
       case 'perfilPublico':
         return <PerfilPublico />;
-        
+
       case 'editarPerfil':
         return <EditarPerfil />;
-        
+
       case 'coleccion':
         return <Coleccion />;
-        
+
       case 'configuracion':
         return <Configuracion />;
-        
+
       case 'estadistica':
-        return <Estadistica />;
+        return <Estadistica setPantalla={setPantallaActual} />;
         
       case 'publicar':
-         return <PublicarCarta setPantalla={setPantallaActual} />;
-        
+        return <PublicarCarta setPantalla={setPantallaActual} />;
+
       case 'detalle':
-        
+
         return (
-          <DetalleCarta 
+          <DetalleCarta
             carta={cartaSeleccionada}
             publicacion={publicacionSeleccionada}
+            setPantalla={setPantallaActual}
           />
         );
-        
+
       case 'ventas':
-         return <Feed setPantalla={setPantallaActual} />
-        
+        return <Feed setPantalla={setPantallaActual} />
+
       default:
         return <AuthPage />;
     }
@@ -93,6 +94,14 @@ const AppContent = () => {
 
 // Componente principal
 function App() {
+  const selectedTheme = localStorage.getItem("theme");
+
+  if (selectedTheme) {
+    document
+      .querySelector("body")
+      .setAttribute("data-theme", selectedTheme);
+  }
+
   return (
     <AuthProvider>
       <NavigationProvider>
@@ -101,5 +110,6 @@ function App() {
     </AuthProvider>
   );
 }
+
 
 export default App;

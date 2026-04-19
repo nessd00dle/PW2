@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #56ab91 #2d2a3e;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2d2a3e;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #56ab91;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3d7a67;
+}
+/* Forzar mismo ancho para todos los componentes del aside */
+.w-\[280px\] > div > div,
+.w-\[280px\] > div > div > div {
+  width: 100% !important;
+}
+
+/* Asegurar que los modales estén por encima */
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  z-index: 999999 !important;
+}
+
+.modal-content {
+  position: relative !important;
+  z-index: 999999 !important;
+}
