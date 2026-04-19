@@ -4,21 +4,14 @@ import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
 
 const PerfilPublico = () => {
-  const { usuarioPublico, setPantallaActual, goBack, setUsuarioPublico } = useNavigation(); 
+  const { usuarioPublico, setPantallaActual, goBack } = useNavigation();
   const [usuario, setUsuario] = useState(usuarioPublico);
   const [cartasUsuario, setCartasUsuario] = useState([]);
   const [loadingCartas, setLoadingCartas] = useState(true);
   const [carruselIndex, setCarruselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (usuarioPublico) {
-      setUsuario(usuarioPublico);
-      setLoadingCartas(true); 
-    }
-  }, [usuarioPublico]);
-
-  
+  // Formatear fecha
   const formatearFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
     const date = new Date(fecha);
@@ -40,11 +33,10 @@ const PerfilPublico = () => {
       .slice(0, 2);
   };
 
- 
+  // Obtener colección del usuario
   useEffect(() => {
     const fetchColeccion = async () => {
       try {
-        console.log('Fetching colección para usuario:', usuario._id);
         const response = await axios.get(`http://localhost:3000/api/usuarios/publico/${usuario._id}/coleccion`);
         setCartasUsuario(response.data);
         setLoadingCartas(false);
@@ -54,15 +46,9 @@ const PerfilPublico = () => {
       }
     };
 
-    if (usuario && usuario._id) {
+    if (usuario) {
       fetchColeccion();
     }
-  }, [usuario]);
-
-  
-  useEffect(() => {
-    setCarruselIndex(0);
-    setIsAnimating(false);
   }, [usuario]);
 
   // Si no hay usuario, volver
@@ -130,17 +116,17 @@ const PerfilPublico = () => {
     <div className="min-h-screen bg-[#0f172a] text-white font-windows p-4 overflow-x-hidden">
       <Navbar />
       
-  
+      {/* Botón para volver */}
       <div className="mb-4">
         <button
           onClick={goBack}
           className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all flex items-center gap-2"
         >
-          Volver
+          ← Volver
         </button>
       </div>
 
-
+      {/* header perfil público */}
       <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
           <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
@@ -151,10 +137,7 @@ const PerfilPublico = () => {
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.style.display = 'none';
-                  if (e.target.parentElement) {
-                    e.target.parentElement.innerHTML = `<span class="text-6xl font-bold text-white">${getInitiales()}</span>`;
-                  }
+                  e.target.src = 'https://via.placeholder.com/150?text=Error';
                 }}
               />
             ) : (
@@ -178,7 +161,7 @@ const PerfilPublico = () => {
         </div>
       </div>
 
-     
+      {/* Carrusel de colección pública */}
       {!loadingCartas && cartasMostrar.length > 0 && (
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">

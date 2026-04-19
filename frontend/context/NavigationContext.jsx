@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 const NavigationContext = createContext();
 
-
+// Hook personalizado para usar el contexto
 export const useNavigation = () => {
   const context = useContext(NavigationContext);
   if (!context) {
@@ -19,9 +19,9 @@ export const NavigationProvider = ({ children }) => {
   const [cartaSeleccionada, setCartaSeleccionada] = useState(null);
   const [publicacionSeleccionada, setPublicacionSeleccionada] = useState(null);
 
-
+  // Navegación básica
   const navigateTo = useCallback((pantalla, data = null) => {
-    
+    // Limpiar datos específicos según la pantalla
     if (pantalla !== 'perfilPublico') {
       setUsuarioPublico(null);
     }
@@ -32,7 +32,7 @@ export const NavigationProvider = ({ children }) => {
     
     setPantallaActual(pantalla);
     
-  
+    // Si se pasan datos, guardarlos según el tipo
     if (data) {
       if (pantalla === 'perfilPublico') {
         setUsuarioPublico(data);
@@ -46,31 +46,31 @@ export const NavigationProvider = ({ children }) => {
     }
   }, []);
 
-
+  // Navegación específica para perfiles públicos
   const verPerfilPublico = useCallback((usuario) => {
     setUsuarioPublico(usuario);
     setPantallaActual('perfilPublico');
   }, []);
 
-
+  // Navegación específica para detalles de carta
   const verDetalleCarta = useCallback((carta) => {
     setCartaSeleccionada(carta);
     setPantallaActual('detalle');
   }, []);
 
-
+  // Navegación específica para detalles de publicación
   const verDetallePublicacion = useCallback((publicacion) => {
     setPublicacionSeleccionada(publicacion);
     setPantallaActual('detalle');
   }, []);
 
- 
+  // Volver atrás (funcionalidad simple)
   const goBack = useCallback(() => {
-
+    // Puedes implementar un historial más complejo si lo necesitas
     setPantallaActual('ventas');
   }, []);
 
- 
+  // Limpiar todos los estados
   const resetNavigation = useCallback(() => {
     setPantallaActual('auth');
     setUsuarioPublico(null);
@@ -79,13 +79,13 @@ export const NavigationProvider = ({ children }) => {
   }, []);
 
   const value = {
-
+    // Estado
     pantallaActual,
     usuarioPublico,
     cartaSeleccionada,
     publicacionSeleccionada,
     
-
+    // Funciones de navegación
     navigateTo,
     verPerfilPublico,
     verDetalleCarta,
@@ -93,7 +93,7 @@ export const NavigationProvider = ({ children }) => {
     goBack,
     resetNavigation,
     
- 
+    // Setters directos (para casos específicos)
     setPantallaActual,
     setUsuarioPublico
   };

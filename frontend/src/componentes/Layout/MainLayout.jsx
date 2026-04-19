@@ -2,7 +2,7 @@ import React from "react";
 import LeftSidebar from "../Sidebar/LeftSidebar";
 import FeedControls from "../Filtros/FeedControls";
 import Navbar from './navbar';
-import { useNavigation } from '../../context/NavigationContext';
+import { useNavigation } from '../../../context/NavigationContext';
 
 const MainLayout = ({ 
   children, 
