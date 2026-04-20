@@ -9,16 +9,17 @@ const PublicarCarta = ({ setPantalla }) => {
   const [imagenesVenta, setImagenesVenta] = useState([]);
   const [erroresImagen, setErroresImagen] = useState([]);
 
+
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
     setTipoPublicacion(tipo);
     
-    // Limpiar imágenes al cambiar de tipo
+    
     if (tipo !== 'venta' && tipo !== 'intercambio') {
       setImagenesVenta([]);
     }
     
-    // Si selecciona "colección", abrimos el modal de galería
+   
     if (tipo === 'coleccion') {
       setShowGalleryModal(true);
     }
@@ -29,7 +30,7 @@ const PublicarCarta = ({ setPantalla }) => {
     console.log('Carta seleccionada para colección:', carta);
   };
 
-  // Validar que el archivo sea una imagen
+ 
   const validarImagen = (file) => {
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
     const extensionesPermitidas = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
@@ -43,7 +44,7 @@ const PublicarCarta = ({ setPantalla }) => {
       };
     }
     
-    // Limitar tamaño máximo (5MB)
+   
     if (file.size > 5 * 1024 * 1024) {
       return {
         valido: false,
@@ -59,7 +60,7 @@ const PublicarCarta = ({ setPantalla }) => {
     const nuevasImagenes = [];
     const nuevosErrores = [];
     
-    // Limitar a máximo 10 imágenes
+
     if (imagenesVenta.length + files.length > 10) {
       alert('Máximo 10 imágenes por publicación');
       return;
@@ -120,23 +121,22 @@ const PublicarCarta = ({ setPantalla }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
+ <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
       
-      
-      {/* contenedor */}
       <div className="relative w-full max-w-2xl border-2 border-[#56ab91] rounded-3xl bg-slate-900/40 p-10 shadow-2xl">
         
-        {/* btn x */}
-        <button 
-          onClick={() => setPantalla('perfil')}
-          className="absolute top-6 right-6 w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all z-10"
-        >
-          X
-        </button>
-
+      
+        {!showGalleryModal && (
+          <button 
+            onClick={() => setPantalla('perfil')}
+            className="absolute top-6 right-6 w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all z-10"
+          >
+            X
+          </button>
+        )}
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           
-          {/* filtros */}
+        
           <div className="flex gap-4 mb-4">
             <div className="relative">
               <select 
@@ -164,7 +164,7 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           </div>
 
-          {/* título y cantidad */}
+          
           <div className="flex gap-4 items-end">
             <div className="flex-[4]">
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Título</label>
@@ -184,7 +184,7 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           </div>
 
-          {/* Precio (solo para venta) */}
+         
           {tipoPublicacion === 'venta' && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
@@ -198,7 +198,7 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-          {/* Área de imágenes - Para venta e intercambio - NUEVO DISEÑO */}
+         
           {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">
@@ -206,9 +206,9 @@ const PublicarCarta = ({ setPantalla }) => {
                 <span className="text-xs text-gray-400 ml-2">(Máximo 10 imágenes, solo formatos de imagen)</span>
               </label>
               
-              {/* Grid interactivo que muestra las imágenes y el botón para agregar más */}
+              
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {/* Mostrar imágenes existentes */}
+                
                 {imagenesVenta.map((img) => (
                   <div key={img.id} className="relative group">
                     <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-[#56ab91]/40 bg-slate-800/40 hover:border-[#56ab91] transition-all">
@@ -227,7 +227,7 @@ const PublicarCarta = ({ setPantalla }) => {
                   </div>
                 ))}
                 
-                {/* Botón para agregar más imágenes (solo si no se ha alcanzado el límite) */}
+               
                 {imagenesVenta.length < 10 && (
                   <div className="relative group">
                     <input
@@ -255,14 +255,14 @@ const PublicarCarta = ({ setPantalla }) => {
                 )}
               </div>
 
-              {/* Contador de imágenes */}
+             
               {imagenesVenta.length > 0 && (
                 <p className="text-xs text-emerald-400 mt-3 text-center">
                   {imagenesVenta.length} / 10 imágenes seleccionadas
                 </p>
               )}
 
-              {/* Mostrar errores */}
+              
               {erroresImagen.length > 0 && (
                 <div className="mt-3 p-2 bg-red-900/50 border border-red-500 rounded-lg">
                   {erroresImagen.map((error, idx) => (
@@ -273,7 +273,7 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-          {/* Área para seleccionar carta de colección */}
+          
           {tipoPublicacion === 'coleccion' && (
             <div 
               className={`w-full h-40 border-2 border-dashed rounded-3xl flex items-center justify-center transition-all cursor-pointer
@@ -314,7 +314,7 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-          {/* descripción */}
+         
           <div>
             <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Descripción</label>
             <textarea 
@@ -328,7 +328,7 @@ const PublicarCarta = ({ setPantalla }) => {
             ></textarea>
           </div>
 
-          {/* btn publicar */}
+        
           <div className="flex justify-center pt-2">
             <button 
               onClick={handlePublicar}
@@ -342,7 +342,7 @@ const PublicarCarta = ({ setPantalla }) => {
         </form>
       </div>
 
-      {/* Modal de galería - SOLO para colecciones */}
+     
       <Gallery
         setPantalla={setPantalla}
         isOpen={showGalleryModal}

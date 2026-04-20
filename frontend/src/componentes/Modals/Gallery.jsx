@@ -5,7 +5,6 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
   // Estado para controlar qué franquicia se muestra
   const [franquicia, setFranquicia] = useState('all'); 
 
-
   const cartas = [
     // POKEMON
     { 
@@ -90,6 +89,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
     { 
       id: 15, 
       nombre: 'Contendiente Aclamada', 
+      franquicia: 'magic', 
       imagen: '/imagesMagic/contendiente_aclamda.png', 
     },
     { 
@@ -255,7 +255,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
 
   if (!isOpen) return null;
 
-  // Filtramos las cartas según la opción del select
+
   const cartasFiltradas = franquicia === 'all' 
     ? cartas 
     : cartas.filter(c => c.franquicia === franquicia);
@@ -267,16 +267,16 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
 
   return (
     <>
-      {/* Fondo oscuro con desenfoque */}
+      
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={onClose} />
 
-      {/* Contenedor del Modal */}
+     
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-[#0f172a] text-white flex flex-col items-center rounded-3xl border-2 border-[#56ab91] max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
           
-          {/* Header / Navbar */}
+          {/* Header / Navbar - Solo un botón de cerrar */}
           <nav className="w-full bg-[#56ab91] rounded-full p-3 mb-4 mt-4 mx-4 flex items-center justify-between shadow-lg max-w-[95%]">
-            <div className="flex gap-4 ml-4">
+            <div className="flex gap-4">
               <div className="relative">
                 <select 
                   value={franquicia}
@@ -302,15 +302,16 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
               />
             </div>
 
+            {/* Único botón de cerrar */}
             <button 
               onClick={onClose} 
-              className="w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all mr-2"
+              className="w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all"
             >
               X
             </button>
           </nav>
 
-          {/* Galería de Cartas */}
+          {/* Grid de cartas */}
           <div className="w-full overflow-y-auto custom-scrollbar px-6 py-4">
             <h2 className="text-2xl font-bold mb-6 text-center text-[#56ab91] uppercase tracking-widest">
               {franquicia === 'all' ? 'Mi Colección' : `Cartas de ${franquicia}`}
@@ -354,18 +355,12 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
             </div>
           </div>
 
-          {/* Acciones del Footer */}
-          <div className="w-full flex justify-end gap-3 p-6 border-t border-[#56ab91]/20 bg-slate-900/50">
-            <button 
-              onClick={onClose} 
-              className="hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-xl border border-[#56ab91] transition-colors"
-            >
-              Cancelar
-            </button>
+          {/* Footer simplificado - Solo botón Adjuntar carta */}
+          <div className="w-full flex justify-end p-6 border-t border-[#56ab91]/20 bg-slate-900/50">
             <button
               onClick={() => {
                 if (selectedCarta) {
-                  alert(`Has adjuntado a ${selectedCarta.nombre}`);
+                  if (onSelectCarta) onSelectCarta(selectedCarta);
                   onClose();
                 }
               }}
@@ -380,7 +375,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
         </div>
       </div>
 
-      {/* Estilos para el scrollbar */}
+      
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }

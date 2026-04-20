@@ -9,7 +9,7 @@ const Coleccion = ({ setPantalla }) => {
   const [imagenActual, setImagenActual] = useState(0);
   const [publicacionActual, setPublicacionActual] = useState(null);
 
-  // Datos de ejemplo para las publicaciones
+  
   const publicaciones = [
     {
       id: 1,
@@ -71,7 +71,7 @@ const Coleccion = ({ setPantalla }) => {
     }
   ];
 
-  // Prevenir scroll cuando el modal está abierto
+  
   useEffect(() => {
     if (modalAbierto) {
       document.body.style.overflow = 'hidden';
@@ -159,7 +159,6 @@ const Coleccion = ({ setPantalla }) => {
             <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
           </button>
 
-          {/* Contenido del modal - DISEÑO DE DOS COLUMNAS */}
           <div style={{
             display: 'flex',
             flexDirection: 'row',
@@ -168,7 +167,7 @@ const Coleccion = ({ setPantalla }) => {
             alignItems: 'flex-start',
             justifyContent: 'center'
           }}>
-            {/* Columna izquierda - Imagen con navegación (60%) */}
+         
             <div style={{
               flex: '1 1 500px',
               minWidth: '300px',
@@ -406,13 +405,13 @@ const Coleccion = ({ setPantalla }) => {
   return (      
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
-        {/* Modal */}
+     
         <ModalDetalle />
 
-        {/* Navbar reutilizable */}
+
         <Navbar setPantalla={setPantalla} />
 
-        {/* Feed de publicaciones */}
+        
         <div className="max-w-4xl mx-auto space-y-6">
           {publicaciones.map((pub) => (
             <div
@@ -445,13 +444,12 @@ const Coleccion = ({ setPantalla }) => {
                 </button>
               </div>
 
-              {/* Contenido de la publicación */}
+              
               <div className="px-4 pb-3">
                 <h3 className="font-bold text-lg text-white mb-2">{pub.titulo}</h3>
                 <p className="text-gray-300 text-sm leading-relaxed">{pub.descripcion}</p>
               </div>
 
-              {/* Grid de imágenes */}
               {pub.imagenes.length > 0 && (
                 <div className={`grid gap-1 bg-black/20 ${pub.imagenes.length === 1 ? 'grid-cols-1' :
                   pub.imagenes.length === 2 ? 'grid-cols-2' :
@@ -481,7 +479,7 @@ const Coleccion = ({ setPantalla }) => {
                 </div>
               )}
 
-              {/* Estadísticas de interacción */}
+             
               <div className="px-4 py-2 border-t border-[#56ab91]/20 flex justify-between text-sm text-gray-400">
                 <div className="flex items-center gap-1">
                   <span>❤️</span>
@@ -504,7 +502,7 @@ const Coleccion = ({ setPantalla }) => {
                 </button>
               </div>
 
-              {/* Input de comentario */}
+      
               <div className="px-4 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
