@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigation } from '../../../context/NavigationContext';
+import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import style from "../../App.css?inline";
 import '../../pantallas/index.css'
@@ -9,7 +10,7 @@ import ThemeOption from '../Toggle/ThemeOptions';
 
 const Navbar = () => {
   const { usuario } = useAuth();
-  const { setPantallaActual, setUsuarioPublico } = useNavigation();
+  const { setPantallaActual, setUsuarioPublico, pantallaActual, goBack } = useNavigation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
@@ -82,24 +83,39 @@ const Navbar = () => {
     setPantallaActual('perfilPublico');
   };
 
+  
+  const irAlHome = () => {
+    setPantallaActual('home');
+  };
+
+
+ 
+
   return (
     <div className='App' id='App'>
       <nav className="header rounded-full p-3 mb-6 flex items-center justify-between shadow-lg">
         <div className="flex gap-4 ml-4">
+       
+          {/* Logo - Navega al home */}
           <button
-            onClick={() => setPantallaActual('ventas')}
-            className="hover:scale-110 transition-transform focus:outline-none"
+            onClick={irAlHome}
+            className="hover:scale-110 transition-transform focus:outline-none group relative"
+            title="Ir al inicio"
           >
             <img
               src="/logo.png"
-              alt="Logo"
+              alt="CardDial Logo"
               className="h-10 w-auto object-contain"
             />
+            <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-white/70 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Inicio
+            </span>
           </button>
 
           <button
             onClick={() => setPantallaActual('ventas')}
             className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-[--hover-button-color] transition-all group"
+            title="Tienda"
           >
             <img
               src="https://www.svgrepo.com/show/324791/store-business-marketplace-shop-sale-buy-marketing.svg"
@@ -111,6 +127,7 @@ const Navbar = () => {
           <button
             onClick={() => setPantallaActual('coleccion')}
             className="w-10 h-10 button rounded-md flex items-center justify-center hover:bg-[--hover-button-color] transition-all group"
+            title="Mi Colección"
           >
             <img
               src="https://static.thenounproject.com/png/2221162-200.png"
@@ -177,9 +194,8 @@ const Navbar = () => {
             </div>
           )}
         </div>
+        
         <div className="flex items-center gap-3 mr-4">
-
-
           <div className="flex items-center gap-3 mr-4">
             <div className='theme-options'>
               <ThemeOption bg="#000000" theme="dark" />
@@ -188,18 +204,16 @@ const Navbar = () => {
               <ThemeOption bg="#46ca51" theme="digimon" />
               <ThemeOption bg="#c8ca46" theme="dragonball" />
             </div>
-
-            {/* <Toggle
-              isChecked={isDark}
-              handleChange={() => setIsDark(!isDark)}
-            /> */}
           </div>
+          
           <span className="primary-text font-bold">
             {usuario?.nickname || usuario?.nombre || 'Usuario'}
           </span>
+          
           <button
             onClick={() => setPantallaActual('perfil')}
             className="w-10 h-10 bg-white rounded-full border-2 border-pink-500 overflow-hidden hover:ring-2 hover:ring-pink-300 transition-all flex items-center justify-center"
+            title="Mi Perfil"
           >
             {usuario?.fotoPerfil ? (
               <img
@@ -224,7 +238,6 @@ const Navbar = () => {
         </div>
       </nav>
     </div>
-
   );
 };
 

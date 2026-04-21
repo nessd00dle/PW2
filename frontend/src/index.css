@@ -26,13 +26,13 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3d7a67;
 }
-/* Forzar mismo ancho para todos los componentes del aside */
+
 .w-\[280px\] > div > div,
 .w-\[280px\] > div > div > div {
   width: 100% !important;
 }
 
-/* Asegurar que los modales estén por encima */
+
 .modal-backdrop {
   position: fixed !important;
   top: 0 !important;
@@ -46,4 +46,77 @@
 .modal-content {
   position: relative !important;
   z-index: 999999 !important;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+
+.swiper-container {
+  padding-bottom: 3rem !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #56ab91 !important;
+  background: rgba(0, 0, 0, 0.5);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 18px !important;
+}
+
+.swiper-pagination-bullet {
+  background: #56ab91 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #34d399 !important;
+}
+
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #56ab91;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #34d399;
 }

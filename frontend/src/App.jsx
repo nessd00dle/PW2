@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 import { NavigationProvider, useNavigation } from '../context/NavigationContext';
 
 // Importar pantallas
+import Home from './pantallas/home'; 
 import AuthPage from './pantallas/AuthPage';
 import Perfil from './pantallas/Perfil';
 import PerfilPublico from './pantallas/PerfilPublico';
@@ -47,6 +48,8 @@ const AppContent = () => {
 
   const renderPantalla = () => {
     switch (pantallaActual) {
+      case 'home':
+        return <Home setPantalla={setPantallaActual} />;
       case 'auth':
         return <AuthPage />;
 
@@ -72,7 +75,6 @@ const AppContent = () => {
         return <PublicarCarta setPantalla={setPantallaActual} />;
 
       case 'detalle':
-
         return (
           <DetalleCarta
             carta={cartaSeleccionada}
@@ -110,6 +112,5 @@ function App() {
     </AuthProvider>
   );
 }
-
 
 export default App;
