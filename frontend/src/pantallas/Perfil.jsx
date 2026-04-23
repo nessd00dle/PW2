@@ -171,7 +171,7 @@ const Perfil = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
+              <h1 className="text-4xl text-white font-bold mb-2">{usuario.nombre}</h1>
               <p className="highlight mb-1">@{usuario.nickname}</p>
               <p className="mb-2">Miembro desde: {formatearFecha(usuario.createdAt)}</p>
               <p className="highlight mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
