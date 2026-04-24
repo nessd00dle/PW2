@@ -191,36 +191,21 @@ const Perfil = () => {
                   onClick={handleLogout}
                   className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
                 >
-                Cerrar sesión
+                  Cerrar sesión
                 </button>
-
                 <button
                   onClick={() => setPantallaActual('editarPerfil')}
                   className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
                 >
-                Editar perfil
+                  Editar perfil
                 </button>
-
                 {/* Botón de Estadísticas */}
                 <button
                   onClick={() => setPantallaActual('estadistica')}
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
                 >
-                Ver Estadísticas
+                  Ver Estadísticas
                 </button>
-
-
-
-                {/*
-                Este es un boton provisional para agregar colecciones
-                
-                <button
-                  onClick={}
-                  className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
-                >
-                Agregar Colección
-                </button>*/}
-
               </div>
             </div>
           </div>
