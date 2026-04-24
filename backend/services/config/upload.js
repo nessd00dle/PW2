@@ -91,7 +91,7 @@ export const uploadPublicacionImages = (req, res, next) => {
         }
         
         if (req.files && req.files.length > 0) {
-            console.log(`📸 ${req.files.length} imágenes subidas para publicación`);
+            console.log(` ${req.files.length} imágenes subidas para publicación`);
         }
         
         next();

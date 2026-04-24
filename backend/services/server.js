@@ -30,26 +30,26 @@ app.use(express.urlencoded({ extended: true }));
 const uploadsPath = path.join(__dirname, '../uploads');
 app.use('/uploads', express.static(uploadsPath));
 
-console.log('📁 Directorio actual:', __dirname);
-console.log('📁 Sirviendo archivos estáticos desde:', uploadsPath);
+console.log(' Directorio actual:', __dirname);
+console.log(' Sirviendo archivos estáticos desde:', uploadsPath);
 
 // Verificar si la carpeta existe
 if (fs.existsSync(uploadsPath)) {
-    console.log('✅ Carpeta uploads existe');
-    console.log('📁 Contenido de uploads:', fs.readdirSync(uploadsPath));
+    console.log(' Carpeta uploads existe');
+    console.log(' Contenido de uploads:', fs.readdirSync(uploadsPath));
     
     // Verificar subcarpetas
     const perfilesPath = path.join(uploadsPath, 'perfiles');
     if (fs.existsSync(perfilesPath)) {
-        console.log('📁 Contenido de perfiles:', fs.readdirSync(perfilesPath));
+        console.log(' Contenido de perfiles:', fs.readdirSync(perfilesPath));
     } else {
-        console.log('❌ Carpeta perfiles no existe');
+        console.log('Carpeta perfiles no existe');
     }
 } else {
-    console.log('❌ Carpeta uploads NO existe');
+    console.log(' Carpeta uploads NO existe');
     // Crear la carpeta si no existe
     fs.mkdirSync(uploadsPath, { recursive: true });
-    console.log('📁 Carpeta uploads creada');
+    console.log(' Carpeta uploads creada');
 }
 
 // Crear directorios si no existen
@@ -57,7 +57,7 @@ if (fs.existsSync(uploadsPath)) {
     const dirPath = path.join(uploadsPath, dir);
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
-        console.log(`📁 Directorio creado: ${dirPath}`);
+        console.log(` Directorio creado: ${dirPath}`);
     }
 });
 
@@ -83,6 +83,6 @@ app.get('/check-image/:filename', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 Servidor corriendo en http://localhost:${PORT}`);
-    console.log(`📸 URL base de imágenes: http://localhost:${PORT}/uploads/\n`);
+    console.log(`\nServidor corriendo en http://localhost:${PORT}`);
+    console.log(`URL base de imágenes: http://localhost:${PORT}/uploads/\n`);
 });
