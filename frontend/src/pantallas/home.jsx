@@ -29,9 +29,9 @@ const Home = ({ setPantalla }) => {
           clickable: true,
         },
         breakpoints: {
-          640: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
+          640: { slidesPerView: 3 },
+          768: { slidesPerView: 4 },
+          1024: { slidesPerView: 5},
         },
         autoplay: {
           delay: 3000,
@@ -57,7 +57,6 @@ const Home = ({ setPantalla }) => {
       });
     }
 
-    // Advanced Particle System
     class ParticleSystem {
       constructor(canvas) {
         this.canvas = canvas;
@@ -106,11 +105,11 @@ const Home = ({ setPantalla }) => {
 
       getRandomColor() {
         const colors = [
-          'rgba(16, 185, 129, ',  // emerald
-          'rgba(20, 184, 166, ',  // teal
-          'rgba(6, 182, 212, ',   // cyan
-          'rgba(139, 92, 246, ',  // purple
-          'rgba(59, 130, 246, ',  // blue
+          'rgba(16, 185, 129, ',  
+          'rgba(20, 184, 166, ', 
+          'rgba(6, 182, 212, ',   
+          'rgba(139, 92, 246, ',  
+          'rgba(59, 130, 246, ', 
         ];
         return colors[Math.floor(Math.random() * colors.length)];
       }
@@ -233,7 +232,12 @@ const Home = ({ setPantalla }) => {
     }
   }, []);
 
- 
+ const colorMap = {
+  emerald: "text-emerald-400",
+  purple: "text-purple-400",
+  blue: "text-blue-400",
+  pink: "text-pink-400",
+};
   const cardImages = [
     "https://i.pinimg.com/736x/de/2e/b6/de2eb6fa73ee8ca0207f369c27d93a41.jpg",
     "https://i.pinimg.com/736x/7c/f3/6d/7cf36d83567dec998f39f71e282196a9.jpg",
@@ -345,6 +349,8 @@ const Home = ({ setPantalla }) => {
                   gradient: "from-red-400/20 to-orange-600/20",
                   border: "border-red-400/30"
                 }
+
+                
               ].map((card, idx) => (
                 <div key={idx} className="swiper-slide">
                   <div className={`bg-gradient-to-br ${card.gradient} rounded-2xl p-4 backdrop-blur-sm border ${card.border} hover:scale-105 transition-all duration-300 hover:shadow-2xl`}>
@@ -505,7 +511,7 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Testimonios con Swiper mejorado */}
+     
         <div className="bg-gradient-to-t from-slate-800/50 to-transparent py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
@@ -540,7 +546,15 @@ const Home = ({ setPantalla }) => {
                     name: "Ana Martínez",
                     role: "Coleccionista Magic",
                     color: "blue"
+                  },
+                   {
+                    img: "https://i.pinimg.com/736x/44/75/7a/44757a504f1d950285fc336fef8dd0ce.jpg",
+                    text: "Las estadísticas en tiempo real me ayudan a saber qué cartas son más populares. ¡Excelente herramienta!",
+                    name: "Glen Ordoñéz",
+                    role: "DragonBall",
+                    color: "pink"
                   }
+                  
                 ].map((testimonial, idx) => (
                   <div key={idx} className="swiper-slide">
                     <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-slate-800/80 transition-all duration-300">
@@ -549,7 +563,7 @@ const Home = ({ setPantalla }) => {
                       </div>
                       <div className="mb-4">
                         {[...Array(5)].map((_, i) => (
-                          <FaStar key={i} className={`inline text-${testimonial.color}-400 text-sm mx-0.5`} />
+                          <FaStar key={i} className={`inline ${colorMap[testimonial.color]} text-sm mx-0.5`} />
                         ))}
                       </div>
                       <p className="text-gray-300 italic mb-4 text-lg">
@@ -566,7 +580,7 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Call to Action final mejorado */}
+   
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
