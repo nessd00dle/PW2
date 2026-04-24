@@ -29,7 +29,7 @@ const Card = ({ card, onClick }) => {
       
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-[10px] font-bold px-2 py-0.5 bg-[#56ab91]/20 highlight rounded-full uppercase border">
+          <span className="text-[10px] font-bold px-2 py-0.5 bg-[#56ab91]/20 text-[#56ab91] rounded-full uppercase border border-[#56ab91]/30">
             {card.type || "Carta"}
           </span>
           <span className="text-sm font-bold text-white">
@@ -37,7 +37,7 @@ const Card = ({ card, onClick }) => {
           </span>
         </div>
         
-        <h4 className="font-bold highlight text-xs uppercase mb-1">{card.fandom}</h4>
+        <h4 className="font-bold text-[#56ab91] text-xs uppercase mb-1">{card.fandom}</h4>
         <p className="text-white font-bold text-sm mb-1">{card.description}</p>
         <p className="text-gray-400 text-xs italic mb-3">{card.reverse || "Edición Estándar"}</p>
         
@@ -55,8 +55,8 @@ const Card = ({ card, onClick }) => {
         </div>
       </div>
       
-      <div className="absolute inset-0 button backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <span className="px-4 py-2 button text-slate-900 rounded-full text-xs font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform shadow-xl">
+      <div className="absolute inset-0 bg-[#0f172a]/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <span className="px-4 py-2 bg-[#56ab91] text-slate-900 rounded-full text-xs font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform shadow-xl">
           VER DETALLES
         </span>
       </div>

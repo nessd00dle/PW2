@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
+
 const NavigationContext = createContext();
+
 
 export const useNavigation = () => {
   const context = useContext(NavigationContext);
@@ -10,20 +12,16 @@ export const useNavigation = () => {
   return context;
 };
 
+
 export const NavigationProvider = ({ children }) => {
-  const [pantallaActual, setPantallaActual] = useState('home');
+  const [pantallaActual, setPantallaActual] = useState('auth');
   const [usuarioPublico, setUsuarioPublico] = useState(null);
   const [cartaSeleccionada, setCartaSeleccionada] = useState(null);
   const [publicacionSeleccionada, setPublicacionSeleccionada] = useState(null);
-  
-  // Historial de navegación
-  const [history, setHistory] = useState(['home']);
+
 
   const navigateTo = useCallback((pantalla, data = null) => {
-    // Guardar la pantalla actual en el historial antes de navegar
-    setHistory(prev => [...prev, pantalla]);
     
-    // Limpiar datos específicos según la pantalla
     if (pantalla !== 'perfilPublico') {
       setUsuarioPublico(null);
     }
@@ -34,7 +32,7 @@ export const NavigationProvider = ({ children }) => {
     
     setPantallaActual(pantalla);
     
-    // Manejar datos adicionales
+  
     if (data) {
       if (pantalla === 'perfilPublico') {
         setUsuarioPublico(data);
@@ -48,51 +46,32 @@ export const NavigationProvider = ({ children }) => {
     }
   }, []);
 
+
   const verPerfilPublico = useCallback((usuario) => {
-    setHistory(prev => [...prev, 'perfilPublico']);
     setUsuarioPublico(usuario);
     setPantallaActual('perfilPublico');
   }, []);
 
+
   const verDetalleCarta = useCallback((carta) => {
-    setHistory(prev => [...prev, 'detalle']);
     setCartaSeleccionada(carta);
     setPantallaActual('detalle');
   }, []);
 
+
   const verDetallePublicacion = useCallback((publicacion) => {
-    setHistory(prev => [...prev, 'detalle']);
     setPublicacionSeleccionada(publicacion);
     setPantallaActual('detalle');
   }, []);
 
-  // Función para regresar a la pantalla anterior
+ 
   const goBack = useCallback(() => {
-    if (history.length > 1) {
-      // Remover la pantalla actual del historial
-      const newHistory = [...history];
-      newHistory.pop(); // Eliminar la pantalla actual
-      const previousScreen = newHistory[newHistory.length - 1];
-      
-      setHistory(newHistory);
-      setPantallaActual(previousScreen);
-      
-      // Limpiar datos según la pantalla anterior
-      if (previousScreen !== 'perfilPublico') {
-        setUsuarioPublico(null);
-      }
-      if (previousScreen !== 'detalle') {
-        setCartaSeleccionada(null);
-        setPublicacionSeleccionada(null);
-      }
-      
-      return true;
-    }
-    return false;
-  }, [history]);
 
+    setPantallaActual('ventas');
+  }, []);
+
+ 
   const resetNavigation = useCallback(() => {
-    setHistory(['auth']);
     setPantallaActual('auth');
     setUsuarioPublico(null);
     setCartaSeleccionada(null);
@@ -100,17 +79,21 @@ export const NavigationProvider = ({ children }) => {
   }, []);
 
   const value = {
+
     pantallaActual,
     usuarioPublico,
     cartaSeleccionada,
     publicacionSeleccionada,
-    history,
+    
+
     navigateTo,
     verPerfilPublico,
     verDetalleCarta,
     verDetallePublicacion,
     goBack,
     resetNavigation,
+    
+ 
     setPantallaActual,
     setUsuarioPublico
   };

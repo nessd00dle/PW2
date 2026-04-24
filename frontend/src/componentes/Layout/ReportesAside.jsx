@@ -87,8 +87,8 @@ const ReportesAside = () => {
   return (
     <>
       <div className="w-full bg-slate-900/60 p-4 rounded-3xl border-2 border-[#56ab91]/30 shadow-xl">
-        <h3 className="font-semibold highlight mb-3 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 highlight" /> Reportes Rápidos
+        <h3 className="font-semibold text-[#56ab91] mb-3 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4" /> Reportes Rápidos
         </h3>
         <div className="space-y-3">
           {reportes.map((reporte) => (
