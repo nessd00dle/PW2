@@ -21,6 +21,7 @@ const AuthPage = () => {
     contrasena: '',
     fotoPerfil: null
   });
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -51,7 +52,7 @@ const AuthPage = () => {
     }
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -110,7 +111,7 @@ const handleSubmit = async (e) => {
     } finally {
         setLoading(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">

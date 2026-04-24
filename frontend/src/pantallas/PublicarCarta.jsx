@@ -9,6 +9,21 @@ const PublicarCarta = ({ setPantalla }) => {
   const [imagenesVenta, setImagenesVenta] = useState([]);
   const [erroresImagen, setErroresImagen] = useState([]);
 
+  const [titulo, setTitulo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [cantidad, setCantidad] = useState(1);
+  const [franquicia, setFranquicia] = useState('Pokemon');
+
+  const [formData, setFormData] = useState({
+    titulo: '',
+    descripcion: '',
+    precio: '',
+    cantidad: '',
+    condicion: '',
+    franquicia: null,
+    imagenes: null
+  });
 
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
@@ -99,25 +114,56 @@ const PublicarCarta = ({ setPantalla }) => {
     setImagenesVenta(prev => prev.filter(img => img.id !== id));
   };
 
-  const handlePublicar = () => {
-    if (tipoPublicacion === 'coleccion' && !selectedCarta) {
-      alert('Debes seleccionar una carta para tu colección');
-      setShowGalleryModal(true);
-      return;
-    }
+  const handlePublicar = async () => {
     
-    if ((tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && imagenesVenta.length === 0) {
-      alert('Debes agregar al menos una imagen para la publicación');
-      return;
-    }
     
     // Aquí va la lógica de publicación
-    console.log('Publicando:', { 
-      tipoPublicacion, 
-      selectedCarta, 
-      imagenes: imagenesVenta.map(img => img.file)
+    try {
+    if (tipoPublicacion !== 'venta') {
+      alert('Solo venta por ahora');
+      return;
+    }
+
+    if (!titulo || !precio || imagenesVenta.length === 0) {
+      alert('Faltan datos obligatorios');
+      return;
+    }
+
+    const formDataToSend = new FormData();
+
+    formDataToSend.append('Titulo', titulo);
+    formDataToSend.append('Texto', descripcion);
+    formDataToSend.append('Tipo', tipoPublicacion);
+    formDataToSend.append('Monto', precio);
+    formDataToSend.append('Franquicia', franquicia);
+    formDataToSend.append('Cantidad', cantidad);
+    formDataToSend.append('Condicion', 'buena');
+
+    imagenesVenta.forEach((img) => {
+      formDataToSend.append('imagenes', img.file); 
     });
+
+    const response = await fetch('http://localhost:3000/api/publicaciones', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: formDataToSend
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.message);
+
+    console.log('✅ Publicación creada:', data);
+
+    alert('Publicación creada con éxito');
     setPantalla('perfil');
+
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert(error.message);
+    }
   };
 
   return (
@@ -136,7 +182,6 @@ const PublicarCarta = ({ setPantalla }) => {
         )}
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           
-        
           <div className="flex gap-4 mb-4">
             <div className="relative">
               <select 
@@ -170,6 +215,8 @@ const PublicarCarta = ({ setPantalla }) => {
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Título</label>
               <input 
                 type="text" 
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
               />
             </div>
@@ -177,6 +224,8 @@ const PublicarCarta = ({ setPantalla }) => {
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Cantidad</label>
               <input 
                 type="number" 
+                value={cantidad}
+                onChange={(e) => setCantidad(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400 text-center"
                 placeholder="1"
                 min="1"
@@ -190,6 +239,8 @@ const PublicarCarta = ({ setPantalla }) => {
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
               <input 
                 type="number" 
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
                 placeholder="$0.00"
                 min="0"
@@ -325,6 +376,8 @@ const PublicarCarta = ({ setPantalla }) => {
                 : tipoPublicacion === 'venta'
                 ? 'Describe la carta que vendes (estado, rareza, etc)...'
                 : 'Describe la carta que ofreces para intercambio...'}
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
             ></textarea>
           </div>
 

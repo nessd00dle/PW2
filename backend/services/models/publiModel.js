@@ -52,7 +52,7 @@ const publicacionesSchema = new mongoose.Schema({
             }
         }
     },
-    Fotos: {
+    Imagenes: {
         type: [String], 
         validate: {
             validator: function(v) {
@@ -182,16 +182,17 @@ publicacionesSchema.methods.agregarComentario = async function(usuarioId, texto)
 // Middleware pre-save para validaciones adicionales
 publicacionesSchema.pre('save', function(next) {
     // Validar que si es colección, tenga al menos una carta
+    publicacionesSchema.pre('save', function(next) {
     if (this.Tipo === 'coleccion' && (!this.CartasColeccion || this.CartasColeccion.length === 0)) {
-        next(new Error('Las publicaciones de colección deben tener al menos una carta'));
+        return next(new Error('Las publicaciones de colección deben tener al menos una carta'));
     }
     
-    // Validar que si es venta o intercambio, tenga al menos una foto
     if ((this.Tipo === 'venta' || this.Tipo === 'intercambio') && (!this.Fotos || this.Fotos.length === 0)) {
-        next(new Error('Las publicaciones de venta/intercambio deben tener al menos una imagen'));
+        return next(new Error('Las publicaciones de venta/intercambio deben tener al menos una imagen'));
     }
     
     next();
+    });
 });
 
 // Método estático para obtener publicaciones por tipo

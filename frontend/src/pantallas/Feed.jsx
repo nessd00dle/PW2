@@ -2,18 +2,55 @@ import React, { useState } from "react";
 import MainLayout from "../componentes/Layout/MainLayout";
 import CardGrid from "../componentes/Cards/CardGrid";
 
+import { useEffect } from "react";
+
+
+
 const Feed = ({ setPantalla }) => {
   const [filterType, setFilterType] = useState("all");
   const [selectedFandoms, setSelectedFandoms] = useState([]);
   const [sortBy, setSortBy] = useState("popular");
 
-  const cards = [
-    { id: 1, type: "Carta Holo", fandom: "Pokémon", fandomId: "pokemon", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlSLVcEaKMsGAkeA35IbD9_cFuXXEdATuzfQ&s/200x280", reverse: "Edición Limitada", description: "bonita", price: "$25.00", isVenta: true, isIntercambio: false },
-    { id: 2, type: "Carta Normal", fandom: "Magic", fandomId: "magic", image: "https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Shadowmage+Infiltrator/200x280", reverse: "Foil", description: "linda", price: "$350.00", isVenta: true, isIntercambio: true },
-    { id: 3, type: "Carta Rara", fandom: "Digimon", fandomId: "digimon", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZ856cXwx7YgoNnyCXZyIZrCx9-RoLsijJg&s/200x280", reverse: "Alternativa", description: "wow", price: "$45.00", isVenta: false, isIntercambio: true },
-    { id: 4, type: "Carta Promo", fandom: "DragonBall", fandomId: "dragonball", image: "https://mnacardz.com/cdn/shop/files/BT26-139_SCR_Metamorphic_Android_Cell_2024_124538ed-f4f5-4a0c-8428-5e7362738238.jpg?v=1753904845&width=3024/200x280", reverse: "Holo", description: "muy especial", price: "$30.00", isVenta: true, isIntercambio: false }
-  ];
+  // estado para las publicaciones
+  const [cards, setCards] = useState([]);
 
+  // useEffect Va dentro del componente
+  useEffect(() => {
+    const obtenerPublicaciones = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/publicaciones");
+        const data = await res.json();
+
+        console.log("📦 Publicaciones:", data);
+
+        const adaptadas = data.publicaciones.map(pub => ({
+          id: pub._id,
+          type: pub.Titulo,
+          fandom: pub.Franquicia,
+          fandomId: pub.Franquicia.toLowerCase(),
+          image: pub.Fotos?.length
+          ? `http://localhost:3000/uploads/publicaciones/${pub.Fotos[0]}`
+          : null,
+          reverse: pub.Condicion,
+          description: pub.Texto,
+          price: pub.Monto ? `$${pub.Monto}` : "",
+          isVenta: pub.Tipo === "venta",
+          isIntercambio: pub.Tipo === "intercambio"
+        }));
+
+        console.log(data);
+
+        setCards(adaptadas);
+
+      } catch (error) {
+        console.error("❌ Error cargando publicaciones:", error);
+      }
+    };
+
+    obtenerPublicaciones();
+  }, []);
+
+  // 👇 aquí ya usas cards normalmente
   const filteredByFandom = selectedFandoms.length > 0
     ? cards.filter(card => selectedFandoms.includes(card.fandomId))
     : cards;
@@ -26,10 +63,11 @@ const Feed = ({ setPantalla }) => {
   });
 
   const sortedCards = [...filteredByType].sort((a, b) => {
-    const priceA = parseFloat(a.price.replace('$', ''));
-    const priceB = parseFloat(b.price.replace('$', ''));
+    const priceA = parseFloat(a.price.replace('$', '')) || 0;
+    const priceB = parseFloat(b.price.replace('$', '')) || 0;
+
     switch (sortBy) {
-      case 'recent': return b.id - a.id; 
+      case 'recent': return b.id.localeCompare(a.id);
       case 'price_asc': return priceA - priceB;
       case 'price_desc': return priceB - priceA;
       default: return 0;
@@ -46,7 +84,6 @@ const Feed = ({ setPantalla }) => {
       filterType={filterType}
       onFilterChange={setFilterType}
     >
-
       <CardGrid 
         cards={sortedCards}
         onCardClick={(card) => setPantalla('detalle')}
