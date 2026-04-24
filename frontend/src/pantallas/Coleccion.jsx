@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../componentes/Layout/navbar';
-import '../App.css'
-import './index.css'
+import PubliCard from '../componentes/Cards/PubliCard';
+import '../App.css';
+import '../index.css';
 
 const Coleccion = ({ setPantalla }) => {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [imagenesPublicacion, setImagenesPublicacion] = useState([]);
   const [imagenActual, setImagenActual] = useState(0);
   const [publicacionActual, setPublicacionActual] = useState(null);
+  const [modalLiked, setModalLiked] = useState(false);
+  const [modalLikesCount, setModalLikesCount] = useState(0);
+  const [modalComentarios, setModalComentarios] = useState([]);
+  const [nuevoComentarioModal, setNuevoComentarioModal] = useState('');
 
-  
   const publicaciones = [
     {
       id: 1,
@@ -71,7 +75,6 @@ const Coleccion = ({ setPantalla }) => {
     }
   ];
 
-  
   useEffect(() => {
     if (modalAbierto) {
       document.body.style.overflow = 'hidden';
@@ -87,6 +90,9 @@ const Coleccion = ({ setPantalla }) => {
     setPublicacionActual(publicacion);
     setImagenesPublicacion(publicacion.imagenes);
     setImagenActual(indiceImagen);
+    setModalLiked(false);
+    setModalLikesCount(publicacion.likes);
+    setModalComentarios(publicacion.comentarios);
     setModalAbierto(true);
   };
 
@@ -95,6 +101,9 @@ const Coleccion = ({ setPantalla }) => {
     setPublicacionActual(null);
     setImagenesPublicacion([]);
     setImagenActual(0);
+    setModalLiked(false);
+    setModalComentarios([]);
+    setNuevoComentarioModal('');
   };
 
   const imagenSiguiente = () => {
@@ -105,419 +114,415 @@ const Coleccion = ({ setPantalla }) => {
     setImagenActual((prev) => (prev - 1 + imagenesPublicacion.length) % imagenesPublicacion.length);
   };
 
-  // Modal de detalle de carta - Diseño de dos columnas
+  const handleModalLike = () => {
+    if (modalLiked) {
+      setModalLikesCount(modalLikesCount - 1);
+      setModalLiked(false);
+    } else {
+      setModalLikesCount(modalLikesCount + 1);
+      setModalLiked(true);
+    }
+  };
+
+  const handleModalComentario = (e) => {
+    e.preventDefault();
+    if (nuevoComentarioModal.trim()) {
+      const nuevoComentario = {
+        usuario: "Tú",
+        texto: nuevoComentarioModal,
+        avatar: "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
+      };
+      setModalComentarios([...modalComentarios, nuevoComentario]);
+      setNuevoComentarioModal('');
+    }
+  };
+
+  // Modal de detalle responsivo
   const ModalDetalle = () => {
     if (!modalAbierto || !publicacionActual) return null;
 
+    const scrollbarStyles = `
+      .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scroll::-webkit-scrollbar-track {
+        background: rgba(86, 171, 145, 0.1);
+        border-radius: 10px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb {
+        background: rgba(86, 171, 145, 0.5);
+        border-radius: 10px;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(86, 171, 145, 0.8);
+      }
+    `;
+
     return (
-      <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
-          zIndex: 999999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem',
-          overflowY: 'auto'
-        }}
-        onClick={cerrarModal}
-      >
+      <>
+        <style>{scrollbarStyles}</style>
         <div 
           style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '80rem',
-            margin: '0 auto'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Botón cerrar */}
-          <button
-            onClick={cerrarModal}
-            style={{
-              position: 'absolute',
-              top: '-3rem',
-              right: 0,
-              width: '2.5rem',
-              height: '2.5rem',
-              backgroundColor: '#dc2626',
-              borderRadius: '9999px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 'bold',
-              border: '2px solid white',
-              cursor: 'pointer',
-              zIndex: 10
-            }}
-          >
-            <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
-          </button>
-
-          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            zIndex: 999999,
             display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: '2rem',
-            alignItems: 'flex-start',
-            justifyContent: 'center'
-          }}>
-         
-            <div style={{
-              flex: '1 1 500px',
-              minWidth: '300px',
-              minHeight: '500px',
-              border: '2px solid #56ab91',
-              borderRadius: '1.5rem',
-              backgroundColor: 'rgba(15, 23, 42, 0.9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+          }}
+          onClick={cerrarModal}
+        >
+          <div 
+            style={{
               position: 'relative',
-              padding: '1rem'
-            }}>
-              {imagenesPublicacion.length > 1 && (
-                <>
-                  <button
-                    onClick={imagenAnterior}
-                    style={{
-                      position: 'absolute',
-                      left: '0.5rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                      borderRadius: '9999px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #56ab91',
-                      cursor: 'pointer',
-                      zIndex: 10
-                    }}
-                  >
-                    <span style={{ color: 'white', fontSize: '1.5rem' }}>‹</span>
-                  </button>
-                  <button
-                    onClick={imagenSiguiente}
-                    style={{
-                      position: 'absolute',
-                      right: '0.5rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                      borderRadius: '9999px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #56ab91',
-                      cursor: 'pointer',
-                      zIndex: 10
-                    }}
-                  >
-                    <span style={{ color: 'white', fontSize: '1.5rem' }}>›</span>
-                  </button>
-                </>
-              )}
-
-              <div style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%',
+              width: '100%',
+              maxWidth: '90rem',
+              margin: '2rem auto',
+              padding: '0 1rem'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botón cerrar */}
+            <button
+              onClick={cerrarModal}
+              style={{
+                position: 'fixed',
+                top: '1rem',
+                right: '1rem',
+                width: '2.5rem',
+                height: '2.5rem',
+                backgroundColor: '#dc2626',
+                borderRadius: '9999px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <img
-                  src={imagenesPublicacion[imagenActual]}
-                  alt={`Imagen ${imagenActual + 1}`}
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '500px',
-                    objectFit: 'contain',
-                    borderRadius: '0.75rem'
-                  }}
-                />
-                {imagenesPublicacion.length > 1 && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '0.5rem',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    color: 'white'
-                  }}>
-                    {imagenActual + 1} / {imagenesPublicacion.length}
-                  </div>
-                )}
-              </div>
-            </div>
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                border: '2px solid white',
+                cursor: 'pointer',
+                zIndex: 20,
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
+            </button>
 
-            {/* Columna derecha - Información (35%) */}
+           
             <div style={{
-              flex: '1 1 400px',
-              minWidth: '280px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.5rem',
+              alignItems: 'start',
+              '@media (minWidth: 768px)?': {
+                gridTemplateColumns: '1fr 1fr'
+              }
             }}>
-              {/* Info de la carta */}
+              
               <div style={{
                 border: '2px solid #56ab91',
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                backgroundColor: 'rgba(15, 23, 42, 0.9)'
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: '#e5e7eb' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', marginBottom: '0.5rem' }}>{publicacionActual.titulo}</h2>
-                    <button style={{ color: '#ec4899', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>♥</button>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
-                      <span style={{ color: '#34d399', fontWeight: 'bold' }}>Usuario:</span> {publicacionActual.usuario}
-                    </p>
-                    <p style={{ fontSize: '0.875rem', color: '#d1d5db' }}>
-                      <span style={{ color: '#34d399', fontWeight: 'bold' }}>Fandom:</span> {publicacionActual.franquicia}
-                    </p>
-                  </div>
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(86, 171, 145, 0.2)' }}>
-                    <p style={{ fontWeight: 'bold', color: '#34d399', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción:</p>
-                    <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginTop: '0.25rem', lineHeight: '1.5' }}>
-                      {publicacionActual.descripcion}
-                    </p>
-                  </div>
-                  <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>
-                      Publicado: {publicacionActual.timestamp}
-                    </p>
-                    <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>
-                      ❤️ {publicacionActual.likes} Me gusta
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Comentarios */}
-              <div style={{
-                border: '2px solid #56ab91',
-                borderRadius: '1rem',
-                padding: '1.5rem',
+                borderRadius: '1.5rem',
                 backgroundColor: 'rgba(15, 23, 42, 0.9)',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem'
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                padding: '1rem',
+                minHeight: '400px',
+                width: '100%'
               }}>
-                <h3 style={{ fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#34d399' }}>
-                  Comentarios ({publicacionActual.comentarios.length})
-                </h3>
-
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '0.75rem', 
-                  maxHeight: '250px', 
-                  overflowY: 'auto',
-                  scrollbarWidth: 'thin'
-                }}>
-                  {publicacionActual.comentarios.map((comentario, idx) => (
-                    <div key={idx} style={{
-                      backgroundColor: 'rgba(45, 42, 62, 0.6)',
-                      padding: '0.75rem',
-                      borderRadius: '1rem',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '0.75rem',
-                      border: '1px solid rgba(86, 171, 145, 0.1)'
-                    }}>
-                      <div style={{
-                        width: '2rem',
-                        height: '2rem',
-                        backgroundColor: '#56ab91',
+                {imagenesPublicacion.length > 1 && (
+                  <>
+                    <button
+                      onClick={imagenAnterior}
+                      style={{
+                        position: 'absolute',
+                        left: '0.5rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
                         borderRadius: '9999px',
-                        overflow: 'hidden',
-                        flexShrink: 0
-                      }}>
-                        <img src={comentario.avatar} alt={comentario.usuario} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#34d399', display: 'block' }}>{comentario.usuario}</span>
-                        <p style={{ fontSize: '0.75rem', color: '#e5e7eb', marginTop: '0.2rem' }}>{comentario.texto}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid #56ab91',
+                        cursor: 'pointer',
+                        zIndex: 10,
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(86, 171, 145, 0.5)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'}
+                    >
+                      <span style={{ color: 'white', fontSize: '1.5rem' }}>‹</span>
+                    </button>
+                    <button
+                      onClick={imagenSiguiente}
+                      style={{
+                        position: 'absolute',
+                        right: '0.5rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid #56ab91',
+                        cursor: 'pointer',
+                        zIndex: 10,
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(86, 171, 145, 0.5)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'}
+                    >
+                      <span style={{ color: 'white', fontSize: '1.5rem' }}>›</span>
+                    </button>
+                  </>
+                )}
 
-                {/* Escribir comentario */}
                 <div style={{
-                  marginTop: '0.25rem',
-                  border: '2px dashed rgba(86, 171, 145, 0.6)',
-                  borderRadius: '1rem',
-                  padding: '0.75rem',
+                  position: 'relative',
+                  width: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)'
+                  justifyContent: 'center'
                 }}>
-                  <div style={{
-                    width: '2rem',
-                    height: '2rem',
-                    backgroundColor: '#2d2a3e',
-                    borderRadius: '9999px',
-                    overflow: 'hidden',
-                    flexShrink: 0
-                  }}>
-                    <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Escribe un comentario..."
+                  <img
+                    src={imagenesPublicacion[imagenActual]}
+                    alt={`Imagen ${imagenActual + 1}`}
                     style={{
-                      background: 'transparent',
-                      flex: 1,
-                      outline: 'none',
-                      fontSize: '0.8rem',
-                      color: 'white',
-                      border: 'none'
+                      maxWidth: '100%',
+                      maxHeight: '500px',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      borderRadius: '0.75rem'
                     }}
                   />
-                  <button style={{ color: '#34d399', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>➤</button>
+                  {imagenesPublicacion.length > 1 && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '0.5rem',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      color: 'white'
+                    }}>
+                      {imagenActual + 1} / {imagenesPublicacion.length}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+             
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                maxHeight: '80vh',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                paddingRight: '0.5rem'
+              }}
+              className="custom-scroll">
+               
+                <div style={{
+                  border: '2px solid #56ab91',
+                  borderRadius: '1rem',
+                  padding: '1.25rem',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)'
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: '#e5e7eb' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', margin: 0 }}>{publicacionActual.titulo}</h2>
+                      <button 
+                        onClick={handleModalLike}
+                        style={{ 
+                          fontSize: '1.8rem', 
+                          background: 'none', 
+                          border: 'none', 
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s',
+                          color: modalLiked ? '#ec4899' : '#9ca3af',
+                          padding: '0.25rem',
+                          lineHeight: 1
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        {modalLiked ? '❤️' : '🤍'}
+                      </button>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.8rem', color: '#d1d5db', textAlign: 'justify', margin: '0.25rem 0' }}>
+                        <span style={{ color: '#34d399', fontWeight: 'bold' }}>Usuario:</span> {publicacionActual.usuario}
+                      </p>
+                      <p style={{ fontSize: '0.8rem', color: '#d1d5db', textAlign: 'justify', margin: '0.25rem 0' }}>
+                        <span style={{ color: '#34d399', fontWeight: 'bold' }}>Fandom:</span> {publicacionActual.franquicia}
+                      </p>
+                    </div>
+                    <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(86, 171, 145, 0.2)' }}>
+                      <p style={{ fontWeight: 'bold', color: '#34d399', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Descripción:</p>
+                      <p style={{ color: '#d1d5db', fontSize: '0.8rem', marginTop: '0.25rem', lineHeight: '1.5', textAlign: 'justify' }}>
+                        {publicacionActual.descripcion}
+                      </p>
+                    </div>
+                    <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem' }}>
+                      <p style={{ fontSize: '0.65rem', color: '#9ca3af', textAlign: 'justify', margin: '0.25rem 0' }}>
+                        Publicado: {publicacionActual.timestamp}
+                      </p>
+                      <p style={{ fontSize: '0.65rem', color: '#9ca3af', textAlign: 'justify', margin: '0.25rem 0' }}>
+                        {modalLiked ? '❤️' : '🤍'} {modalLikesCount} Me gusta
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comentarios con scroll personalizado */}
+                <div style={{
+                  border: '2px solid #56ab91',
+                  borderRadius: '1rem',
+                  padding: '1.25rem',
+                  backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}>
+                  <h3 style={{ fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#34d399', margin: 0 }}>
+                    Comentarios ({modalComentarios.length})
+                  </h3>
+
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '0.75rem', 
+                    maxHeight: '300px', 
+                    overflowY: 'auto',
+                    paddingRight: '0.5rem'
+                  }}
+                  className="custom-scroll">
+                    {modalComentarios.length > 0 ? (
+                      modalComentarios.map((comentario, idx) => (
+                        <div key={idx} style={{
+                          backgroundColor: 'rgba(45, 42, 62, 0.6)',
+                          padding: '0.6rem',
+                          borderRadius: '0.75rem',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.6rem',
+                          border: '1px solid rgba(86, 171, 145, 0.1)'
+                        }}>
+                          <div style={{
+                            width: '1.8rem',
+                            height: '1.8rem',
+                            backgroundColor: '#56ab91',
+                            borderRadius: '9999px',
+                            overflow: 'hidden',
+                            flexShrink: 0
+                          }}>
+                            <img src={comentario.avatar} alt={comentario.usuario} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#34d399', display: 'block' }}>{comentario.usuario}</span>
+                            <p style={{ fontSize: '0.7rem', color: '#e5e7eb', marginTop: '0.2rem', textAlign: 'justify', lineHeight: '1.4' }}>{comentario.texto}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '1rem', color: '#9ca3af', fontSize: '0.75rem' }}>
+                        No hay comentarios aún. ¡Sé el primero en comentar!
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Formulario de comentario fijo */}
+                  <form onSubmit={handleModalComentario} style={{
+                    border: '1px solid rgba(86, 171, 145, 0.4)',
+                    borderRadius: '0.75rem',
+                    padding: '0.6rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    marginTop: '0.25rem'
+                  }}>
+                    <div style={{
+                      width: '1.8rem',
+                      height: '1.8rem',
+                      backgroundColor: '#2d2a3e',
+                      borderRadius: '9999px',
+                      overflow: 'hidden',
+                      flexShrink: 0
+                    }}>
+                      <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <input
+                      type="text"
+                      value={nuevoComentarioModal}
+                      onChange={(e) => setNuevoComentarioModal(e.target.value)}
+                      placeholder="Escribe un comentario..."
+                      style={{
+                        background: 'transparent',
+                        flex: 1,
+                        outline: 'none',
+                        fontSize: '0.75rem',
+                        color: 'white',
+                        border: 'none'
+                      }}
+                    />
+                    <button 
+                      type="submit"
+                      style={{ 
+                        color: '#34d399', 
+                        background: 'none', 
+                        border: 'none', 
+                        cursor: 'pointer', 
+                        fontSize: '1rem',
+                        padding: '0.25rem 0.5rem',
+                        transition: 'transform 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(3px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+                    >
+                      ➤
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   };
 
   return (      
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
-     
         <ModalDetalle />
-
-
         <Navbar setPantalla={setPantalla} />
-
         
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-4">
           {publicaciones.map((pub) => (
-            <div
-              key={pub.id}
-              className="bg-slate-900/60 rounded-2xl border border-[#56ab91]/30 overflow-hidden hover:border-[#56ab91]/60 transition-all shadow-xl"
-            >
-              {/* Header de la publicación */}
-              <div className="flex justify-between items-center p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#56ab91]">
-                    <img
-                      src={pub.avatar}
-                      alt={pub.usuario}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white hover:underline cursor-pointer">
-                        {pub.usuario}
-                      </span>
-                      <span className="text-gray-400 text-sm">•</span>
-                      <span className="text-gray-400 text-sm">{pub.timestamp}</span>
-                    </div>
-                    <span className="text-xs text-emerald-400">{pub.franquicia}</span>
-                  </div>
-                </div>
-                <button className="text-gray-400 hover:text-white transition-colors">
-                  ⋯
-                </button>
-              </div>
-
-              
-              <div className="px-4 pb-3">
-                <h3 className="font-bold text-lg text-white mb-2">{pub.titulo}</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{pub.descripcion}</p>
-              </div>
-
-              {pub.imagenes.length > 0 && (
-                <div className={`grid gap-1 bg-black/20 ${pub.imagenes.length === 1 ? 'grid-cols-1' :
-                  pub.imagenes.length === 2 ? 'grid-cols-2' :
-                    pub.imagenes.length === 3 ? 'grid-cols-2' :
-                      'grid-cols-2'
-                  }`}>
-                  {pub.imagenes.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className={`relative overflow-hidden bg-slate-800 cursor-pointer ${pub.imagenes.length === 3 && idx === 0 ? 'row-span-2' : ''
-                        }`}
-                      style={{ paddingBottom: '75%' }}
-                      onClick={() => abrirModal(pub, idx)}
-                    >
-                      <img
-                        src={img}
-                        alt={`Imagen ${idx + 1}`}
-                        className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                      {pub.imagenes.length === 4 && idx === 3 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center hover:bg-black/60 transition-colors">
-                          <span className="text-white font-bold text-lg">+{pub.imagenes.length - 3}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-             
-              <div className="px-4 py-2 border-t border-[#56ab91]/20 flex justify-between text-sm text-gray-400">
-                <div className="flex items-center gap-1">
-                  <span>❤️</span>
-                  <span>{pub.likes}</span>
-                </div>
-                <div>
-                  <span>{pub.comentarios.length} comentarios</span>
-                </div>
-              </div>
-
-              {/* Botones de interacción */}
-              <div className="px-4 py-2 border-t border-[#56ab91]/20 flex gap-4">
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-pink-400 group">
-                  <span className="text-xl group-hover:scale-110 transition-transform">❤️</span>
-                  <span className="text-sm font-medium">Me gusta</span>
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-slate-800 transition-colors text-gray-300 hover:text-emerald-400">
-                  <span className="text-xl">💬</span>
-                  <span className="text-sm font-medium">Comentar</span>
-                </button>
-              </div>
-
-      
-              <div className="px-4 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0 overflow-hidden">
-                    <img src="https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png" alt="Avatar" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      className="w-full bg-slate-800 rounded-full py-2 px-4 outline-none border border-[#56ab91]/30 focus:border-[#56ab91] text-sm text-white placeholder-gray-500"
-                      placeholder="Escribe un comentario..."
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PubliCard 
+              key={pub.id} 
+              publicacion={pub} 
+              abrirModal={abrirModal}
+            />
           ))}
         </div>
       </div>

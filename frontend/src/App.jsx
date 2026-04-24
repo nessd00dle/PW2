@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { NavigationProvider, useNavigation } from '../context/NavigationContext';
+import './App.css'
+import useLocalStorage from 'use-local-storage';
+import ThemeOption from './componentes/Toggle/ThemeOptions';
+const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // Importar pantallas
+import Home from './pantallas/home'; 
 import AuthPage from './pantallas/AuthPage';
 import Perfil from './pantallas/Perfil';
 import PerfilPublico from './pantallas/PerfilPublico';
@@ -38,7 +43,7 @@ const AppContent = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border mx-auto mb-4"></div>
           <p className="text-white">Cargando...</p>
         </div>
       </div>
@@ -47,6 +52,8 @@ const AppContent = () => {
 
   const renderPantalla = () => {
     switch (pantallaActual) {
+      case 'home':
+        return <Home setPantalla={setPantallaActual} />;
       case 'auth':
         return <AuthPage />;
 
@@ -72,7 +79,6 @@ const AppContent = () => {
         return <PublicarCarta setPantalla={setPantallaActual} />;
 
       case 'detalle':
-
         return (
           <DetalleCarta
             carta={cartaSeleccionada}
@@ -110,6 +116,5 @@ function App() {
     </AuthProvider>
   );
 }
-
 
 export default App;
