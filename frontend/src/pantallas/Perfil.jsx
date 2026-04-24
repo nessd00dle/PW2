@@ -4,8 +4,10 @@ import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
 import '../App.css'
 import '../pantallas/index.css'
+import '../componentes/Cards/cartas_efecto.css'
 import useLocalStorage from 'use-local-storage';
 import ThemeOption from '../componentes/Toggle/ThemeOptions';
+import CartaConEfecto from '../componentes/Cards/CartaConEfecto';
 
 const Perfil = () => {
   const { usuario, logout, isAuthenticated, loading: authLoading } = useAuth();
@@ -115,20 +117,6 @@ const Perfil = () => {
     };
   };
 
-  const handleCartaClick = (carta, index) => {
-    const relativeIndex = (index - carruselIndex + totalCartas) % totalCartas;
-    if (relativeIndex === 0) {
-      console.log('Carta seleccionada:', carta);
-    } else {
-      const diff = (index - carruselIndex + totalCartas) % totalCartas;
-      if (diff <= totalCartas / 2) {
-        for (let i = 0; i < diff; i++) siguienteCarrusel();
-      } else {
-        for (let i = 0; i < totalCartas - diff; i++) anteriorCarrusel();
-      }
-    }
-  };
-
   const handleLogout = () => {
     logout();
     setPantallaActual('auth');
@@ -199,7 +187,6 @@ const Perfil = () => {
                 >
                   Editar perfil
                 </button>
-                {/* Botón de Estadísticas */}
                 <button
                   onClick={() => setPantallaActual('estadistica')}
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
@@ -219,42 +206,33 @@ const Perfil = () => {
             </div>
 
             <div className="relative min-h-[500px] flex items-center justify-center">
-              <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px' }}>
+              <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px', overflow: 'visible' }}>
                 <div className="relative flex justify-center items-center" style={{ height: '450px' }}>
                   {cartasMostrar.map((carta, idx) => {
                     const style = getCartaStyle(idx);
                     const isCenter = (idx - carruselIndex + totalCartas) % totalCartas === 0;
+                    
+                    // Función para navegar al hacer click en carta no central
+                    const handleCardNavigation = () => {
+                      const diff = (idx - carruselIndex + totalCartas) % totalCartas;
+                      if (diff <= totalCartas / 2) {
+                        for (let i = 0; i < diff; i++) siguienteCarrusel();
+                      } else {
+                        for (let i = 0; i < totalCartas - diff; i++) anteriorCarrusel();
+                      }
+                    };
 
                     return (
                       <div
                         key={carta.id}
-                        onClick={() => handleCartaClick(carta, idx)}
-                        className="absolute cursor-pointer transition-all duration-500"
+                        className="absolute transition-all duration-500"
                         style={style}
                       >
-                        <div className={`relative w-[220px] h-[320px] rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${isCenter
-                          ? 'shadow-[0_0_30px_rgba(86,171,145,0.5)] ring-2 border'
-                          : 'shadow-lg hover:shadow-xl'
-                          }`}>
-                          <img
-                            src={carta.imagen}
-                            alt={carta.nombre}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 ${isCenter ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                            }`}>
-                            <div className="absolute bottom-0 left-0 right-0 p-4">
-                              <p className="text-white font-bold text-lg mb-1">{carta.nombre}</p>
-                              <span className={`text-xs font-semibold px-2 py-1 rounded-full ${carta.rareza === 'Legendaria' ? 'bg-yellow-500 text-black' :
-                                carta.rareza === 'Épica' ? 'bg-purple-500 text-white' :
-                                  carta.rareza === 'Rara' ? 'bg-blue-500 text-white' :
-                                    'bg-gray-500 text-white'
-                                }`}>
-                                {carta.rareza}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        <CartaConEfecto 
+                          carta={carta}
+                          isCenter={isCenter}
+                          onClick={handleCardNavigation}
+                        />
                       </div>
                     );
                   })}
