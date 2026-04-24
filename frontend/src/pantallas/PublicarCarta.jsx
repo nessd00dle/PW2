@@ -9,17 +9,32 @@ const PublicarCarta = ({ setPantalla }) => {
   const [imagenesVenta, setImagenesVenta] = useState([]);
   const [erroresImagen, setErroresImagen] = useState([]);
 
+  const [titulo, setTitulo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [cantidad, setCantidad] = useState(1);
+  const [franquicia, setFranquicia] = useState('Pokemon');
+
+  const [formData, setFormData] = useState({
+    titulo: '',
+    descripcion: '',
+    precio: '',
+    cantidad: '',
+    condicion: '',
+    franquicia: null,
+    imagenes: null
+  });
 
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
     setTipoPublicacion(tipo);
-    
-    
+
+
     if (tipo !== 'venta' && tipo !== 'intercambio') {
       setImagenesVenta([]);
     }
-    
-   
+
+
     if (tipo === 'coleccion') {
       setShowGalleryModal(true);
     }
@@ -30,28 +45,28 @@ const PublicarCarta = ({ setPantalla }) => {
     console.log('Carta seleccionada para colección:', carta);
   };
 
- 
+
   const validarImagen = (file) => {
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
     const extensionesPermitidas = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-    
+
     const extension = '.' + file.name.split('.').pop().toLowerCase();
-    
+
     if (!tiposPermitidos.includes(file.type) && !extensionesPermitidas.includes(extension)) {
       return {
         valido: false,
         error: `Formato no permitido: ${file.name}. Solo se permiten imágenes (JPG, PNG, GIF, WEBP, BMP)`
       };
     }
-    
-   
+
+
     if (file.size > 5 * 1024 * 1024) {
       return {
         valido: false,
         error: `Archivo demasiado grande: ${file.name}. Máximo 5MB`
       };
     }
-    
+
     return { valido: true, error: null };
   };
 
@@ -59,16 +74,16 @@ const PublicarCarta = ({ setPantalla }) => {
     const files = Array.from(e.target.files);
     const nuevasImagenes = [];
     const nuevosErrores = [];
-    
+
 
     if (imagenesVenta.length + files.length > 10) {
       alert('Máximo 10 imágenes por publicación');
       return;
     }
-    
+
     files.forEach(file => {
       const validacion = validarImagen(file);
-      
+
       if (validacion.valido) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -78,7 +93,7 @@ const PublicarCarta = ({ setPantalla }) => {
             preview: reader.result,
             nombre: file.name
           });
-          
+
           if (nuevasImagenes.length === files.length) {
             setImagenesVenta(prev => [...prev, ...nuevasImagenes]);
           }
@@ -88,7 +103,7 @@ const PublicarCarta = ({ setPantalla }) => {
         nuevosErrores.push(validacion.error);
       }
     });
-    
+
     if (nuevosErrores.length > 0) {
       setErroresImagen(nuevosErrores);
       setTimeout(() => setErroresImagen([]), 5000);
@@ -99,35 +114,66 @@ const PublicarCarta = ({ setPantalla }) => {
     setImagenesVenta(prev => prev.filter(img => img.id !== id));
   };
 
-  const handlePublicar = () => {
-    if (tipoPublicacion === 'coleccion' && !selectedCarta) {
-      alert('Debes seleccionar una carta para tu colección');
-      setShowGalleryModal(true);
-      return;
-    }
-    
-    if ((tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && imagenesVenta.length === 0) {
-      alert('Debes agregar al menos una imagen para la publicación');
-      return;
-    }
-    
+  const handlePublicar = async () => {
+
+
     // Aquí va la lógica de publicación
-    console.log('Publicando:', { 
-      tipoPublicacion, 
-      selectedCarta, 
-      imagenes: imagenesVenta.map(img => img.file)
-    });
-    setPantalla('perfil');
+    try {
+      if (tipoPublicacion !== 'venta') {
+        alert('Solo venta por ahora');
+        return;
+      }
+
+      if (!titulo || !precio || imagenesVenta.length === 0) {
+        alert('Faltan datos obligatorios');
+        return;
+      }
+
+      const formDataToSend = new FormData();
+
+      formDataToSend.append('Titulo', titulo);
+      formDataToSend.append('Texto', descripcion);
+      formDataToSend.append('Tipo', tipoPublicacion);
+      formDataToSend.append('Monto', precio);
+      formDataToSend.append('Franquicia', franquicia);
+      formDataToSend.append('Cantidad', cantidad);
+      formDataToSend.append('Condicion', 'buena');
+
+      imagenesVenta.forEach((img) => {
+        formDataToSend.append('imagenes', img.file);
+      });
+
+      const response = await fetch('http://localhost:3000/api/publicaciones', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formDataToSend
+      });
+
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message);
+
+      console.log('✅ Publicación creada:', data);
+
+      alert('Publicación creada con éxito');
+      setPantalla('perfil');
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert(error.message);
+    }
   };
 
   return (
- <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
-      
+    <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
+
       <div className="relative w-full max-w-2xl border-2 border-[#56ab91] rounded-3xl bg-slate-900/40 p-10 shadow-2xl">
-        
-      
+
+
         {!showGalleryModal && (
-          <button 
+          <button
             onClick={() => setPantalla('perfil')}
             className="absolute top-6 right-6 w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all z-10"
           >
@@ -135,11 +181,11 @@ const PublicarCarta = ({ setPantalla }) => {
           </button>
         )}
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-          
-        
+
+
           <div className="flex gap-4 mb-4">
             <div className="relative">
-              <select 
+              <select
                 className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]"
                 value={tipoPublicacion}
                 onChange={handleTipoChange}
@@ -156,7 +202,7 @@ const PublicarCarta = ({ setPantalla }) => {
               <select className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
                 <option value="pokemon">Pokemon</option>
                 <option value="magic">Magic</option>
-                <option value="dragonball">Dragon Ball</option>  
+                <option value="dragonball">Dragon Ball</option>
                 <option value="yugioh">Yu-Gi-Oh</option>
                 <option value="digimon">Digimon</option>
               </select>
@@ -164,19 +210,23 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           </div>
 
-          
+
           <div className="flex gap-4 items-end">
             <div className="flex-[4]">
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Título</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
               />
             </div>
             <div className="flex-1">
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Cantidad</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
+                value={cantidad}
+                onChange={(e) => setCantidad(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400 text-center"
                 placeholder="1"
                 min="1"
@@ -184,12 +234,14 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           </div>
 
-         
+
           {tipoPublicacion === 'venta' && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
                 className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
                 placeholder="$0.00"
                 min="0"
@@ -198,22 +250,22 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-         
+
           {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">
                 Imágenes de la carta
                 <span className="text-xs text-gray-400 ml-2">(Máximo 10 imágenes, solo formatos de imagen)</span>
               </label>
-              
-              
+
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                
+
                 {imagenesVenta.map((img) => (
                   <div key={img.id} className="relative group">
                     <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-[#56ab91]/40 bg-slate-800/40 hover:border-[#56ab91] transition-all">
-                      <img 
-                        src={img.preview} 
+                      <img
+                        src={img.preview}
                         alt={img.nombre}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
@@ -226,8 +278,8 @@ const PublicarCarta = ({ setPantalla }) => {
                     </div>
                   </div>
                 ))}
-                
-               
+
+
                 {imagenesVenta.length < 10 && (
                   <div className="relative group">
                     <input
@@ -238,8 +290,8 @@ const PublicarCarta = ({ setPantalla }) => {
                       className="hidden"
                       id="imagenes-input"
                     />
-                    <label 
-                      htmlFor="imagenes-input" 
+                    <label
+                      htmlFor="imagenes-input"
                       className="cursor-pointer block"
                     >
                       <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-dashed border-[#56ab91]/60 bg-slate-800/20 hover:bg-slate-800/40 hover:border-[#56ab91] transition-all group">
@@ -255,14 +307,14 @@ const PublicarCarta = ({ setPantalla }) => {
                 )}
               </div>
 
-             
+
               {imagenesVenta.length > 0 && (
                 <p className="text-xs text-emerald-400 mt-3 text-center">
                   {imagenesVenta.length} / 10 imágenes seleccionadas
                 </p>
               )}
 
-              
+
               {erroresImagen.length > 0 && (
                 <div className="mt-3 p-2 bg-red-900/50 border border-red-500 rounded-lg">
                   {erroresImagen.map((error, idx) => (
@@ -273,27 +325,27 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-          
+
           {tipoPublicacion === 'coleccion' && (
-            <div 
+            <div
               className={`w-full h-40 border-2 border-dashed rounded-3xl flex items-center justify-center transition-all cursor-pointer
-                ${selectedCarta 
-                  ? 'border-[#d91a7a] bg-slate-800/40' 
+                ${selectedCarta
+                  ? 'border-[#d91a7a] bg-slate-800/40'
                   : 'border-[#56ab91]/60 hover:bg-slate-800/20'
                 }`}
               onClick={() => setShowGalleryModal(true)}
             >
               {selectedCarta ? (
                 <div className="flex items-center gap-4">
-                  <img 
-                    src={selectedCarta.imagen} 
+                  <img
+                    src={selectedCarta.imagen}
                     alt={selectedCarta.nombre}
                     className="h-28 w-auto object-contain"
                   />
                   <div>
                     <p className="font-bold text-[#d91a7a]">{selectedCarta.nombre}</p>
                     <p className="text-sm text-gray-300">Carta seleccionada ✓</p>
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedCarta(null);
@@ -314,23 +366,25 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-         
+
           <div>
             <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Descripción</label>
-            <textarea 
+            <textarea
               rows="4"
               className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-3xl py-4 px-4 outline-none focus:border-emerald-400 resize-none"
-              placeholder={tipoPublicacion === 'coleccion' 
-                ? 'Describe tu colección...' 
+              placeholder={tipoPublicacion === 'coleccion'
+                ? 'Describe tu colección...'
                 : tipoPublicacion === 'venta'
-                ? 'Describe la carta que vendes (estado, rareza, etc)...'
-                : 'Describe la carta que ofreces para intercambio...'}
+                  ? 'Describe la carta que vendes (estado, rareza, etc)...'
+                  : 'Describe la carta que ofreces para intercambio...'}
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
             ></textarea>
           </div>
 
-        
+
           <div className="flex justify-center pt-2">
-            <button 
+            <button
               onClick={handlePublicar}
               type="button"
               className="bg-[#d91a7a] hover:bg-[#f22c8e] text-white font-black py-3 px-24 rounded-xl shadow-lg transform active:scale-95 transition-all uppercase tracking-[0.2em] text-xs"
@@ -342,7 +396,7 @@ const PublicarCarta = ({ setPantalla }) => {
         </form>
       </div>
 
-     
+
       <Gallery
         setPantalla={setPantalla}
         isOpen={showGalleryModal}
