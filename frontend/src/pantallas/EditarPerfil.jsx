@@ -1,32 +1,31 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
+import Avatar from '../componentes/Avatar';
 import { Camera, X, Save, AlertCircle } from 'lucide-react';
-import '../App.css'
-import '../pantallas/index.css'
-import useLocalStorage from 'use-local-storage';
-import ThemeOption from '../componentes/Toggle/ThemeOptions';
+import '../App.css';
+import '../pantallas/index.css';
 
 const EditarPerfil = () => {
+  const navigate = useNavigate();
   const { usuario, actualizarPerfil, actualizarFotoPerfil } = useAuth();
-  const { setPantallaActual } = useNavigation();
   const [loading, setLoading] = useState(false);
-  const [subiendoFoto, setSubiendoFoto] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [previewFoto, setPreviewFoto] = useState(null);
   const [nuevaFoto, setNuevaFoto] = useState(null);
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [previewUrl, setPreviewUrl] = useState(null); 
+  const [mostrarAvatar, setMostrarAvatar] = useState(true); 
+  
+  const fileInputRef = useRef(null);
 
-  // Estado del formulario
   const [formData, setFormData] = useState({
     nombre: '',
     nickname: '',
     bio: ''
   });
 
-  // Cargar datos actuales del usuario
   useEffect(() => {
     if (usuario) {
       setFormData({
@@ -34,12 +33,27 @@ const EditarPerfil = () => {
         nickname: usuario.nickname || '',
         bio: usuario.bio || ''
       });
-
-      if (usuario.fotoPerfil) {
-        setPreviewFoto(`http://localhost:3000${usuario.fotoPerfil}`);
-      }
     }
+    
+   
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
   }, [usuario]);
+
+
+  useEffect(() => {
+    if (usuario?.fotoPerfil && !nuevaFoto) {
+      // Limpiar preview si existe
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      setMostrarAvatar(prev => !prev); // Forzar re-render
+    }
+  }, [usuario?.fotoPerfil]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -51,18 +65,30 @@ const EditarPerfil = () => {
     setSuccess('');
   };
 
-  const handleActualizarFoto = async (e) => {
+  const handleActualizarFoto = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Mostrar preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewFoto(reader.result);
-    };
-    reader.readAsDataURL(file);
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor selecciona una imagen válida');
+      return;
+    }
 
+    if (file.size > 5 * 1024 * 1024) {
+      setError('La imagen no debe superar los 5MB');
+      return;
+    }
+
+    // Limpiar preview anterior si existe
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    // Crear nuevo blob URL para preview
+    const newPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(newPreviewUrl);
     setNuevaFoto(file);
+    setMostrarAvatar(prev => !prev); // Forzar re-render del avatar
   };
 
   const handleSubmit = async (e) => {
@@ -72,19 +98,22 @@ const EditarPerfil = () => {
     setSuccess('');
 
     try {
-      // Actualizar datos del perfil
       const result = await actualizarPerfil(formData);
 
       if (result.success) {
-        // Si hay nueva foto, subirla
         if (nuevaFoto) {
           const fotoFormData = new FormData();
           fotoFormData.append('fotoPerfil', nuevaFoto);
-
           const fotoResult = await actualizarFotoPerfil(fotoFormData);
 
           if (fotoResult.success) {
             setSuccess('Perfil y foto actualizados correctamente');
+            // Limpiar preview después de guardar
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+              URL.revokeObjectURL(previewUrl);
+              setPreviewUrl(null);
+            }
+            setNuevaFoto(null);
           } else {
             setError('Perfil actualizado pero hubo error con la foto: ' + fotoResult.error);
           }
@@ -92,9 +121,8 @@ const EditarPerfil = () => {
           setSuccess('Perfil actualizado correctamente');
         }
 
-        // Redirigir al perfil después de 2 segundos
         setTimeout(() => {
-          setPantallaActual('perfil');
+          navigate('/mi-perfil');
         }, 2000);
       } else {
         setError(result.error || 'Error al actualizar perfil');
@@ -108,7 +136,10 @@ const EditarPerfil = () => {
   };
 
   const handleCancelar = () => {
-    setPantallaActual('perfil');
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    navigate('/mi-perfil');
   };
 
   if (!usuario) {
@@ -119,6 +150,9 @@ const EditarPerfil = () => {
     );
   }
 
+  
+  const fotoParaMostrar = previewUrl || usuario.fotoPerfil;
+
   return (
     <div className='App' id='App'>
       <div className="min-h-screen bg-slate text-white font-windows p-4 overflow-x-hidden">
@@ -126,7 +160,6 @@ const EditarPerfil = () => {
 
         <div className="max-w-3xl mx-auto">
           <div className="border-2 border rounded-[40px] p-8 bg-slate-900/50">
-
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-3xl font-bold highlight">Editar Perfil</h1>
               <button
@@ -145,28 +178,24 @@ const EditarPerfil = () => {
             )}
 
             {success && (
-              <div className="mb-6 bg-green-500/20 border border-green-500 text-green-100 px-4 py-3 rounded-lg flex items-center gap-2">
+              <div className="mb-6 bg-green-500/20 border-2 border-green-500 text-green-100 px-4 py-3 rounded-lg flex items-center gap-2">
                 <Save className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">{success}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
               <div className="flex flex-col items-center">
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border">
-                    {previewFoto ? (
-                      <img
-                        src={previewFoto}
-                        alt="Foto de perfil"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Camera className="w-12 h-12 text-white/50" />
-                      </div>
-                    )}
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4">
+                    <Avatar
+                      key={mostrarAvatar ? 'avatar-1' : 'avatar-2'}
+                      fotoPerfil={fotoParaMostrar}
+                      nombre={formData.nombre}
+                      size="w-full h-full"
+                      textSize="text-4xl"
+                      borderColor="border-transparent"
+                    />
                   </div>
                   <label
                     htmlFor="foto-perfil"
@@ -174,6 +203,7 @@ const EditarPerfil = () => {
                   >
                     <Camera className="w-4 h-4" />
                     <input
+                      ref={fileInputRef}
                       id="foto-perfil"
                       type="file"
                       accept="image/*"
@@ -185,6 +215,11 @@ const EditarPerfil = () => {
                 <p className="text-xs text-gray-400 mt-2">
                   Haz clic en la cámara para cambiar tu foto
                 </p>
+                {previewUrl && (
+                  <p className="text-xs text-emerald-400 mt-1">
+                    Vista previa - Guarda los cambios para aplicar
+                  </p>
+                )}
               </div>
 
               <div>
@@ -264,9 +299,9 @@ const EditarPerfil = () => {
                 </label>
                 <input
                   type="text"
-                  value={new Date(usuario.createdAt).toLocaleDateString('es-MX')}
+                  value={usuario.createdAt ? new Date(usuario.createdAt).toLocaleDateString('es-MX') : 'Fecha no disponible'}
                   disabled
-                  className="w-full bg-slate border-2 border-[#56ab91]/20 rounded-2xl p-3 text-gray-400 cursor-not-allowed"
+                  className="w-full bg-slate border-2 border border-[#56ab91]/20 rounded-2xl p-3 text-gray-400 cursor-not-allowed"
                 />
               </div>
 

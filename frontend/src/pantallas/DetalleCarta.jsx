@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../componentes/Layout/navbar';
 import '../App.css'
 import '../pantallas/index.css'
@@ -6,27 +7,27 @@ import useLocalStorage from 'use-local-storage';
 import ThemeOption from '../componentes/Toggle/ThemeOptions';
 const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-const DetalleCarta = ({ setPantalla }) => {
+const DetalleCarta = () => {
+  const navigate = useNavigate();
   return (
     <div className='App' id='App'>
 
       <div className="min-h-screen text-white font-sans p-4">
 
-        <Navbar setPantalla={setPantalla} />
+        <Navbar />
 
 
-        {/* contendido detalle */}
         <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full max-w-7xl mx-auto px-4">
 
-          {/* btn x */}
+          
           <button
-            onClick={() => setPantalla('ventas')}
+            onClick={() => navigate('/ventas')}
             className="w-10 h-10 bg-slate rounded-full flex-shrink-0 flex items-center justify-center font-bold border hover:bg-red-600 transition-colors shadow-lg"
           >
             X
           </button>
 
-          {/* columna izq */}
+          
           <div className="w-full md:w-[350px] min-h-[500px] border-2 border rounded-3xl bg-slate-900/40 flex items-center justify-center relative shadow-2xl">
             <div className="bg-slate px-6 py-3 rounded-xl border border">
               <span className="text-gray-300 font-bold text-sm uppercase tracking-widest italic text-center block">

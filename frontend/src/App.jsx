@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../context/AuthContext';
-import { NavigationProvider, useNavigation } from '../context/NavigationContext';
+import ErrorBoundary from './componentes/ErrorBoundary';
 import './App.css'
-import useLocalStorage from 'use-local-storage';
-import ThemeOption from './componentes/Toggle/ThemeOptions';
-const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // Importar pantallas
 import Home from './pantallas/home'; 
@@ -19,83 +17,90 @@ import Coleccion from './pantallas/Coleccion';
 import DetalleCarta from './pantallas/DetalleCarta';
 import Feed from './pantallas/Feed';
 
-// Componente que maneja la lógica de navegación
-const AppContent = () => {
+// Componente para rutas protegidas
+const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  const {
-    pantallaActual,
-    setPantallaActual,
-    usuarioPublico,
-    cartaSeleccionada,
-    publicacionSeleccionada
-  } = useNavigation();
-
-  // Proteger rutas que requieren autenticación
-  useEffect(() => {
-    const rutasProtegidas = ['perfil', 'coleccion', 'publicar', 'configuracion', 'estadistica', 'editarPerfil'];
-
-    if (!loading && !isAuthenticated && rutasProtegidas.includes(pantallaActual)) {
-      setPantallaActual('auth');
-    }
-  }, [isAuthenticated, loading, pantallaActual, setPantallaActual]);
-
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
           <p className="text-white">Cargando...</p>
         </div>
       </div>
     );
   }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return children;
+};
 
-  const renderPantalla = () => {
-    switch (pantallaActual) {
-      case 'home':
-        return <Home setPantalla={setPantallaActual} />;
-      case 'auth':
-        return <AuthPage />;
-
-      case 'perfil':
-        return <Perfil />;
-
-      case 'perfilPublico':
-        return <PerfilPublico />;
-
-      case 'editarPerfil':
-        return <EditarPerfil />;
-
-      case 'coleccion':
-        return <Coleccion />;
-
-      case 'configuracion':
-        return <Configuracion />;
-
-      case 'estadistica':
-        return <Estadistica setPantalla={setPantallaActual} />;
-        
-      case 'publicar':
-        return <PublicarCarta setPantalla={setPantallaActual} />;
-
-      case 'detalle':
-        return (
-          <DetalleCarta
-            carta={cartaSeleccionada}
-            publicacion={publicacionSeleccionada}
-            setPantalla={setPantallaActual}
-          />
-        );
-
-      case 'ventas':
-        return <Feed setPantalla={setPantallaActual} />
-
-      default:
-        return <AuthPage />;
-    }
-  };
-
-  return <div className="App">{renderPantalla()}</div>;
+// Componente que maneja las rutas
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Rutas públicas */}
+      <Route path="/" element={<Home />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/perfil/:userId?" element={<PerfilPublico />} />
+      
+      {/* Rutas protegidas */}
+      <Route path="/mi-perfil" element={
+        <ProtectedRoute>
+          <Perfil />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/editar-perfil" element={
+        <ProtectedRoute>
+          <EditarPerfil />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/coleccion" element={
+        <ProtectedRoute>
+          <Coleccion />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/configuracion" element={
+        <ProtectedRoute>
+          <Configuracion />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/estadistica" element={
+        <ProtectedRoute>
+          <Estadistica />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/publicar" element={
+        <ProtectedRoute>
+          <PublicarCarta />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/detalle/:tipo/:id" element={
+        <ProtectedRoute>
+          <DetalleCarta />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/ventas" element={
+        <ProtectedRoute>
+          <Feed />
+        </ProtectedRoute>
+      } />
+      
+      {/* Redirección por defecto */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 };
 
 // Componente principal
@@ -103,17 +108,18 @@ function App() {
   const selectedTheme = localStorage.getItem("theme");
 
   if (selectedTheme) {
-    document
-      .querySelector("body")
-      .setAttribute("data-theme", selectedTheme);
+    document.querySelector("body").setAttribute("data-theme", selectedTheme);
   }
 
   return (
-    <AuthProvider>
-      <NavigationProvider>
-        <AppContent />
-      </NavigationProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <ErrorBoundary>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+        </ErrorBoundary>
+      </BrowserRouter>
+  
   );
 }
 

@@ -1,4 +1,6 @@
-import React from "react";
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LeftSidebar from "../Sidebar/LeftSidebar";
 import FeedControls from "../Filtros/FeedControls";
 import Navbar from './navbar';
@@ -15,12 +17,29 @@ const MainLayout = ({
   onSortChange,
   filterType,
   onFilterChange
-}) => {
+}) =>   {
+  const navigate = useNavigate();
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const handlePublicarClick = () => {
+    navigate('/publicar');
+  };
+
+  const handlePerfilClick = () => {
+    navigate('/mi-perfil');
+  };
+
+  const handleColeccionClick = () => {
+    navigate('/coleccion');
+  };
+
   return (
+
+    
     <div className='App' id='App' style={{ isolation: 'isolate' }}>
       <div className="min-h-screen text-white font-sans flex flex-col p-4">
         
-        <Navbar setPantalla={setPantalla} />
+        <Navbar  />
        
         <div className="flex w-full max-w-[1400px] mx-auto px-2 gap-6 pb-10">
          
@@ -41,7 +60,7 @@ const MainLayout = ({
                 onSortChange={onSortChange}
                 filterType={filterType}
                 onFilterChange={onFilterChange}
-                onPublicarClick={() => setPantalla('publicar')}
+                onPublicarClick={() => navigate('/publicar')}
               />
             </div>
             
@@ -56,3 +75,6 @@ const MainLayout = ({
 };
 
 export default MainLayout;
+
+
+

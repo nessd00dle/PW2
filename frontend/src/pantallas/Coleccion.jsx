@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../componentes/Layout/navbar';
 import PubliCard from '../componentes/Cards/PubliCard';
 import '../App.css';
 import '../index.css';
 
-const Coleccion = ({ setPantalla }) => {
+const Coleccion = () => {
+  const navigate = useNavigate();
   const [modalAbierto, setModalAbierto] = useState(false);
   const [imagenesPublicacion, setImagenesPublicacion] = useState([]);
   const [imagenActual, setImagenActual] = useState(0);
@@ -18,6 +20,7 @@ const Coleccion = ({ setPantalla }) => {
     {
       id: 1,
       usuario: "María González",
+      usuarioId: "123",
       avatar: "https://i.pravatar.cc/150?img=1",
       franquicia: "Pokémon TCG",
       titulo: "Mi mazo soñado ✨",
@@ -37,6 +40,7 @@ const Coleccion = ({ setPantalla }) => {
     {
       id: 2,
       usuario: "Carlos Ruiz",
+      usuarioId: "456",
       avatar: "https://i.pravatar.cc/150?img=8",
       franquicia: "Magic: The Gathering",
       titulo: "Torneo local 🏆",
@@ -56,6 +60,7 @@ const Coleccion = ({ setPantalla }) => {
     {
       id: 3,
       usuario: "Ana Martínez",
+      usuarioId: "789",
       avatar: "https://i.pravatar.cc/150?img=5",
       franquicia: "Yu-Gi-Oh!",
       titulo: "Mi colección completa",
@@ -75,16 +80,25 @@ const Coleccion = ({ setPantalla }) => {
     }
   ];
 
-  useEffect(() => {
-    if (modalAbierto) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [modalAbierto]);
+ 
+
+useEffect(() => {
+  if (modalAbierto) {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  } else {
+    document.body.style.overflow = 'unset';
+    document.body.style.position = 'static';
+    document.body.style.width = 'auto';
+  }
+  
+  return () => {
+    document.body.style.overflow = 'unset';
+    document.body.style.position = 'static';
+    document.body.style.width = 'auto';
+  };
+}, [modalAbierto]);
 
   const abrirModal = (publicacion, indiceImagen) => {
     setPublicacionActual(publicacion);
@@ -137,7 +151,6 @@ const Coleccion = ({ setPantalla }) => {
     }
   };
 
-  // Modal de detalle responsivo
   const ModalDetalle = () => {
     if (!modalAbierto || !publicacionActual) return null;
 
@@ -189,7 +202,6 @@ const Coleccion = ({ setPantalla }) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Botón cerrar */}
             <button
               onClick={cerrarModal}
               style={{
@@ -215,15 +227,11 @@ const Coleccion = ({ setPantalla }) => {
               <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
             </button>
 
-           
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
               gap: '1.5rem',
               alignItems: 'start',
-              '@media (minWidth: 768px)?': {
-                gridTemplateColumns: '1fr 1fr'
-              }
             }}>
               
               <div style={{
@@ -328,7 +336,6 @@ const Coleccion = ({ setPantalla }) => {
                 </div>
               </div>
 
-             
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -392,7 +399,6 @@ const Coleccion = ({ setPantalla }) => {
                   </div>
                 </div>
 
-                {/* Comentarios con scroll personalizado */}
                 <div style={{
                   border: '2px solid #56ab91',
                   borderRadius: '1rem',
@@ -449,7 +455,6 @@ const Coleccion = ({ setPantalla }) => {
                     )}
                   </div>
 
-                  {/* Formulario de comentario fijo */}
                   <form onSubmit={handleModalComentario} style={{
                     border: '1px solid rgba(86, 171, 145, 0.4)',
                     borderRadius: '0.75rem',
@@ -514,7 +519,7 @@ const Coleccion = ({ setPantalla }) => {
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
         <ModalDetalle />
-        <Navbar setPantalla={setPantalla} />
+        <Navbar />
         
         <div className="max-w-4xl mx-auto space-y-4">
           {publicaciones.map((pub) => (
