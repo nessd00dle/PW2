@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import fs from 'fs';
 import connectDB from "./config/dbClient.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
-import publiRoutes from "./routes/publiRoutes.js";
+//import publiRoutes from "./routes/publiRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,13 +63,29 @@ if (fs.existsSync(uploadsPath)) {
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/publicaciones', publiRoutes);
+//app.use('/api/publicaciones', publiRoutes);
 
 // Ruta de prueba
 app.get('/test', (req, res) => {
     res.json({ mensaje: 'Servidor funcionando correctamente' });
 });
 
+
+app.get('/debug/usuario/:id', async (req, res) => {
+    try {
+        const Usuario = (await import('./models/Usuario.js')).default;
+        const usuario = await Usuario.findById(req.params.id).select('nombre nickname fotoPerfil');
+        res.json({
+            id: usuario._id,
+            nombre: usuario.nombre,
+            nickname: usuario.nickname,
+            fotoPerfil: usuario.fotoPerfil,
+            urlCompleta: `http://localhost:3000${usuario.fotoPerfil}`
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 // Ruta para verificar si una imagen existe (debug)
 app.get('/check-image/:filename', (req, res) => {
     const imagePath = path.join(uploadsPath, 'perfiles', req.params.filename);

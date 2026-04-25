@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
-import '../App.css'
-import '../pantallas/index.css'
-import '../componentes/Cards/cartas_efecto.css'
-import useLocalStorage from 'use-local-storage';
-import ThemeOption from '../componentes/Toggle/ThemeOptions';
+import Avatar from '../componentes/Avatar';
 import CartaConEfecto from '../componentes/Cards/CartaConEfecto';
+import '../App.css';
+import '../pantallas/index.css';
+import '../componentes/Cards/cartas_efecto.css';
 
 const Perfil = () => {
+  const navigate = useNavigate();
   const { usuario, logout, isAuthenticated, loading: authLoading } = useAuth();
-  const { setPantallaActual } = useNavigation();
   const [carruselIndex, setCarruselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [cartasUsuario, setCartasUsuario] = useState([]);
   const [loadingCartas, setLoadingCartas] = useState(true);
-  const [fotoKey, setFotoKey] = useState(Date.now());
-  const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       console.log('No autenticado, redirigiendo a login');
-      setPantallaActual('auth');
+      navigate('/auth');
     }
-  }, [authLoading, isAuthenticated, setPantallaActual]);
+  }, [authLoading, isAuthenticated, navigate]);
 
   const formatearFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
@@ -34,22 +31,6 @@ const Perfil = () => {
       month: '2-digit',
       day: '2-digit'
     });
-  };
-
-  useEffect(() => {
-    if (usuario?.fotoPerfil) {
-      setFotoKey(Date.now());
-    }
-  }, [usuario?.fotoPerfil]);
-
-  const getInitiales = () => {
-    if (!usuario?.nombre) return '??';
-    return usuario.nombre
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   useEffect(() => {
@@ -119,7 +100,7 @@ const Perfil = () => {
 
   const handleLogout = () => {
     logout();
-    setPantallaActual('auth');
+    navigate('/auth');
   };
 
   if (!usuario) {
@@ -136,27 +117,14 @@ const Perfil = () => {
         <Navbar />
         <div className="border-2 border rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-            <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border flex items-center justify-center overflow-hidden">
-              {usuario.fotoPerfil ? (
-                <img
-                  key={fotoKey}
-                  src={`http://localhost:3000${usuario.fotoPerfil}?t=${fotoKey}`}
-                  alt="Foto de perfil"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    console.error('Error cargando imagen:', `http://localhost:3000${usuario.fotoPerfil}`);
-                    e.target.style.display = 'none';
-                    if (e.target.parentElement) {
-                      e.target.parentElement.innerHTML = `<span className="text-6xl font-bold text-white">${getInitiales()}</span>`;
-                    }
-                  }}
-                />
-              ) : (
-                <span className="text-6xl font-bold text-white">
-                  {getInitiales()}
-                </span>
-              )}
-            </div>
+            {/* Avatar */}
+            <Avatar
+              fotoPerfil={usuario.fotoPerfil}
+              nombre={usuario.nombre}
+              size="w-40 h-40"
+              textSize="text-6xl"
+              borderColor="border-[#2d2a3e]"
+            />
 
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-4xl text-white font-bold mb-2">{usuario.nombre}</h1>
@@ -182,14 +150,13 @@ const Perfil = () => {
                   Cerrar sesión
                 </button>
                 <button
-                  onClick={() => setPantallaActual('editarPerfil')}
+                  onClick={() => navigate('/editar-perfil')}
                   className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
                 >
                   Editar perfil
                 </button>
-                {/* Botón de Estadísticas */}
                 <button
-                  onClick={() => setPantallaActual('estadistica')}
+                  onClick={() => navigate('/estadistica')}
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
                 >
                   Ver Estadísticas
@@ -213,7 +180,6 @@ const Perfil = () => {
                     const style = getCartaStyle(idx);
                     const isCenter = (idx - carruselIndex + totalCartas) % totalCartas === 0;
                     
-                    // Función para navegar al hacer click en carta no central
                     const handleCardNavigation = () => {
                       const diff = (idx - carruselIndex + totalCartas) % totalCartas;
                       if (diff <= totalCartas / 2) {
@@ -252,7 +218,7 @@ const Perfil = () => {
                   </button>
                   <button
                     onClick={siguienteCarrusel}
-                    className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border hover:bg-emerald-600 transition-all z-30 hover:scale-110"
+                    className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
                   >
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

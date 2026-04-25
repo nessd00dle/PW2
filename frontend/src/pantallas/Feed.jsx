@@ -1,8 +1,11 @@
+
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MainLayout from "../componentes/Layout/MainLayout";
 import CardGrid from "../componentes/Cards/CardGrid";
 
-const Feed = ({ setPantalla }) => {
+const Feed = () => {
+  const navigate = useNavigate();
   const [filterType, setFilterType] = useState("all");
   const [selectedFandoms, setSelectedFandoms] = useState([]);
   const [sortBy, setSortBy] = useState("popular");
@@ -36,9 +39,12 @@ const Feed = ({ setPantalla }) => {
     }
   });
 
+  const handleCardClick = (card) => {
+    navigate(`/detalle/carta/${card.id}`, { state: { carta: card } });
+  };
+
   return (
     <MainLayout
-      setPantalla={setPantalla}
       selectedFandoms={selectedFandoms}
       onFandomChange={setSelectedFandoms}
       sortBy={sortBy}
@@ -46,10 +52,9 @@ const Feed = ({ setPantalla }) => {
       filterType={filterType}
       onFilterChange={setFilterType}
     >
-
       <CardGrid 
         cards={sortedCards}
-        onCardClick={(card) => setPantalla('detalle')}
+        onCardClick={handleCardClick}
       />
     </MainLayout>
   );

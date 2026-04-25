@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Gallery from '../componentes/Modals/Gallery';
 
-
-const PublicarCarta = ({ setPantalla }) => {
+const PublicarCarta = () => {
+  const navigate = useNavigate();
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [selectedCarta, setSelectedCarta] = useState(null);
   const [tipoPublicacion, setTipoPublicacion] = useState('');
@@ -15,25 +16,13 @@ const PublicarCarta = ({ setPantalla }) => {
   const [cantidad, setCantidad] = useState(1);
   const [franquicia, setFranquicia] = useState('Pokemon');
 
-  const [formData, setFormData] = useState({
-    titulo: '',
-    descripcion: '',
-    precio: '',
-    cantidad: '',
-    condicion: '',
-    franquicia: null,
-    imagenes: null
-  });
-
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
     setTipoPublicacion(tipo);
 
-
     if (tipo !== 'venta' && tipo !== 'intercambio') {
       setImagenesVenta([]);
     }
-
 
     if (tipo === 'coleccion') {
       setShowGalleryModal(true);
@@ -44,7 +33,6 @@ const PublicarCarta = ({ setPantalla }) => {
     setSelectedCarta(carta);
     console.log('Carta seleccionada para colección:', carta);
   };
-
 
   const validarImagen = (file) => {
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
@@ -58,7 +46,6 @@ const PublicarCarta = ({ setPantalla }) => {
         error: `Formato no permitido: ${file.name}. Solo se permiten imágenes (JPG, PNG, GIF, WEBP, BMP)`
       };
     }
-
 
     if (file.size > 5 * 1024 * 1024) {
       return {
@@ -74,7 +61,6 @@ const PublicarCarta = ({ setPantalla }) => {
     const files = Array.from(e.target.files);
     const nuevasImagenes = [];
     const nuevosErrores = [];
-
 
     if (imagenesVenta.length + files.length > 10) {
       alert('Máximo 10 imágenes por publicación');
@@ -115,9 +101,6 @@ const PublicarCarta = ({ setPantalla }) => {
   };
 
   const handlePublicar = async () => {
-
-
-    // Aquí va la lógica de publicación
     try {
       if (tipoPublicacion !== 'venta') {
         alert('Solo venta por ahora');
@@ -151,7 +134,6 @@ const PublicarCarta = ({ setPantalla }) => {
         body: formDataToSend
       });
 
-
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.message);
@@ -159,7 +141,7 @@ const PublicarCarta = ({ setPantalla }) => {
       console.log('✅ Publicación creada:', data);
 
       alert('Publicación creada con éxito');
-      setPantalla('perfil');
+      navigate('/mi-perfil');
     } catch (error) {
       console.error('❌ Error:', error);
       alert(error.message);
@@ -168,21 +150,16 @@ const PublicarCarta = ({ setPantalla }) => {
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
-
       <div className="relative w-full max-w-2xl border-2 border-[#56ab91] rounded-3xl bg-slate-900/40 p-10 shadow-2xl">
-
-
         {!showGalleryModal && (
           <button
-            onClick={() => setPantalla('perfil')}
+            onClick={() => navigate('/mi-perfil')}
             className="absolute top-6 right-6 w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all z-10"
           >
             X
           </button>
         )}
         <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-
-
           <div className="flex gap-4 mb-4">
             <div className="relative">
               <select
@@ -199,17 +176,19 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
 
             <div className="relative">
-              <select className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
-                <option value="pokemon">Pokemon</option>
-                <option value="magic">Magic</option>
-                <option value="dragonball">Dragon Ball</option>
-                <option value="yugioh">Yu-Gi-Oh</option>
-                <option value="digimon">Digimon</option>
+              <select 
+                value={franquicia}
+                onChange={(e) => setFranquicia(e.target.value)}
+                className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
+                <option value="Pokemon">Pokemon</option>
+                <option value="Magic">Magic</option>
+                <option value="Dragon Ball">Dragon Ball</option>
+                <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
+                <option value="Digimon">Digimon</option>
               </select>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
             </div>
           </div>
-
 
           <div className="flex gap-4 items-end">
             <div className="flex-[4]">
@@ -234,7 +213,6 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           </div>
 
-
           {tipoPublicacion === 'venta' && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
@@ -250,7 +228,6 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-
           {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
             <div>
               <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">
@@ -258,9 +235,7 @@ const PublicarCarta = ({ setPantalla }) => {
                 <span className="text-xs text-gray-400 ml-2">(Máximo 10 imágenes, solo formatos de imagen)</span>
               </label>
 
-
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-
                 {imagenesVenta.map((img) => (
                   <div key={img.id} className="relative group">
                     <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-[#56ab91]/40 bg-slate-800/40 hover:border-[#56ab91] transition-all">
@@ -278,7 +253,6 @@ const PublicarCarta = ({ setPantalla }) => {
                     </div>
                   </div>
                 ))}
-
 
                 {imagenesVenta.length < 10 && (
                   <div className="relative group">
@@ -307,13 +281,11 @@ const PublicarCarta = ({ setPantalla }) => {
                 )}
               </div>
 
-
               {imagenesVenta.length > 0 && (
                 <p className="text-xs text-emerald-400 mt-3 text-center">
                   {imagenesVenta.length} / 10 imágenes seleccionadas
                 </p>
               )}
-
 
               {erroresImagen.length > 0 && (
                 <div className="mt-3 p-2 bg-red-900/50 border border-red-500 rounded-lg">
@@ -324,7 +296,6 @@ const PublicarCarta = ({ setPantalla }) => {
               )}
             </div>
           )}
-
 
           {tipoPublicacion === 'coleccion' && (
             <div
@@ -366,7 +337,6 @@ const PublicarCarta = ({ setPantalla }) => {
             </div>
           )}
 
-
           <div>
             <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Descripción</label>
             <textarea
@@ -379,9 +349,8 @@ const PublicarCarta = ({ setPantalla }) => {
                   : 'Describe la carta que ofreces para intercambio...'}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-            ></textarea>
+            />
           </div>
-
 
           <div className="flex justify-center pt-2">
             <button
@@ -396,9 +365,7 @@ const PublicarCarta = ({ setPantalla }) => {
         </form>
       </div>
 
-
       <Gallery
-        setPantalla={setPantalla}
         isOpen={showGalleryModal}
         onClose={() => {
           setShowGalleryModal(false);

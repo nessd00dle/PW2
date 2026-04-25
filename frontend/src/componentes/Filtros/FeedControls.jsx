@@ -5,14 +5,14 @@ const FeedControls = ({ sortBy, onSortChange, filterType, onFilterChange, onPubl
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // opciones filtro
+
   const sortOptions = [
     { value: 'popular', label: 'Popularidad' },
     { value: 'price_asc', label: 'Más baratas' },
     { value: 'price_desc', label: 'Más caras' }
   ];
 
-  // mas opciones
+ 
   const filterOptions = [
     { value: 'all', label: 'Todos' },
     { value: 'sale', label: 'Venta' },
@@ -25,7 +25,7 @@ const FeedControls = ({ sortBy, onSortChange, filterType, onFilterChange, onPubl
 
   return (
     <div className="flex justify-between items-center mb-6 w-full">
-      {/* btn publicar */}
+
       <button 
         onClick={onPublicarClick}
         className="bg-white text-slate-900 flex items-center gap-2 px-6 py-2.5 rounded-full font-bold hover:bg-[--hover-button-color] hover:text-white transition-all shadow-lg"
@@ -35,7 +35,7 @@ const FeedControls = ({ sortBy, onSortChange, filterType, onFilterChange, onPubl
       </button>
 
       <div className="flex gap-4">
-        {/* filtro 1 ordenamiento */}
+
         <div className="relative">
           <button 
             onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }} 

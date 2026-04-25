@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigation } from '../../context/NavigationContext';
 import axios from 'axios';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [preview, setPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +13,6 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   
   const { login } = useAuth();
-  const { setPantallaActual } = useNavigation();
   
   const [formData, setFormData] = useState({
     nombre: '',
@@ -21,6 +21,7 @@ const AuthPage = () => {
     contrasena: '',
     fotoPerfil: null
   });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -51,71 +52,83 @@ const AuthPage = () => {
     }
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-        if (isLogin) {
-            const result = await login(formData.correo, formData.contrasena);
-            
-            if (result.success) {
-                alert('¡Inicio de sesión exitoso!');
-                setPantallaActual('perfil');
-            } else {
-                setError(result.error);
-            }
+      if (isLogin) {
+        const result = await login(formData.correo, formData.contrasena);
+        
+        if (result.success) {
+          alert('¡Inicio de sesión exitoso!');
+          navigate('/mi-perfil');
         } else {
-            // Registro con foto
-            const formDataToSend = new FormData();
-            formDataToSend.append('nombre', formData.nombre);
-            formDataToSend.append('nickname', formData.nickname);
-            formDataToSend.append('correo', formData.correo);
-            formDataToSend.append('contrasena', formData.contrasena);
-            
-            if (formData.fotoPerfil) {
-                formDataToSend.append('fotoPerfil', formData.fotoPerfil);
-            }
-            
-            const response = await axios.post(
-                'http://localhost:3000/api/usuarios/registro-con-foto',
-                formDataToSend,
-                {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                }
-            );
-            
-         
-            
-            alert('¡Registro exitoso! Por favor inicia sesión');
-            
-            // Limpiar el formulario y cambiar a modo login
-            setIsLogin(true);
-            setFormData({
-                nombre: '',
-                nickname: '',
-                correo: '',
-                contrasena: '',
-                fotoPerfil: null
-            });
-            setPreview(null);
-            
-            // Redirigir a login (auth)
-            setPantallaActual('auth');
+          setError(result.error);
         }
+      } else {
+        // Registro con foto
+        const formDataToSend = new FormData();
+        formDataToSend.append('nombre', formData.nombre);
+        formDataToSend.append('nickname', formData.nickname);
+        formDataToSend.append('correo', formData.correo);
+        formDataToSend.append('contrasena', formData.contrasena);
+        
+        if (formData.fotoPerfil) {
+          formDataToSend.append('fotoPerfil', formData.fotoPerfil);
+        }
+        
+        const response = await axios.post(
+          'http://localhost:3000/api/usuarios/registro-con-foto',
+          formDataToSend,
+          {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          }
+        );
+        
+        alert('¡Registro exitoso! Por favor inicia sesión');
+        
+        // Limpiar el formulario y cambiar a modo login
+        setIsLogin(true);
+        setFormData({
+          nombre: '',
+          nickname: '',
+          correo: '',
+          contrasena: '',
+          fotoPerfil: null
+        });
+        setPreview(null);
+        
+        // Permanecer en la misma página (auth) pero en modo login
+        // No necesitamos navegar porque ya estamos en /auth
+      }
     } catch (error) {
-        console.error('Error:', error);
-        setError(error.response?.data?.error || 'Error en la solicitud');
+      console.error('Error:', error);
+      setError(error.response?.data?.error || 'Error en la solicitud');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+
+  // Función para navegar a la página principal
+  const goToHome = () => {
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
       <div className="bg-[#56ab91] rounded-[40px] p-8 w-full max-w-md shadow-2xl relative">
         
+        {/* Botón para volver al home */}
+        <button
+          onClick={goToHome}
+          className="absolute top-4 left-4 w-8 h-8 bg-[#2d2a3e] rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-all"
+          title="Volver al inicio"
+        >
+          ✕
+        </button>
+
         <h2 className="text-white text-3xl font-bold text-center mb-2">
           {isLogin ? 'Bienvenido de vuelta' : 'Únete'}
         </h2>
@@ -134,26 +147,26 @@ const handleSubmit = async (e) => {
           {!isLogin && (
             <>
               <div>
-                <label className="block text-[#2d3748] mb-1 ml-1">Nombre completo</label>
+                <label className="block text-[#1e2a3a] mb-1 ml-1 font-medium">Nombre completo</label>
                 <input
                   type="text"
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleInputChange}
-                  className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none"
+                  className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none focus:ring-2 focus:ring-emerald-300"
                   placeholder="Tu nombre"
                   required={!isLogin}
                 />
               </div>
               
               <div>
-                <label className="block text-[#2d3748] mb-1 ml-1">Nickname</label>
+                <label className="block text-[#1e2a3a] mb-1 ml-1 font-medium">Nickname</label>
                 <input
                   type="text"
                   name="nickname"
                   value={formData.nickname}
                   onChange={handleInputChange}
-                  className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none"
+                  className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none focus:ring-2 focus:ring-emerald-300"
                   placeholder="Cómo te llamarán"
                   required={!isLogin}
                 />
@@ -162,20 +175,20 @@ const handleSubmit = async (e) => {
           )}
           
           <div>
-            <label className="block text-[#2d3748] mb-1 ml-1">Email</label>
+            <label className="block text-[#1e2a3a] mb-1 ml-1 font-medium">Email</label>
             <input
               type="email"
               name="correo"
               value={formData.correo}
               onChange={handleInputChange}
               placeholder="tu@email.com"
-              className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none"
+              className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white placeholder-emerald-200 outline-none focus:ring-2 focus:ring-emerald-300"
               required
             />
           </div>
 
           <div>
-            <label className="block text-[#2d3748] mb-1 ml-1">Contraseña</label>
+            <label className="block text-[#1e2a3a] mb-1 ml-1 font-medium">Contraseña</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -183,13 +196,13 @@ const handleSubmit = async (e) => {
                 value={formData.contrasena}
                 onChange={handleInputChange}
                 placeholder="********"
-                className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none pr-10"
+                className="w-full bg-[#4a917a] border-none rounded-2xl p-3 text-white outline-none pr-10 focus:ring-2 focus:ring-emerald-300"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -201,7 +214,7 @@ const handleSubmit = async (e) => {
 
           {!isLogin && (
             <div>
-              <label className="block text-[#2d3748] mb-1 ml-1">Foto de Perfil</label>
+              <label className="block text-[#1e2a3a] mb-1 ml-1 font-medium">Foto de Perfil</label>
               <div className="relative">
                 <input 
                   type="file" 
@@ -212,10 +225,10 @@ const handleSubmit = async (e) => {
                 />
                 <label 
                   htmlFor="foto-upload" 
-                  className="w-full bg-[#4a917a] rounded-2xl p-3 flex items-center justify-center gap-3 cursor-pointer hover:bg-[#3d7a67] transition-all border-2 border-dashed border-white/20"
+                  className="w-full bg-[#4a917a] rounded-2xl p-3 flex items-center justify-center gap-3 cursor-pointer hover:bg-[#3d7a67] transition-all border-2 border-dashed border-white/30 hover:border-white/60"
                 >
                   {preview ? (
-                    <img src={preview} alt="Vista previa" className="w-8 h-8 rounded-full object-cover border border-white" />
+                    <img src={preview} alt="Vista previa" className="w-8 h-8 rounded-full object-cover border-2 border-white" />
                   ) : (
                     <Camera className="text-emerald-200 w-5 h-5" />
                   )}
@@ -224,6 +237,7 @@ const handleSubmit = async (e) => {
                   </span>
                 </label>
               </div>
+              <p className="text-xs text-white/70 mt-1 ml-1">Formatos permitidos: JPG, PNG, GIF (máx. 5MB)</p>
             </div>
           )}
 
@@ -231,14 +245,21 @@ const handleSubmit = async (e) => {
             <button 
               type="submit"
               disabled={loading}
-              className="bg-[#2d2a3e] text-white px-12 py-3 rounded-2xl font-bold text-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#2d2a3e] text-white px-12 py-3 rounded-2xl font-bold text-lg hover:bg-[#3d3852] transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
             >
-              {loading ? 'Procesando...' : (isLogin ? 'Iniciar Sesión' : 'Registrarse')}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  {isLogin ? 'Ingresando...' : 'Registrando...'}
+                </span>
+              ) : (
+                isLogin ? 'Iniciar Sesión' : 'Registrarse'
+              )}
             </button>
           </div>
         </form>
 
-        <p className="text-center mt-6 text-[#2d3748]">
+        <p className="text-center mt-6 text-[#1e2a3a] font-medium">
           {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'} 
           <button 
             onClick={() => {
@@ -253,11 +274,12 @@ const handleSubmit = async (e) => {
               });
               setPreview(null);
             }} 
-            className="ml-1 underline font-medium"
+            className="ml-1 underline font-bold hover:text-white transition-colors"
           >
             {isLogin ? 'Regístrate' : 'Inicia sesión'}
           </button>
         </p>
+
       </div>
     </div>
   );

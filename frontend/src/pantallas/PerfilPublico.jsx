@@ -1,24 +1,20 @@
+// src/pantallas/PerfilPublico.jsx
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useNavigation } from '../../context/NavigationContext';
 import Navbar from '../componentes/Layout/navbar';
+import Avatar from '../componentes/Avatar';
 
 const PerfilPublico = () => {
-  const { usuarioPublico, setPantallaActual, goBack, setUsuarioPublico } = useNavigation(); 
-  const [usuario, setUsuario] = useState(usuarioPublico);
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [usuario, setUsuario] = useState(null);
   const [cartasUsuario, setCartasUsuario] = useState([]);
-  const [loadingCartas, setLoadingCartas] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [loadingCartas, setLoadingCartas] = useState(false);
   const [carruselIndex, setCarruselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (usuarioPublico) {
-      setUsuario(usuarioPublico);
-      setLoadingCartas(true); 
-    }
-  }, [usuarioPublico]);
-
-  
   const formatearFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
     const date = new Date(fecha);
@@ -29,50 +25,53 @@ const PerfilPublico = () => {
     });
   };
 
-  // Obtener iniciales del nombre
-  const getInitiales = () => {
-    if (!usuario?.nombre) return '??';
-    return usuario.nombre
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
- 
   useEffect(() => {
-    const fetchColeccion = async () => {
+    const fetchUsuario = async () => {
+      if (!userId) {
+        navigate('/');
+        return;
+      }
+      
       try {
-        console.log('Fetching colección para usuario:', usuario._id);
-        const response = await axios.get(`http://localhost:3000/api/usuarios/publico/${usuario._id}/coleccion`);
-        setCartasUsuario(response.data);
-        setLoadingCartas(false);
+        const response = await axios.get(`http://localhost:3000/api/usuarios/${userId}`);
+        setUsuario(response.data);
       } catch (error) {
-        console.error('Error obteniendo colección:', error);
-        setLoadingCartas(false);
+        console.error('Error cargando usuario:', error);
+        navigate('/');
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (usuario && usuario._id) {
+    fetchUsuario();
+  }, [userId, navigate]);
+
+  useEffect(() => {
+    const fetchColeccion = async () => {
+      if (usuario && usuario._id) {
+        setLoadingCartas(true);
+        try {
+          const response = await axios.get(`http://localhost:3000/api/usuarios/publico/${usuario._id}/coleccion`);
+          setCartasUsuario(response.data);
+        } catch (error) {
+          console.warn('No se pudo obtener la colección:', error.message);
+          setCartasUsuario([]);
+        } finally {
+          setLoadingCartas(false);
+        }
+      }
+    };
+
+    if (usuario) {
       fetchColeccion();
     }
   }, [usuario]);
 
-  
   useEffect(() => {
     setCarruselIndex(0);
     setIsAnimating(false);
   }, [usuario]);
 
-  // Si no hay usuario, volver
-  useEffect(() => {
-    if (!usuario) {
-      goBack();
-    }
-  }, [usuario, goBack]);
-
-  // Mostrar solo 10 cartas
   const cartasMostrar = cartasUsuario.slice(0, 10);
   const totalCartas = cartasMostrar.length;
 
@@ -118,51 +117,49 @@ const PerfilPublico = () => {
     };
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-white">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!usuario) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <p className="text-white">Cargando perfil...</p>
+        <p className="text-white">Usuario no encontrado</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-windows p-4 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0f172a] text-white p-4 overflow-x-hidden">
       <Navbar />
       
-  
       <div className="mb-4">
         <button
-          onClick={goBack}
+          onClick={() => navigate(-1)}
           className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all flex items-center gap-2"
         >
-          Volver
+          ← Volver
         </button>
       </div>
 
-
+      {/* Tarjeta de perfil */}
       <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-          <div className="w-40 h-40 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex-shrink-0 shadow-xl border-4 border-[#2d2a3e] flex items-center justify-center overflow-hidden">
-            {usuario.fotoPerfil ? (
-              <img
-                src={`http://localhost:3000${usuario.fotoPerfil}`}
-                alt="Foto de perfil"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                  if (e.target.parentElement) {
-                    e.target.parentElement.innerHTML = `<span class="text-6xl font-bold text-white">${getInitiales()}</span>`;
-                  }
-                }}
-              />
-            ) : (
-              <span className="text-6xl font-bold text-white">
-                {getInitiales()}
-              </span>
-            )}
-          </div>
+          {/* Avatar - AHORA USA EL COMPONENTE CORRECTAMENTE */}
+          <Avatar 
+            fotoPerfil={usuario.fotoPerfil}
+            nombre={usuario.nombre}
+            size="w-40 h-40"
+            textSize="text-6xl"
+            borderColor="border-[#2d2a3e]"
+          />
 
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-4xl font-bold mb-2">{usuario.nombre}</h1>
@@ -178,14 +175,18 @@ const PerfilPublico = () => {
         </div>
       </div>
 
-     
-      {!loadingCartas && cartasMostrar.length > 0 && (
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">
-            Colección de {usuario.nombre}
-          </h2>
-          
-          <div className="relative min-h-[500px] flex items-center justify-center perspective-container">
+      {/* Sección de colección */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">
+          Colección de {usuario.nombre}
+        </h2>
+        
+        {loadingCartas ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          </div>
+        ) : cartasMostrar.length > 0 ? (
+          <div className="relative min-h-[500px] flex items-center justify-center">
             <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px' }}>
               <div className="relative flex justify-center items-center" style={{ height: '450px' }}>
                 {cartasMostrar.map((carta, idx) => {
@@ -194,7 +195,7 @@ const PerfilPublico = () => {
 
                   return (
                     <div
-                      key={carta.id}
+                      key={carta.id || idx}
                       className="absolute cursor-pointer transition-all duration-500"
                       style={style}
                     >
@@ -204,9 +205,12 @@ const PerfilPublico = () => {
                           : 'shadow-lg hover:shadow-xl'
                       }`}>
                         <img
-                          src={carta.imagen}
+                          src={carta.imagen || 'https://via.placeholder.com/220x320?text=Sin+imagen'}
                           alt={carta.nombre}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/220x320?text=Sin+imagen';
+                          }}
                         />
                         
                         <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 ${
@@ -220,7 +224,7 @@ const PerfilPublico = () => {
                               carta.rareza === 'Rara' ? 'bg-blue-500 text-white' :
                               'bg-gray-500 text-white'
                             }`}>
-                              {carta.rareza}
+                              {carta.rareza || 'Común'}
                             </span>
                           </div>
                         </div>
@@ -231,7 +235,7 @@ const PerfilPublico = () => {
               </div>
             </div>
 
-            {totalCartas > 0 && (
+            {totalCartas > 1 && (
               <>
                 <button
                   onClick={anteriorCarrusel}
@@ -253,20 +257,12 @@ const PerfilPublico = () => {
               </>
             )}
           </div>
-        </div>
-      )}
-
-      {!loadingCartas && cartasMostrar.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-400">Este usuario aún no tiene cartas en su colección</p>
-        </div>
-      )}
-
-      <style jsx>{`
-        .perspective-container {
-          perspective: 1200px;
-        }
-      `}</style>
+        ) : (
+          <div className="text-center py-12 bg-slate-800/30 rounded-2xl">
+            <p className="text-gray-400">Este usuario aún no tiene cartas en su colección</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

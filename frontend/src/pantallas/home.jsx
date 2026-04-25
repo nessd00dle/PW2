@@ -1,4 +1,6 @@
+
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaRocket, FaThLarge, FaChartBar, FaExchangeAlt, 
   FaTrophy, FaPaperPlane, FaHeart, FaComment,
@@ -11,53 +13,16 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import logo from '/logo.png';
 
-const Home = ({ setPantalla }) => {
+const Home = () => {
+  const navigate = useNavigate();
   const swiperRef = useRef(null);
   const swiperRef2 = useRef(null);
+  const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+  const particleSystemRef = useRef(null);
 
   useEffect(() => {
-    if (swiperRef.current) {
-      const swiper = new Swiper(swiperRef.current, {
-        slidesPerView: 1,
-        spaceBetween: 20,
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-        breakpoints: {
-          640: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
-        },
-        autoplay: {
-          delay: 3000,
-          disableOnInteraction: false,
-        },
-        loop: true,
-      });
-    }
-
-    if (swiperRef2.current) {
-      const swiper2 = new Swiper(swiperRef2.current, {
-        slidesPerView: 1,
-        spaceBetween: 30,
-        pagination: {
-          el: '.testimonial-pagination',
-          clickable: true,
-        },
-        autoplay: {
-          delay: 4000,
-          disableOnInteraction: false,
-        },
-        loop: true,
-      });
-    }
-
-    // Advanced Particle System
+    // Definición completa de la clase ParticleSystem
     class ParticleSystem {
       constructor(canvas) {
         this.canvas = canvas;
@@ -65,132 +30,80 @@ const Home = ({ setPantalla }) => {
         this.particles = [];
         this.mouseX = null;
         this.mouseY = null;
-        this.resize();
+        this.isActive = true;
+        this.particleCount = 50;
+        
+        // Bind de métodos
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleResize = this.handleResize.bind(this);
         
         this.init();
         this.bindEvents();
         this.animate();
       }
 
-      resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.init();
-      }
-
-      bindEvents() {
-        window.addEventListener('resize', () => this.resize());
-        window.addEventListener('mousemove', (e) => {
-          this.mouseX = e.clientX;
-          this.mouseY = e.clientY;
-        });
-      }
-
       init() {
-        const particleCount = Math.min(150, Math.floor(window.innerWidth * 0.1));
+        this.resize();
+        this.createParticles();
+      }
+
+      createParticles() {
         this.particles = [];
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < this.particleCount; i++) {
           this.particles.push({
             x: Math.random() * this.canvas.width,
             y: Math.random() * this.canvas.height,
-            size: Math.random() * 4 + 1,
-            speedX: (Math.random() - 0.5) * 0.8,
-            speedY: (Math.random() - 0.5) * 0.8,
-            opacity: Math.random() * 0.5 + 0.2,
-            color: this.getRandomColor(),
-            rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.02,
+            radius: Math.random() * 2 + 1,
+            speedX: (Math.random() - 0.5) * 0.5,
+            speedY: (Math.random() - 0.5) * 0.5,
+            opacity: Math.random() * 0.5 + 0.2
           });
         }
       }
 
-      getRandomColor() {
-        const colors = [
-          'rgba(16, 185, 129, ',  // emerald
-          'rgba(20, 184, 166, ',  // teal
-          'rgba(6, 182, 212, ',   // cyan
-          'rgba(139, 92, 246, ',  // purple
-          'rgba(59, 130, 246, ',  // blue
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
-      }
-
-      drawStar(x, y, size, opacity, rotation) {
-        this.ctx.save();
-        this.ctx.translate(x, y);
-        this.ctx.rotate(rotation);
-        this.ctx.beginPath();
-        
-        const spikes = 4;
-        const outerRadius = size;
-        const innerRadius = size * 0.4;
-        
-        for (let i = 0; i < spikes * 2; i++) {
-          const radius = i % 2 === 0 ? outerRadius : innerRadius;
-          const angle = (Math.PI * 2 * i) / (spikes * 2);
-          const xPos = Math.cos(angle) * radius;
-          const yPos = Math.sin(angle) * radius;
-          if (i === 0) this.ctx.moveTo(xPos, yPos);
-          else this.ctx.lineTo(xPos, yPos);
-        }
-        
-        this.ctx.closePath();
-        const colorValue = this.particles && this.particles[0] ? this.particles[0].color : 'rgba(16, 185, 129, ';
-        this.ctx.fillStyle = colorValue.replace('rgba', 'rgba').replace(', ', `, ${opacity})`);
-        this.ctx.fill();
-        this.ctx.restore();
-      }
-
-      drawParticle(p) {
-        this.ctx.save();
-        this.ctx.globalAlpha = p.opacity;
-        
-        // Dibujar como estrella o círculo según tamaño
-        if (p.size > 2.5) {
-          this.drawStar(p.x, p.y, p.size, p.opacity, p.rotation);
-        } else {
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          this.ctx.fillStyle = p.color.replace('rgba', 'rgba').replace(', ', `, ${p.opacity})`);
-          this.ctx.fill();
-        }
-        
-        this.ctx.restore();
+      resize() {
+        if (!this.canvas) return;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.createParticles();
       }
 
       update() {
         for (let p of this.particles) {
           p.x += p.speedX;
           p.y += p.speedY;
-          p.rotation += p.rotationSpeed;
-          
-          // Wrap around edges
-          if (p.x > this.canvas.width) p.x = 0;
+
+          // Rebote en bordes
           if (p.x < 0) p.x = this.canvas.width;
-          if (p.y > this.canvas.height) p.y = 0;
+          if (p.x > this.canvas.width) p.x = 0;
           if (p.y < 0) p.y = this.canvas.height;
-          
-          // Mouse interaction
+          if (p.y > this.canvas.height) p.y = 0;
+
+          // Efecto de mouse
           if (this.mouseX && this.mouseY) {
             const dx = this.mouseX - p.x;
             const dy = this.mouseY - p.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             if (distance < 100) {
               const angle = Math.atan2(dy, dx);
-              const force = (100 - distance) / 1000;
-              p.speedX -= Math.cos(angle) * force;
-              p.speedY -= Math.sin(angle) * force;
-              
-              // Limit max speed
-              const maxSpeed = 2;
-              p.speedX = Math.min(Math.max(p.speedX, -maxSpeed), maxSpeed);
-              p.speedY = Math.min(Math.max(p.speedY, -maxSpeed), maxSpeed);
+              const force = (100 - distance) / 100;
+              p.x -= Math.cos(angle) * force * 1.5;
+              p.y -= Math.sin(angle) * force * 1.5;
             }
           }
         }
       }
 
+      drawParticle(p) {
+        if (!this.ctx) return;
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(86, 171, 145, ${p.opacity})`;
+        this.ctx.fill();
+      }
+
       drawConnections() {
+        if (!this.ctx) return;
         for (let i = 0; i < this.particles.length; i++) {
           for (let j = i + 1; j < this.particles.length; j++) {
             const dx = this.particles[i].x - this.particles[j].x;
@@ -198,11 +111,11 @@ const Home = ({ setPantalla }) => {
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < 120) {
-              const opacity = (1 - distance / 120) * 0.15;
               this.ctx.beginPath();
               this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
               this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
-              this.ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+              const opacity = (1 - distance / 120) * 0.15;
+              this.ctx.strokeStyle = `rgba(86, 171, 145, ${opacity})`;
               this.ctx.stroke();
             }
           }
@@ -210,9 +123,9 @@ const Home = ({ setPantalla }) => {
       }
 
       animate() {
-        if (!this.ctx) return;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (!this.isActive || !this.ctx || !this.canvas) return;
         
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.update();
         this.drawConnections();
         
@@ -220,20 +133,134 @@ const Home = ({ setPantalla }) => {
           this.drawParticle(p);
         }
         
-        requestAnimationFrame(() => this.animate());
+        animationRef.current = requestAnimationFrame(() => this.animate());
+      }
+
+      handleMouseMove(e) {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+      }
+
+      handleResize() {
+        this.resize();
+      }
+
+      bindEvents() {
+        window.addEventListener('resize', this.handleResize);
+        window.addEventListener('mousemove', this.handleMouseMove);
+      }
+
+      destroy() {
+        this.isActive = false;
+        
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+          animationRef.current = null;
+        }
+        
+        window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('mousemove', this.handleMouseMove);
+        
+        if (this.ctx) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        
+        this.canvas = null;
+        this.ctx = null;
       }
     }
 
-    const canvas = document.getElementById('particlesCanvas');
-    if (canvas) {
-      const particleSystem = new ParticleSystem(canvas);
-      return () => {
-        // Cleanup if needed
-      };
-    }
+    // Inicializar partículas
+    const initParticles = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      // Limpiar sistema anterior si existe
+      if (particleSystemRef.current) {
+        particleSystemRef.current.destroy();
+      }
+      
+      particleSystemRef.current = new ParticleSystem(canvas);
+    };
+
+    // Pequeño delay para asegurar que el canvas está listo
+    const timer = setTimeout(() => {
+      initParticles();
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (particleSystemRef.current) {
+        particleSystemRef.current.destroy();
+        particleSystemRef.current = null;
+      }
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
   }, []);
 
- 
+  // Inicializar Swipers
+  useEffect(() => {
+    let swiper1 = null;
+    let swiper2 = null;
+
+    const initSwipers = () => {
+      if (swiperRef.current) {
+        swiper1 = new Swiper(swiperRef.current, {
+          slidesPerView: 1,
+          spaceBetween: 20,
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          breakpoints: {
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          },
+          loop: true,
+          autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+          },
+        });
+      }
+
+      if (swiperRef2.current) {
+        swiper2 = new Swiper(swiperRef2.current, {
+          slidesPerView: 1,
+          spaceBetween: 20,
+          pagination: {
+            el: '.testimonial-pagination',
+            clickable: true,
+          },
+          breakpoints: {
+            768: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          },
+          loop: true,
+          autoplay: {
+            delay: 4000,
+            disableOnInteraction: false,
+          },
+        });
+      }
+    };
+
+    const timer = setTimeout(initSwipers, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (swiper1) swiper1.destroy(true, true);
+      if (swiper2) swiper2.destroy(true, true);
+    };
+  }, []);
+
   const cardImages = [
     "https://i.pinimg.com/736x/de/2e/b6/de2eb6fa73ee8ca0207f369c27d93a41.jpg",
     "https://i.pinimg.com/736x/7c/f3/6d/7cf36d83567dec998f39f71e282196a9.jpg",
@@ -244,12 +271,9 @@ const Home = ({ setPantalla }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-x-hidden">
       
-    
-      <canvas id="particlesCanvas" className="fixed inset-0 pointer-events-none z-0"></canvas>
+      <canvas ref={canvasRef} id="particlesCanvas" className="fixed inset-0 pointer-events-none z-0"></canvas>
       
-    
       <div className="relative z-10">
-        
         
         <div className="relative overflow-hidden">
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
@@ -271,13 +295,13 @@ const Home = ({ setPantalla }) => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => setPantalla('auth')}
+                  onClick={() => navigate('/auth')}
                   className="group px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-full hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 inline-flex items-center gap-2"
                 >
                   <FaRocket className="text-xl group-hover:translate-x-1 transition-transform" /> Comienza Ahora
                 </button>
                 <button
-                  onClick={() => setPantalla('auth')}
+                  onClick={() => navigate('/auth')}
                   className="group px-8 py-3 bg-slate-800/80 backdrop-blur-sm border-2 border-emerald-400 text-emerald-400 font-bold rounded-full hover:bg-slate-700 transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-2"
                 >
                   <FaThLarge className="text-xl group-hover:rotate-12 transition-transform" /> Explorar Galería
@@ -287,7 +311,6 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Sección: Cartas Destacadas con Swiper */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-emerald-500/10 rounded-full px-4 py-2 mb-4">
@@ -387,7 +410,9 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-      
+        {/* El resto del contenido de home.jsx permanece igual */}
+        {/* ... mantén el resto de tu código sin cambios ... */}
+
         <div className="bg-slate-800/30 py-20 my-10 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row-reverse items-center gap-12">
@@ -414,7 +439,10 @@ const Home = ({ setPantalla }) => {
                       <div className="text-gray-400 text-xs">Usuarios Activos</div>
                     </div>
                   </div>
-                  <button className="group text-emerald-400 hover:text-emerald-300 font-semibold inline-flex items-center gap-2">
+                  <button 
+                    onClick={() => navigate('/estadistica')}
+                    className="group text-emerald-400 hover:text-emerald-300 font-semibold inline-flex items-center gap-2"
+                  >
                     Ver Estadísticas Completas 
                     <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -464,7 +492,8 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Sección: Comunidad con cards interactivas mejoradas */}
+        {/* El resto del contenido continúa... */}
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="group relative">
@@ -505,7 +534,6 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Testimonios con Swiper mejorado */}
         <div className="bg-gradient-to-t from-slate-800/50 to-transparent py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
@@ -566,7 +594,6 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-        {/* Call to Action final mejorado */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
@@ -582,7 +609,7 @@ const Home = ({ setPantalla }) => {
                 Únete a miles de coleccionistas que ya comparten sus cartas y conectan con otros fans.
               </p>
               <button
-                onClick={() => setPantalla('auth')}
+                onClick={() => navigate('/auth')}
                 className="group px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-full hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 inline-flex items-center gap-2"
               >
                 <FaPaperPlane className="group-hover:translate-x-1 transition-transform" /> Crear Cuenta Gratis
@@ -591,7 +618,6 @@ const Home = ({ setPantalla }) => {
           </div>
         </div>
 
-     
         <footer className="border-t border-gray-800 py-8 mt-8 bg-slate-900/50 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -601,7 +627,6 @@ const Home = ({ setPantalla }) => {
               </div>
               <div className="text-center text-gray-500 text-sm">
                 <p>© 2026 CardDial - Conectando coleccionistas de todo el mundo.</p>
-                
               </div>
               <div className="flex gap-4">
                 <FaRegClock className="text-gray-600" />
@@ -613,7 +638,6 @@ const Home = ({ setPantalla }) => {
         </footer>
       </div>
 
-      
       <style>{`
         @keyframes fade-in-up {
           from {
