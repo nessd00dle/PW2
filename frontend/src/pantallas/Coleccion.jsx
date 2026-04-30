@@ -19,7 +19,6 @@ const Coleccion = () => {
   const [modalComentarios, setModalComentarios] = useState([]);
   const [likesStatus, setLikesStatus] = useState({});
   
-  // Usar useRef para el input del comentario
   const comentarioInputRef = useRef(null);
   const comentarioValueRef = useRef('');
 
@@ -90,44 +89,20 @@ const Coleccion = () => {
   useEffect(() => {
     if (usuario && usuario.id) {
       const savedLikes = localStorage.getItem(`likes_${usuario.id}`);
-      if (savedLikes) {
-        setLikesStatus(JSON.parse(savedLikes));
-      }
+      if (savedLikes) setLikesStatus(JSON.parse(savedLikes));
     }
   }, [usuario]);
-
-  useEffect(() => {
-    if (modalAbierto) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    } else {
-      document.body.style.overflow = 'unset';
-      document.body.style.position = 'static';
-      document.body.style.width = 'auto';
-    }
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.body.style.position = 'static';
-      document.body.style.width = 'auto';
-    };
-  }, [modalAbierto]);
 
   const abrirModal = (publicacion, indiceImagen) => {
     setPublicacionActual(publicacion);
     setImagenesPublicacion(publicacion.imagenes);
     setImagenActual(indiceImagen);
-    const userLiked = likesStatus[publicacion.id] || false;
-    setModalLiked(userLiked);
+    setModalLiked(likesStatus[publicacion.id] || false);
     setModalLikesCount(publicacion.likes);
     setModalComentarios(publicacion.comentarios);
     setModalAbierto(true);
-    // Resetear el valor del comentario cuando se abre el modal
     comentarioValueRef.current = '';
-    if (comentarioInputRef.current) {
-      comentarioInputRef.current.value = '';
-    }
+    if (comentarioInputRef.current) comentarioInputRef.current.value = '';
   };
 
   const cerrarModal = () => {
@@ -139,229 +114,223 @@ const Coleccion = () => {
     setModalComentarios([]);
   };
 
-  const imagenSiguiente = () => {
-    setImagenActual((prev) => (prev + 1) % imagenesPublicacion.length);
-  };
-
-  const imagenAnterior = () => {
-    setImagenActual((prev) => (prev - 1 + imagenesPublicacion.length) % imagenesPublicacion.length);
-  };
+  const imagenSiguiente = () => setImagenActual((prev) => (prev + 1) % imagenesPublicacion.length);
+  const imagenAnterior = () => setImagenActual((prev) => (prev - 1 + imagenesPublicacion.length) % imagenesPublicacion.length);
 
   const handleModalLike = () => {
     if (!publicacionActual) return;
-    
-    let newLikedStatus;
-    let newLikesCount;
-    
-    if (modalLiked) {
-      newLikedStatus = false;
-      newLikesCount = modalLikesCount - 1;
-    } else {
-      newLikedStatus = true;
-      newLikesCount = modalLikesCount + 1;
-    }
-    
+    const newLikedStatus = !modalLiked;
+    const newLikesCount = newLikedStatus ? modalLikesCount + 1 : modalLikesCount - 1;
     setModalLiked(newLikedStatus);
     setModalLikesCount(newLikesCount);
-    
-    const newLikesStatus = {
-      ...likesStatus,
-      [publicacionActual.id]: newLikedStatus
-    };
+    const newLikesStatus = { ...likesStatus, [publicacionActual.id]: newLikedStatus };
     setLikesStatus(newLikesStatus);
-    
-    if (usuario && usuario.id) {
-      localStorage.setItem(`likes_${usuario.id}`, JSON.stringify(newLikesStatus));
-    }
+    if (usuario && usuario.id) localStorage.setItem(`likes_${usuario.id}`, JSON.stringify(newLikesStatus));
   };
 
   const handleModalComentario = (e) => {
     e.preventDefault();
-    const textoComentario = comentarioValueRef.current;
-    if (textoComentario.trim() && usuario) {
-      const nuevoComentario = {
+    const texto = comentarioValueRef.current;
+    if (texto.trim() && usuario) {
+      setModalComentarios([...modalComentarios, {
         id: Date.now(),
         usuario: usuario.nombre || usuario.correo?.split('@')[0] || "Usuario",
         usuarioId: usuario.id,
-        texto: textoComentario,
+        texto,
         avatar: usuario.fotoPerfil,
         timestamp: "Ahora mismo"
-      };
-      setModalComentarios([...modalComentarios, nuevoComentario]);
-      // Limpiar el input después de enviar
+      }]);
       comentarioValueRef.current = '';
-      if (comentarioInputRef.current) {
-        comentarioInputRef.current.value = '';
-      }
+      if (comentarioInputRef.current) comentarioInputRef.current.value = '';
     }
   };
-
-  // Resto del código del modal aquí...
-  // (Mantén el ModalDetalle como está pero sin el estado nuevoComentarioModal)
 
   return (      
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
+
+        {/* ===== MODAL ===== */}
         {modalAbierto && publicacionActual && (
           <>
             <style>{`
-              .custom-scroll::-webkit-scrollbar {
-                width: 6px;
+              .modal-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.55);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                z-index: 999999;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                padding: 3rem 1rem 2rem;
+                box-sizing: border-box;
               }
-              .custom-scroll::-webkit-scrollbar-track {
-                background: rgba(86, 171, 145, 0.1);
-                border-radius: 10px;
+
+              /* Contenedor interno: centrado, ancho máximo */
+              .modal-inner {
+                position: relative;
+                width: 100%;
+                max-width: 900px;
               }
-              .custom-scroll::-webkit-scrollbar-thumb {
-                background: rgba(86, 171, 145, 0.5);
-                border-radius: 10px;
+
+              /* Botón cerrar */
+              .modal-close-btn {
+                position: fixed;
+                top: 0.75rem;
+                right: 0.75rem;
+                width: 2.25rem;
+                height: 2.25rem;
+                background: #dc2626;
+                border-radius: 9999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                border: 2px solid white;
+                cursor: pointer;
+                z-index: 1000000;
+                transition: transform 0.2s;
               }
-              .custom-scroll::-webkit-scrollbar-thumb:hover {
-                background: rgba(86, 171, 145, 0.8);
+              .modal-close-btn:hover { transform: scale(1.1); }
+
+              /* Grid: 1 col en móvil → 2 cols en desktop */
+              .modal-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1rem;
+              }
+              @media (min-width: 768px) {
+                .modal-grid {
+                  grid-template-columns: 1fr 1fr;
+                  align-items: start;
+                }
+              }
+
+              /* Paneles con tema */
+              .modal-panel {
+                border: 1.5px solid var(--border-color);
+                border-radius: 1rem;
+                background: var(--background-slate);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+              }
+
+              /* Botones navegación imagen */
+              .modal-nav-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 2.25rem;
+                height: 2.25rem;
+                background: var(--button-color);
+                border-radius: 9999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid var(--border-color);
+                cursor: pointer;
+                z-index: 10;
+                transition: background 0.2s;
+                color: var(--primary-text-color);
+                font-size: 1.4rem;
+              }
+              .modal-nav-btn:hover { background: var(--hover-button-color); }
+
+              /* Like */
+              .modal-like-btn {
+                font-size: 1.6rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s;
+                padding: 0.2rem;
+                line-height: 1;
+                flex-shrink: 0;
+              }
+              .modal-like-btn:hover { transform: scale(1.15); }
+
+              /* Enviar comentario */
+              .modal-send-btn {
+                color: var(--hightlight-text-color);
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                padding: 0.2rem 0.4rem;
+                transition: transform 0.2s;
+                flex-shrink: 0;
+              }
+              .modal-send-btn:hover { transform: translateX(3px); }
+
+              /* Input comentario */
+              .modal-comment-input {
+                background: transparent;
+                flex: 1;
+                outline: none;
+                font-size: 0.75rem;
+                color: var(--primary-text-color);
+                border: none;
+                padding: 0.2rem 0;
+                min-width: 0;
+              }
+              .modal-comment-input::placeholder { color: var(--secondary-text-color); }
+
+              /* Scrollbar comentarios */
+              .modal-scroll::-webkit-scrollbar { width: 4px; }
+              .modal-scroll::-webkit-scrollbar-track { background: var(--background-slate); border-radius: 10px; }
+              .modal-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+              .modal-scroll::-webkit-scrollbar-thumb:hover { background: var(--hightlight-text-color); }
+
+              /* Divisor */
+              .modal-divider {
+                height: 1px;
+                background: var(--border-color);
+                opacity: 0.35;
+                margin: 0.6rem 0 0.5rem;
               }
             `}</style>
-            <div 
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.95)',
-                zIndex: 999999,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1rem',
-                overflowY: 'auto',
-                overflowX: 'hidden'
-              }}
-              onClick={cerrarModal}
-            >
-              <div 
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  maxWidth: '90rem',
-                  margin: '2rem auto',
-                  padding: '0 1rem'
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={cerrarModal}
-                  style={{
-                    position: 'fixed',
-                    top: '1rem',
-                    right: '1rem',
-                    width: '2.5rem',
-                    height: '2.5rem',
-                    backgroundColor: '#dc2626',
-                    borderRadius: '9999px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 'bold',
-                    border: '2px solid white',
-                    cursor: 'pointer',
-                    zIndex: 20,
-                    transition: 'transform 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  <span style={{ color: 'white', fontSize: '1.25rem' }}>✕</span>
+
+            <div className="modal-overlay" onClick={cerrarModal}>
+              <div className="modal-inner" onClick={(e) => e.stopPropagation()}>
+
+                {/* Botón cerrar */}
+                <button onClick={cerrarModal} className="modal-close-btn">
+                  <span style={{ color: 'white', fontSize: '1.1rem' }}>✕</span>
                 </button>
 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: '1.5rem',
-                  alignItems: 'start',
-                }}>
-                  
-                  <div style={{
-                    border: '2px solid #56ab91',
-                    borderRadius: '1.5rem',
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                <div className="modal-grid">
+
+                  {/* ===== PANEL IMAGEN ===== */}
+                  <div className="modal-panel" style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
                     padding: '1rem',
-                    minHeight: '400px',
-                    width: '100%'
+                    minHeight: '280px'
                   }}>
                     {imagenesPublicacion.length > 1 && (
                       <>
-                        <button
-                          onClick={imagenAnterior}
-                          style={{
-                            position: 'absolute',
-                            left: '0.5rem',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: '2.5rem',
-                            height: '2.5rem',
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            borderRadius: '9999px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px solid #56ab91',
-                            cursor: 'pointer',
-                            zIndex: 10,
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(86, 171, 145, 0.5)'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'}
-                        >
-                          <span style={{ color: 'white', fontSize: '1.5rem' }}>‹</span>
-                        </button>
-                        <button
-                          onClick={imagenSiguiente}
-                          style={{
-                            position: 'absolute',
-                            right: '0.5rem',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: '2.5rem',
-                            height: '2.5rem',
-                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                            borderRadius: '9999px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px solid #56ab91',
-                            cursor: 'pointer',
-                            zIndex: 10,
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(86, 171, 145, 0.5)'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'}
-                        >
-                          <span style={{ color: 'white', fontSize: '1.5rem' }}>›</span>
-                        </button>
+                        <button className="modal-nav-btn" onClick={imagenAnterior} style={{ left: '0.5rem' }}>‹</button>
+                        <button className="modal-nav-btn" onClick={imagenSiguiente} style={{ right: '0.5rem' }}>›</button>
                       </>
                     )}
 
-                    <div style={{
-                      position: 'relative',
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
+                    <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <img
                         src={imagenesPublicacion[imagenActual]}
                         alt={`Imagen ${imagenActual + 1}`}
                         style={{
                           maxWidth: '100%',
-                          maxHeight: '500px',
+                          maxHeight: '60vh',
                           width: 'auto',
                           height: 'auto',
                           objectFit: 'contain',
-                          borderRadius: '0.75rem'
+                          borderRadius: '0.75rem',
+                          display: 'block'
                         }}
                       />
                       {imagenesPublicacion.length > 1 && (
@@ -370,11 +339,12 @@ const Coleccion = () => {
                           bottom: '0.5rem',
                           left: '50%',
                           transform: 'translateX(-50%)',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                          padding: '0.25rem 0.75rem',
+                          background: 'var(--button-color)',
+                          border: '1px solid var(--border-color)',
+                          padding: '0.15rem 0.6rem',
                           borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          color: 'white'
+                          fontSize: '0.7rem',
+                          color: 'var(--primary-text-color)'
                         }}>
                           {imagenActual + 1} / {imagenesPublicacion.length}
                         </div>
@@ -382,153 +352,168 @@ const Coleccion = () => {
                     </div>
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                    maxHeight: '80vh',
-                    overflowY: 'auto',
-                    overflowX: 'hidden',
-                    paddingRight: '0.5rem'
-                  }}
-                  className="custom-scroll">
-                   
-                    <div style={{
-                      border: '2px solid #56ab91',
-                      borderRadius: '1rem',
-                      padding: '1.25rem',
-                      backgroundColor: 'rgba(15, 23, 42, 0.9)'
-                    }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: '#e5e7eb' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', margin: 0 }}>{publicacionActual.titulo}</h2>
-                          <button 
-                            onClick={handleModalLike}
-                            style={{ 
-                              fontSize: '1.8rem', 
-                              background: 'none', 
-                              border: 'none', 
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s',
-                              color: modalLiked ? '#ec4899' : '#9ca3af',
-                              padding: '0.25rem',
-                              lineHeight: 1
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                          >
-                            {modalLiked ? '❤️' : '🤍'}
-                          </button>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '0.8rem', color: '#d1d5db', textAlign: 'justify', margin: '0.25rem 0' }}>
-                            <span style={{ color: '#34d399', fontWeight: 'bold' }}>Usuario:</span> {publicacionActual.usuario}
-                          </p>
-                          <p style={{ fontSize: '0.8rem', color: '#d1d5db', textAlign: 'justify', margin: '0.25rem 0' }}>
-                            <span style={{ color: '#34d399', fontWeight: 'bold' }}>Fandom:</span> {publicacionActual.franquicia}
-                          </p>
-                        </div>
-                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(86, 171, 145, 0.2)' }}>
-                          <p style={{ fontWeight: 'bold', color: '#34d399', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Descripción:</p>
-                          <p style={{ color: '#d1d5db', fontSize: '0.8rem', marginTop: '0.25rem', lineHeight: '1.5', textAlign: 'justify' }}>
-                            {publicacionActual.descripcion}
-                          </p>
-                        </div>
-                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem' }}>
-                          <p style={{ fontSize: '0.65rem', color: '#9ca3af', textAlign: 'justify', margin: '0.25rem 0' }}>
-                            Publicado: {publicacionActual.timestamp}
-                          </p>
-                          <p style={{ fontSize: '0.65rem', color: '#9ca3af', textAlign: 'justify', margin: '0.25rem 0' }}>
-                            {modalLiked ? '❤️' : '🤍'} {modalLikesCount} Me gusta
-                          </p>
-                        </div>
+                  {/* ===== PANEL DERECHO ===== */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                    {/* Info publicación */}
+                    <div className="modal-panel" style={{ padding: '1rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <h2 style={{
+                          fontSize: '1.1rem',
+                          fontWeight: 'bold',
+                          color: 'var(--primary-text-color)',
+                          margin: 0,
+                          flex: 1,
+                          paddingRight: '0.5rem'
+                        }}>
+                          {publicacionActual.titulo}
+                        </h2>
+                        <button
+                          onClick={handleModalLike}
+                          className="modal-like-btn"
+                          style={{ color: modalLiked ? '#ec4899' : 'var(--secondary-text-color)' }}
+                        >
+                          {modalLiked ? '❤️' : '🤍'}
+                        </button>
+                      </div>
+
+                      <p style={{ fontSize: '0.78rem', color: 'var(--paragraph-color)', margin: '0.25rem 0' }}>
+                        <span style={{ color: 'var(--hightlight-text-color)', fontWeight: 'bold' }}>Usuario:</span> {publicacionActual.usuario}
+                      </p>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--paragraph-color)', margin: '0.25rem 0' }}>
+                        <span style={{ color: 'var(--hightlight-text-color)', fontWeight: 'bold' }}>Fandom:</span> {publicacionActual.franquicia}
+                      </p>
+
+                      <div className="modal-divider" />
+
+                      <p style={{
+                        fontWeight: 'bold',
+                        color: 'var(--hightlight-text-color)',
+                        fontSize: '0.65rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        margin: '0 0 0.25rem'
+                      }}>
+                        Descripción:
+                      </p>
+                      <p style={{
+                        color: 'var(--paragraph-color)',
+                        fontSize: '0.78rem',
+                        lineHeight: '1.5',
+                        textAlign: 'justify',
+                        margin: 0
+                      }}>
+                        {publicacionActual.descripcion}
+                      </p>
+
+                      <div style={{ marginTop: '0.6rem' }}>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--secondary-text-color)', margin: '0.2rem 0' }}>
+                          Publicado: {publicacionActual.timestamp}
+                        </p>
+                        <p style={{ fontSize: '0.65rem', color: 'var(--secondary-text-color)', margin: '0.2rem 0' }}>
+                          {modalLiked ? '❤️' : '🤍'} {modalLikesCount} Me gusta
+                        </p>
                       </div>
                     </div>
 
-                    <div style={{
-                      border: '2px solid #56ab91',
-                      borderRadius: '1rem',
-                      padding: '1.25rem',
-                      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.75rem'
-                    }}>
-                      <h3 style={{ fontSize: '0.65rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#34d399', margin: 0 }}>
+                    {/* Comentarios */}
+                    <div className="modal-panel" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      <h3 style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        color: 'var(--hightlight-text-color)',
+                        margin: 0
+                      }}>
                         Comentarios ({modalComentarios.length})
                       </h3>
 
-                      <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: '0.75rem', 
-                        maxHeight: '300px', 
+                      <div className="modal-scroll" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.6rem',
+                        maxHeight: '220px',
                         overflowY: 'auto',
-                        paddingRight: '0.5rem'
-                      }}
-                      className="custom-scroll">
+                        paddingRight: '0.25rem'
+                      }}>
                         {modalComentarios.length > 0 ? (
                           modalComentarios.map((comentario, idx) => (
                             <div key={comentario.id || idx} style={{
-                              backgroundColor: comentario.usuarioId === usuario?.id ? 'rgba(86, 171, 145, 0.2)' : 'rgba(45, 42, 62, 0.6)',
-                              padding: '0.6rem',
-                              borderRadius: '0.75rem',
+                              backgroundColor: comentario.usuarioId === usuario?.id
+                                ? 'var(--hover-button-color)'
+                                : 'var(--button-color)',
+                              padding: '0.5rem',
+                              borderRadius: '0.65rem',
                               display: 'flex',
                               alignItems: 'flex-start',
-                              gap: '0.6rem',
-                              border: comentario.usuarioId === usuario?.id ? '1px solid rgba(86, 171, 145, 0.5)' : '1px solid rgba(86, 171, 145, 0.1)'
+                              gap: '0.5rem',
+                              border: '1px solid var(--border-color)'
                             }}>
-                              <div style={{ width: '1.8rem', height: '1.8rem', flexShrink: 0 }}>
+                              <div style={{ width: '1.6rem', height: '1.6rem', flexShrink: 0 }}>
                                 <Avatar
                                   fotoPerfil={comentario.avatar}
                                   nombre={comentario.usuario}
                                   size="w-full h-full"
-                                  textSize="text-sm"
+                                  textSize="text-xs"
                                   borderColor="border-transparent"
                                 />
                               </div>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#34d399', display: 'block' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                  <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: 'var(--hightlight-text-color)' }}>
                                     {comentario.usuario}
                                     {comentario.usuarioId === usuario?.id && (
-                                      <span style={{ fontSize: '0.6rem', marginLeft: '0.5rem', color: '#56ab91' }}>(Tú)</span>
+                                      <span style={{ fontSize: '0.6rem', marginLeft: '0.4rem', color: 'var(--border-color)' }}>(Tú)</span>
                                     )}
                                   </span>
                                   {comentario.timestamp && (
-                                    <span style={{ fontSize: '0.55rem', color: '#9ca3af' }}>{comentario.timestamp}</span>
+                                    <span style={{ fontSize: '0.55rem', color: 'var(--secondary-text-color)' }}>
+                                      {comentario.timestamp}
+                                    </span>
                                   )}
                                 </div>
-                                <p style={{ fontSize: '0.7rem', color: '#e5e7eb', marginTop: '0.2rem', textAlign: 'justify', lineHeight: '1.4' }}>
+                                <p style={{
+                                  fontSize: '0.7rem',
+                                  color: 'var(--primary-text-color)',
+                                  marginTop: '0.15rem',
+                                  lineHeight: '1.4',
+                                  wordBreak: 'break-word',
+                                  margin: '0.15rem 0 0'
+                                }}>
                                   {comentario.texto}
                                 </p>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div style={{ textAlign: 'center', padding: '1rem', color: '#9ca3af', fontSize: '0.75rem' }}>
-                            No hay comentarios aún. ¡Sé el primero en comentar!
+                          <div style={{
+                            textAlign: 'center',
+                            padding: '0.75rem',
+                            color: 'var(--secondary-text-color)',
+                            fontSize: '0.75rem'
+                          }}>
+                            No hay comentarios aún. ¡Sé el primero!
                           </div>
                         )}
                       </div>
 
+                      {/* Input comentario */}
                       <form onSubmit={handleModalComentario} style={{
-                        border: '1px solid rgba(86, 171, 145, 0.4)',
-                        borderRadius: '0.75rem',
-                        padding: '0.6rem',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '0.65rem',
+                        padding: '0.5rem',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.6rem',
-                        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                        marginTop: '0.25rem',
-                        width: '100%' 
+                        gap: '0.5rem',
+                        background: 'var(--button-color)'
                       }}>
-                        <div style={{ width: '1.8rem', height: '1.8rem', flexShrink: 0 }}>
+                        <div style={{ width: '1.6rem', height: '1.6rem', flexShrink: 0 }}>
                           <Avatar
                             fotoPerfil={usuario?.fotoPerfil}
                             nombre={usuario?.nombre}
                             size="w-full h-full"
-                            textSize="text-sm"
+                            textSize="text-xs"
                             borderColor="border-transparent"
                           />
                         </div>
@@ -536,47 +521,22 @@ const Coleccion = () => {
                           ref={comentarioInputRef}
                           type="text"
                           placeholder={`Comentar como ${usuario?.nombre || 'Usuario'}...`}
-                          style={{
-                            background: 'transparent',
-                            flex: 1,
-                            outline: 'none',
-                            fontSize: '0.75rem',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.25rem 0', 
-                            minWidth: 0, 
-                            width: '100%'
-                          }}
+                          className="modal-comment-input"
                           autoComplete="off"
-                          onChange={(e) => {
-                            comentarioValueRef.current = e.target.value;
-                          }}
+                          onChange={(e) => { comentarioValueRef.current = e.target.value; }}
                         />
-                        <button 
-                          type="submit"
-                          style={{ 
-                            color: '#34d399', 
-                            background: 'none', 
-                            border: 'none', 
-                            cursor: 'pointer', 
-                            fontSize: '1rem',
-                            padding: '0.25rem 0.5rem',
-                            transition: 'transform 0.2s',
-                            flexShrink: 0 
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(3px)'}
-                          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
-                        >
-                          ➤
-                        </button>
+                        <button type="submit" className="modal-send-btn">➤</button>
                       </form>
                     </div>
+
                   </div>
                 </div>
               </div>
             </div>
           </>
         )}
+        {/* ===== FIN MODAL ===== */}
+
         <Navbar />
         
         <div className="max-w-4xl mx-auto space-y-4">

@@ -281,3 +281,29 @@ div[class*="fixed"]:not(.modal-backdrop) {
 .modal-backdrop * {
   z-index: 999999 !important;
 }
+
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Unificar estilos de los encabezados de filtros y reportes */
+.filter-header-text {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.025em;
+  text-transform: none;
+}
+
+/* Forzar altura idéntica en los contenedores cerrados */
+.sync-height {
+  min-height: 48px !important;
+  display: flex;
+  align-items: center;
+}
+
