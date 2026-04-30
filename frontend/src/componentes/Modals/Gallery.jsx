@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import '../../App.css'
 import '../../pantallas/index.css'
-import useLocalStorage from 'use-local-storage';
-import ThemeOption from '../Toggle/ThemeOptions';
-const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
-  const [selectedCarta, setSelectedCarta] = useState(null);
-  // Estado para controlar qué franquicia se muestra
+const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
+  const [selectedCartas, setSelectedCartas] = useState([]);
   const [franquicia, setFranquicia] = useState('all');
   const [busqueda, setBusqueda] = useState('');
 
@@ -20,7 +16,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
     { id: 5, nombre: 'Minccino', franquicia: 'pokemon', imagen: '/imagesPokemon/minccino.PNG' },
     { id: 6, nombre: 'Rapidash', franquicia: 'pokemon', imagen: '/imagesPokemon/rapidash.PNG' },
     { id: 7, nombre: 'Lapras', franquicia: 'pokemon', imagen: '/imagesPokemon/lapras.PNG' },
-    { id: 8, nombre: 'Charizad ex', franquicia: 'pokemon', imagen: '/imagesPokemon/charizard_ex.PNG' },
+    { id: 8, nombre: 'Charizard ex', franquicia: 'pokemon', imagen: '/imagesPokemon/charizard_ex.PNG' },
     // MAGIC
     { id: 10, nombre: 'Caballero Templario', franquicia: 'magic', imagen: '/imagesMagic/caballero_templario.png' },
     { id: 11, nombre: 'Albóndiga Siempre Leal', franquicia: 'magic', imagen: '/imagesMagic/albondiga_siempre_leal.png' },
@@ -67,6 +63,7 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
     return matchFranquicia && matchBusqueda;
   });
 
+  // seleccionar/deseleccionar carta
   const handleToggleCarta = (carta) => {
     setSelectedCartas(prev => {
       const existe = prev.find(c => c.id === carta.id);
@@ -78,9 +75,24 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
     });
   };
 
-  const handleSelectCarta = (carta) => {
-    setSelectedCarta(carta);
-    if (onSelectCarta) onSelectCarta(carta);
+  // selecc cartas filtradas
+  const handleSelectAll = () => {
+    const allFilteredIds = cartasFiltradas.map(c => c.id);
+    const currentSelectedIds = selectedCartas.map(c => c.id);
+    
+    // si todas las filtradas ya están seleccionadas se delesccionadn
+    if (allFilteredIds.every(id => currentSelectedIds.includes(id))) {
+      setSelectedCartas(prev => prev.filter(c => !allFilteredIds.includes(c.id)));
+    } else {
+      // agrega las q no estan sleeccionadas
+      const nuevasCartas = cartasFiltradas.filter(c => !currentSelectedIds.includes(c.id));
+      setSelectedCartas(prev => [...prev, ...nuevasCartas]);
+    }
+  };
+
+  //se limpian selecciones
+  const handleClearAll = () => {
+    setSelectedCartas([]);
   };
 
   const handleConfirmar = () => {
@@ -91,125 +103,188 @@ const Gallery = ({ isOpen, onClose, onSelectCarta }) => {
   };
 
   return (
-    <>
-      <div className='App' id='App'>
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={onClose} />
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate text-white flex flex-col items-center rounded-3xl border-2 border-[#56ab91] max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className='App' id='App'>
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="bg-slate-900 text-white flex flex-col rounded-3xl border-2 border-[#56ab91] max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
 
-            {/* Header / Navbar - Solo un botón de cerrar */}
-            <nav className="w-full header rounded-full p-3 mb-4 mt-4 mx-4 flex items-center justify-between shadow-lg max-w-[95%]">
-              <div className="flex gap-4">
-                <div className="relative">
-                  <select
-                    value={franquicia}
-                    onChange={(e) => setFranquicia(e.target.value)}
-                    className="bg-slate rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium"
-                  >
-                    <option value="all">Todas las Franquicias</option>
-                    <option value="pokemon">Pokémon</option>
-                    <option value="magic">Magic</option>
-                    <option value="dragonball">Dragon Ball</option>
-                    <option value="yugioh">Yu-Gi-Oh</option>
-                    <option value="digimon">Digimon</option>
-                  </select>
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
-                </div>
+          {/* Header / Navbar */}
+          <nav className="w-full p-4 border-b border-[#56ab91]/20">
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+              {/* Filtro de franquicia */}
+              <div className="relative w-full sm:w-auto">
+                <select
+                  value={franquicia}
+                  onChange={(e) => setFranquicia(e.target.value)}
+                  className="bg-slate-800 rounded-full py-2 px-6 pr-10 outline-none border border-[#56ab91]/30 text-white appearance-none cursor-pointer text-sm font-medium"
+                >
+                  <option value="all">Todas las Franquicias</option>
+                  <option value="pokemon">Pokémon</option>
+                  <option value="magic">Magic</option>
+                  <option value="dragonball">Dragon Ball</option>
+                  <option value="yugioh">Yu-Gi-Oh</option>
+                  <option value="digimon">Digimon</option>
+                </select>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
               </div>
 
-              <div className="flex-1 max-w-xl mx-8">
+              {/* Buscador */}
+              <div className="flex-1 w-full max-w-md">
                 <input
                   type="text"
-                  className="w-full search-bar rounded-full py-2 px-10 outline-none text-white text-sm"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="w-full bg-slate-800 rounded-full py-2 px-4 outline-none border border-[#56ab91]/30 text-white text-sm placeholder-gray-400"
                   placeholder="Buscar cartas por nombre..."
                 />
               </div>
 
-              {/* Único botón de cerrar */}
-              <button
-                onClick={onClose}
-                className="w-10 h-10 button rounded-full flex items-center justify-center font-bold border hover:bg-red-600 transition-all"
-              >
-                X
-              </button>
-            </nav>
+              {/* Botones de acción */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSelectAll}
+                  className="px-3 py-1.5 text-xs bg-[#56ab91]/20 hover:bg-[#56ab91]/40 rounded-full transition-colors"
+                >
+                  {cartasFiltradas.length > 0 && cartasFiltradas.every(c => selectedCartas.some(sc => sc.id === c.id))
+                    ? 'Deseleccionar todas'
+                    : 'Seleccionar todas'}
+                </button>
+                {selectedCartas.length > 0 && (
+                  <button
+                    onClick={handleClearAll}
+                    className="px-3 py-1.5 text-xs bg-red-500/20 hover:bg-red-500/40 rounded-full transition-colors"
+                  >
+                    Limpiar
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/40 rounded-full flex items-center justify-center font-bold transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </nav>
 
-            {/* Grid de cartas */}
-            <div className="w-full overflow-y-auto custom-scrollbar px-6 py-4">
-              <h2 className="text-2xl font-bold mb-6 text-center highlight uppercase tracking-widest">
-                {franquicia === 'all' ? 'Mi Colección' : `Cartas de ${franquicia}`}
-              </h2>
+          {/* Contador de selección */}
+          <div className="px-6 pt-4 pb-2 flex justify-between items-center">
+            <div className="text-sm">
+              {selectedCartas.length > 0 ? (
+                <span className="text-[#56ab91] font-semibold">
+                  {selectedCartas.length} carta{selectedCartas.length !== 1 ? 's' : ''} seleccionada{selectedCartas.length !== 1 ? 's' : ''}
+                </span>
+              ) : (
+                <span className="text-gray-400"> Selecciona las cartas que quieres adjuntar</span>
+              )}
+            </div>
+            <div className="text-xs text-gray-500">
+              {cartasFiltradas.length} cartas encontradas
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
-                {cartasFiltradas.map((carta) => (
+          {/* Grid de cartas */}
+          <div className="w-full overflow-y-auto custom-scrollbar px-6 py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {cartasFiltradas.map((carta) => {
+                const isSelected = selectedCartas.some(c => c.id === carta.id);
+                return (
                   <div
                     key={carta.id}
-                    onClick={() => handleSelectCarta(carta)}
-                    className={`bg-slate-800/60 rounded-2xl overflow-hidden border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-[0_0_20px_rgba(86,171,145,0.3)]
-                    ${selectedCarta?.id === carta.id
-                        ? 'border-[#d91a7a] shadow-[0_0_15px_rgba(217,26,122,0.5)]'
-                        : 'border hover:border-[--focus-color]'}`}
+                    onClick={() => handleToggleCarta(carta)}
+                    className={`group bg-slate-800/60 rounded-2xl overflow-hidden border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-[0_0_20px_rgba(86,171,145,0.3)]
+                      ${isSelected
+                        ? 'border-[#56ab91] shadow-[0_0_15px_rgba(86,171,145,0.5)] bg-[#56ab91]/10'
+                        : 'border-[#56ab91]/20 hover:border-[#56ab91]/50'}`}
                   >
-                    {/* Contenedor de imagen con proporción de carta real */}
-                    <div className="aspect-[2/3] w-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                    {/* Contenedor de imagen */}
+                    <div className="aspect-[2/3] w-full bg-slate-900 flex items-center justify-center overflow-hidden relative">
                       <img
                         src={carta.imagen}
                         alt={carta.nombre}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/300x450/1e293b/56ab91?text=Imagen+No+Encontrada';
                         }}
                       />
+                      
+                      {/* Checkbox de selección */}
+                      <div className={`absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center transition-all
+                        ${isSelected ? 'bg-[#56ab91] scale-110' : 'opacity-0 group-hover:opacity-100'}`}>
+                        {isSelected ? (
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <div className="w-4 h-4 border-2 border-white rounded-full"></div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Info de la carta */}
                     <div className="p-3 text-center bg-slate-800/80">
-                      <h3 className="font-bold text-sm truncate uppercase mb-1">{carta.nombre}</h3>
-                      <p className="text-[#56ab91] text-xs font-bold">{carta.precio}</p>
-
-                      {selectedCarta?.id === carta.id && (
-                        <div className="text-[9px] text-[#d91a7a] font-black mt-1 animate-pulse">
-                          SELECCIONADA
+                      <h3 className="font-bold text-xs sm:text-sm truncate uppercase mb-1">{carta.nombre}</h3>
+                      <p className="text-[#56ab91] text-xs font-bold">{carta.franquicia}</p>
+                      
+                      {isSelected && (
+                        <div className="text-[10px] text-[#56ab91] font-black mt-1 animate-pulse">
+                          ✓ SELECCIONADA
                         </div>
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
-            {/* Footer simplificado - Solo botón Adjuntar carta */}
-            <div className="w-full flex justify-end p-6 border-t border-[#56ab91]/20 bg-slate-900/50">
+            {/* Mensaje cuando no hay resultados */}
+            {cartasFiltradas.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-400">No se encontraron cartas</p>
+                <p className="text-sm text-gray-500 mt-2">Intenta con otra búsqueda o franquicia</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer - Botones de acción */}
+          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 p-6 border-t border-[#56ab91]/20 bg-slate-900/50">
+            <div className="text-xs text-gray-400 order-2 sm:order-1">
+              {selectedCartas.length > 0 && (
+                <span>Presiona en las cartas para seleccionar múltiples</span>
+              )}
+            </div>
+            <div className="flex gap-3 order-1 sm:order-2">
               <button
-                onClick={() => {
-                  if (selectedCarta) {
-                    if (onSelectCarta) onSelectCarta(selectedCarta);
-                    onClose();
-                  }
-                }}
-                className={`font-bold py-2 px-8 rounded-xl shadow-lg transition-all transform active:scale-95
-                ${selectedCarta
-                    ? 'bg-slate hover:bg-[#f22c8e] text-white cursor-pointer'
-                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'}`}
+                onClick={onClose}
+                className="font-bold py-2 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all"
               >
-                Adjuntar carta
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmar}
+                className={`font-bold py-2 px-8 rounded-xl shadow-lg transition-all transform active:scale-95
+                  ${selectedCartas.length > 0
+                    ? 'bg-gradient-to-r from-[#56ab91] to-[#3a8b6f] hover:from-[#3a8b6f] hover:to-[#2a6b5f] text-white cursor-pointer'
+                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'}`}
+                disabled={selectedCartas.length === 0}
+              >
+                Adjuntar {selectedCartas.length > 0 ? `(${selectedCartas.length})` : ''}
               </button>
             </div>
           </div>
         </div>
+      </div>
 
-
-        <style jsx>{`
+      <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
           background: #56ab91; 
           border-radius: 10px; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3d7a67; }
       `}</style>
-      </div>
-    </>
+    </div>
   );
 };
 
