@@ -99,10 +99,9 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3 md:p-4">
-      {/* Fondo semi-transparente */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       
-      {/* Modal principal */}
+      {/* modal principal */}
       <div className="relative w-full max-w-6xl h-[92vh] sm:h-[94vh] md:h-[95vh] flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl animate-fadeIn" style={{ 
         backgroundColor: 'var(--background-slate)',
         border: `2px solid var(--border-color)`,
@@ -111,7 +110,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
         
         {/* HEADER FIJO */}
         <div className="flex-shrink-0 sticky top-0 z-20" style={{ backgroundColor: 'var(--background-slate)' }}>
-          {/* Boton de cerrar - Ajustado circular perfecto */}
+          {/* Boton de cerrar */}
           <div className="flex justify-end p-2 sm:p-3 md:p-4">
             <button
               onClick={onClose}
@@ -128,10 +127,10 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
             </button>
           </div>
 
-          {/* Filtros y controles fijos */}
+          {/* filtros y controles */}
           <div className="px-3 sm:px-4 md:px-6 pb-2 sm:pb-3">
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
-              {/* Select de franquicia */}
+              {/* select de franquicia */}
               <div className="relative w-full sm:w-48 md:w-56">
                 <select
                   value={franquicia}
@@ -153,7 +152,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
                 <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] sm:text-[10px] text-white">▼</span>
               </div>
               
-              {/* Buscador */}
+              {/* buscador */}
               <div className="flex-1 w-full">
                 <input
                   type="text"
@@ -169,7 +168,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
                 />
               </div>
               
-              {/* Botones de accion */}
+
               <div className="flex gap-2 justify-end">
                 <button
                   onClick={handleSelectAll}
@@ -201,7 +200,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
             </div>
           </div>
 
-          {/* Contador de seleccion */}
+          {/* contador de seleccion */}
           <div className="flex justify-between items-center px-3 sm:px-4 md:px-6 py-1 sm:py-2 pb-2 sm:pb-3">
             <div className="text-[10px] sm:text-xs md:text-sm">
               {selectedCartas.length > 0 ? (

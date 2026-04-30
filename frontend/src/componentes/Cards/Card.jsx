@@ -1,62 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, MessageCircle } from 'lucide-react';
 
 const Card = ({ card, onClick }) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(24);
+
+  const handleLikeClick = (e) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
   return (
     <div
-      className="relative overflow-hidden cursor-pointer group bg-slate-800/40 border-2 border-[#56ab91]/20 rounded-[30px] transition-all hover:border-[#56ab91]/50 hover:shadow-[0_0_20px_rgba(86,171,145,0.2)]"
+      className="relative overflow-hidden cursor-pointer group bg-slate-800/40 border-2 border-[#56ab91]/20 rounded-xl sm:rounded-2xl transition-all duration-300 hover:border-[#56ab91]/50 hover:shadow-[0_0_20px_rgba(86,171,145,0.2)] hover:transform hover:scale-[1.02]"
       onClick={() => onClick(card)}
     >
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative w-full pt-[100%] overflow-hidden">
         <img
           src={card.image || "https://via.placeholder.com/300x400/1e293b/56ab91?text=Imagen+Carta"}
           alt={card.fandom}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          loading="lazy"
         />
-        <div className="absolute top-2 right-2 flex gap-1">
+        
+        <div className="absolute top-2 right-2 flex flex-col gap-1">
           {card.isVenta && (
-            <span className="px-2 py-1 bg-emerald-500/90 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white uppercase">
+            <span className="px-1.5 sm:px-2 py-0.5 bg-emerald-500/90 backdrop-blur-sm rounded-lg text-[8px] sm:text-[10px] font-bold text-white uppercase shadow-lg">
               Venta
             </span>
           )}
           {card.isIntercambio && (
-            <span className="px-2 py-1 bg-blue-500/90 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white uppercase">
+            <span className="px-1.5 sm:px-2 py-0.5 bg-blue-500/90 backdrop-blur-sm rounded-lg text-[8px] sm:text-[10px] font-bold text-white uppercase shadow-lg">
               Intercambio
             </span>
           )}
         </div>
       </div>
       
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <span className="text-[10px] font-bold px-2 py-0.5 bg-[#56ab91]/20 highlight rounded-full uppercase border">
+      {/* contenido */}
+      <div className="p-2 sm:p-3">
+        <div className="flex justify-between items-start gap-1 mb-1 sm:mb-2">
+          <span className="text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 bg-[#56ab91]/20 rounded-full uppercase border border-[#56ab91]/30">
             {card.type || "Carta"}
           </span>
-          <span className="text-sm font-bold text-white">
+          <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#56ab91] to-[#3a8b6f]">
             {card.price}
           </span>
         </div>
         
-        <h4 className="font-bold highlight text-xs uppercase mb-1">{card.fandom}</h4>
-        <p className="text-white font-bold text-sm mb-1">{card.description}</p>
-        <p className="text-gray-400 text-xs italic mb-3">{card.reverse || "Edición Estándar"}</p>
+        <h4 className="font-bold text-[10px] sm:text-xs text-[#56ab91] truncate">{card.fandom}</h4>
+        <p className="text-white font-semibold text-xs sm:text-sm line-clamp-2 mt-0.5">{card.description}</p>
+        <p className="text-gray-400 text-[9px] sm:text-xs italic line-clamp-1 mt-0.5">{card.reverse || "Edicion Estandar"}</p>
         
-        <div className="flex justify-between items-center text-gray-500 border-t border-white/10 pt-3">
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-1 hover:text-rose-400 transition-colors">
-              <Heart className="w-4 h-4" />
-              <span className="text-[10px]">24</span>
+        {/* acciones */}
+        <div className="flex justify-between items-center text-gray-500 border-t border-white/10 pt-2 mt-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button 
+              onClick={handleLikeClick}
+              className="flex items-center gap-1 hover:text-rose-400 transition-all transform hover:scale-110 active:scale-95"
+            >
+              <Heart className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-all ${isLiked ? 'fill-rose-400 text-rose-400' : ''}`} />
+              <span className="text-[8px] sm:text-[9px] font-medium">{likesCount}</span>
             </button>
-            <button className="flex items-center gap-1 hover:text-sky-400 transition-colors">
-              <MessageCircle className="w-4 h-4" />
-              <span className="text-[10px]">12</span>
+            <button className="flex items-center gap-1 hover:text-sky-400 transition-all">
+              <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="text-[8px] sm:text-[9px] font-medium">12</span>
             </button>
           </div>
         </div>
       </div>
       
-      <div className="absolute inset-0 button backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <span className="px-4 py-2 button text-slate-900 rounded-full text-xs font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform shadow-xl">
+      {/* overlay hover */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+        <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-white text-slate-900 rounded-full text-[9px] sm:text-xs font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform shadow-xl">
           VER DETALLES
         </span>
       </div>
