@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import '../../App.css'
-import '../../pantallas/index.css'
+import '../../App.css';
+import '../../pantallas/index.css';
 
 const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
   const [selectedCartas, setSelectedCartas] = useState([]);
@@ -19,29 +19,29 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
     { id: 8, nombre: 'Charizard ex', franquicia: 'pokemon', imagen: '/imagesPokemon/charizard_ex.PNG' },
     // MAGIC
     { id: 10, nombre: 'Caballero Templario', franquicia: 'magic', imagen: '/imagesMagic/caballero_templario.png' },
-    { id: 11, nombre: 'Albóndiga Siempre Leal', franquicia: 'magic', imagen: '/imagesMagic/albondiga_siempre_leal.png' },
-    { id: 12, nombre: 'Herbívoro arbóreo', franquicia: 'magic', imagen: '/imagesMagic/herbivoro_arboreo.png' },
+    { id: 11, nombre: 'Albondiga Siempre Leal', franquicia: 'magic', imagen: '/imagesMagic/albondiga_siempre_leal.png' },
+    { id: 12, nombre: 'Herbivoro arboreo', franquicia: 'magic', imagen: '/imagesMagic/herbivoro_arboreo.png' },
     { id: 13, nombre: 'Astillas Oseas', franquicia: 'magic', imagen: '/imagesMagic/astillas_oseas.jpg' },
     { id: 14, nombre: 'Hurgar Cerebro', franquicia: 'magic', imagen: '/imagesMagic/hurgar_cerebro.png' },
     { id: 15, nombre: 'Contendiente Aclamada', franquicia: 'magic', imagen: '/imagesMagic/contendiente_aclamda.png' },
     { id: 16, nombre: 'Rastrero de la Cripta', franquicia: 'magic', imagen: '/imagesMagic/rastrero_de_la_cripta.jpg' },
-    { id: 17, nombre: 'Sueños Desenfrenados', franquicia: 'magic', imagen: '/imagesMagic/suenos_desenfrenados.png' },
+    { id: 17, nombre: 'Suenos Desenfrenados', franquicia: 'magic', imagen: '/imagesMagic/suenos_desenfrenados.png' },
     // DRAGON BALL
     { id: 20, nombre: 'Exploradores', franquicia: 'dragonball', imagen: '/imagesDB/exploradores.jpg' },
-    { id: 21, nombre: 'Sabemos quien ganará', franquicia: 'dragonball', imagen: '/imagesDB/sabemos_quien_ganara.jpg' },
+    { id: 21, nombre: 'Sabemos quien ganara', franquicia: 'dragonball', imagen: '/imagesDB/sabemos_quien_ganara.jpg' },
     { id: 22, nombre: 'Big bang kame hame ha', franquicia: 'dragonball', imagen: '/imagesDB/big_bang_kame_hame_ha.jpg' },
     { id: 23, nombre: 'Detener Ataque', franquicia: 'dragonball', imagen: '/imagesDB/detener_ataque.jpg' },
     { id: 24, nombre: 'Humillando', franquicia: 'dragonball', imagen: '/imagesDB/humillando.jpg' },
     { id: 25, nombre: 'Big Bang', franquicia: 'dragonball', imagen: '/imagesDB/big_bang.jpg' },
     { id: 26, nombre: 'Quita aire', franquicia: 'dragonball', imagen: '/imagesDB/quita_aire.jpg' },
-    { id: 27, nombre: 'Súper Saiyan 2', franquicia: 'dragonball', imagen: '/imagesDB/super_saiyan2.png' },
+    { id: 27, nombre: 'Super Saiyan 2', franquicia: 'dragonball', imagen: '/imagesDB/super_saiyan2.png' },
     // YU-GI-OH
     { id: 28, nombre: 'Chica Maga Oscura', franquicia: 'yugioh', imagen: '/imagesYugioh/chica_maga_oscura.jpg' },
     { id: 29, nombre: 'D Contragolpe', franquicia: 'yugioh', imagen: '/imagesYugioh/d-contragolpe.jpg' },
-    { id: 30, nombre: 'Ciber Dragón', franquicia: 'yugioh', imagen: '/imagesYugioh/ciber_dragon.jpg' },
+    { id: 30, nombre: 'Ciber Dragon', franquicia: 'yugioh', imagen: '/imagesYugioh/ciber_dragon.jpg' },
     { id: 31, nombre: 'Coraza del Caos', franquicia: 'yugioh', imagen: '/imagesYugioh/coraza_del_caos.jpg' },
-    { id: 32, nombre: 'Dragón Blanco de ojos Azules', franquicia: 'yugioh', imagen: '/imagesYugioh/dragon_blanco_de_ojos_azules.jpg' },
-    { id: 33, nombre: 'El Dragón alado de Ra', franquicia: 'yugioh', imagen: '/imagesYugioh/el_dragon_alado_de_ra.jpg' },
+    { id: 32, nombre: 'Dragon Blanco de ojos Azules', franquicia: 'yugioh', imagen: '/imagesYugioh/dragon_blanco_de_ojos_azules.jpg' },
+    { id: 33, nombre: 'El Dragon alado de Ra', franquicia: 'yugioh', imagen: '/imagesYugioh/el_dragon_alado_de_ra.jpg' },
     { id: 34, nombre: 'Gil Garth', franquicia: 'yugioh', imagen: '/imagesYugioh/gil_garth.png' },
     { id: 35, nombre: 'Buey de Batalla', franquicia: 'yugioh', imagen: '/imagesYugioh/buey_de_batalla.jpg' },
     // DIGIMON
@@ -63,7 +63,6 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
     return matchFranquicia && matchBusqueda;
   });
 
-  // seleccionar/deseleccionar carta
   const handleToggleCarta = (carta) => {
     setSelectedCartas(prev => {
       const existe = prev.find(c => c.id === carta.id);
@@ -75,22 +74,18 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
     });
   };
 
-  // selecc cartas filtradas
   const handleSelectAll = () => {
     const allFilteredIds = cartasFiltradas.map(c => c.id);
     const currentSelectedIds = selectedCartas.map(c => c.id);
     
-    // si todas las filtradas ya están seleccionadas se delesccionadn
     if (allFilteredIds.every(id => currentSelectedIds.includes(id))) {
       setSelectedCartas(prev => prev.filter(c => !allFilteredIds.includes(c.id)));
     } else {
-      // agrega las q no estan sleeccionadas
       const nuevasCartas = cartasFiltradas.filter(c => !currentSelectedIds.includes(c.id));
       setSelectedCartas(prev => [...prev, ...nuevasCartas]);
     }
   };
 
-  //se limpian selecciones
   const handleClearAll = () => {
     setSelectedCartas([]);
   };
@@ -103,47 +98,87 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
   };
 
   return (
-    <div className='App' id='App'>
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-slate-900 text-white flex flex-col rounded-3xl border-2 border-[#56ab91] max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-3 md:p-4">
+      {/* Fondo semi-transparente */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      
+      {/* Modal principal */}
+      <div className="relative w-full max-w-6xl h-[92vh] sm:h-[94vh] md:h-[95vh] flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl animate-fadeIn" style={{ 
+        backgroundColor: 'var(--background-slate)',
+        border: `2px solid var(--border-color)`,
+        backdropFilter: 'blur(8px)'
+      }}>
+        
+        {/* HEADER FIJO */}
+        <div className="flex-shrink-0 sticky top-0 z-20" style={{ backgroundColor: 'var(--background-slate)' }}>
+          {/* Boton de cerrar - Ajustado circular perfecto */}
+          <div className="flex justify-end p-2 sm:p-3 md:p-4">
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center rounded-full transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg flex-shrink-0"
+              style={{ 
+                width: '36px',
+                height: '36px',
+                backgroundColor: 'var(--button-color)',
+                border: `2px solid var(--border-color)`,
+                color: 'var(--primary-text-color)'
+              }}
+            >
+              <span className="text-base font-bold">X</span>
+            </button>
+          </div>
 
-          {/* Header / Navbar */}
-          <nav className="w-full p-4 border-b border-[#56ab91]/20">
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-              {/* Filtro de franquicia */}
-              <div className="relative w-full sm:w-auto">
+          {/* Filtros y controles fijos */}
+          <div className="px-3 sm:px-4 md:px-6 pb-2 sm:pb-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center">
+              {/* Select de franquicia */}
+              <div className="relative w-full sm:w-48 md:w-56">
                 <select
                   value={franquicia}
                   onChange={(e) => setFranquicia(e.target.value)}
-                  className="bg-slate-800 rounded-full py-2 px-6 pr-10 outline-none border border-[#56ab91]/30 text-white appearance-none cursor-pointer text-sm font-medium"
+                  className="w-full rounded-full py-1.5 sm:py-2 px-3 sm:px-4 pr-7 sm:pr-8 outline-none appearance-none cursor-pointer text-xs sm:text-sm font-medium transition-all"
+                  style={{ 
+                    backgroundColor: 'var(--search-bar)',
+                    color: 'white',
+                    border: `1px solid var(--border-color)`
+                  }}
                 >
-                  <option value="all">Todas las Franquicias</option>
-                  <option value="pokemon">Pokémon</option>
+                  <option value="all">Todas las franquicias</option>
+                  <option value="pokemon">Pokemon</option>
                   <option value="magic">Magic</option>
                   <option value="dragonball">Dragon Ball</option>
                   <option value="yugioh">Yu-Gi-Oh</option>
                   <option value="digimon">Digimon</option>
                 </select>
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
+                <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[8px] sm:text-[10px] text-white">▼</span>
               </div>
-
+              
               {/* Buscador */}
-              <div className="flex-1 w-full max-w-md">
+              <div className="flex-1 w-full">
                 <input
                   type="text"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
-                  className="w-full bg-slate-800 rounded-full py-2 px-4 outline-none border border-[#56ab91]/30 text-white text-sm placeholder-gray-400"
+                  className="w-full rounded-full py-1.5 sm:py-2 px-3 sm:px-4 outline-none text-xs sm:text-sm transition-all"
+                  style={{ 
+                    backgroundColor: 'var(--search-bar)',
+                    color: 'white',
+                    border: `1px solid var(--border-color)`
+                  }}
                   placeholder="Buscar cartas por nombre..."
                 />
               </div>
-
-              {/* Botones de acción */}
-              <div className="flex gap-2">
+              
+              {/* Botones de accion */}
+              <div className="flex gap-2 justify-end">
                 <button
                   onClick={handleSelectAll}
-                  className="px-3 py-1.5 text-xs bg-[#56ab91]/20 hover:bg-[#56ab91]/40 rounded-full transition-colors"
+                  className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs rounded-full transition-all whitespace-nowrap"
+                  style={{ 
+                    backgroundColor: 'var(--button-color)',
+                    color: 'var(--primary-text-color)',
+                    border: `1px solid var(--border-color)`
+                  }}
                 >
                   {cartasFiltradas.length > 0 && cartasFiltradas.every(c => selectedCartas.some(sc => sc.id === c.id))
                     ? 'Deseleccionar todas'
@@ -152,137 +187,171 @@ const Gallery = ({ isOpen, onClose, onSelectCartas }) => {
                 {selectedCartas.length > 0 && (
                   <button
                     onClick={handleClearAll}
-                    className="px-3 py-1.5 text-xs bg-red-500/20 hover:bg-red-500/40 rounded-full transition-colors"
+                    className="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs rounded-full transition-all whitespace-nowrap"
+                    style={{ 
+                      backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                      color: '#ef4444',
+                      border: '1px solid #ef4444'
+                    }}
                   >
                     Limpiar
                   </button>
                 )}
-                <button
-                  onClick={onClose}
-                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/40 rounded-full flex items-center justify-center font-bold transition-all"
-                >
-                  ✕
-                </button>
               </div>
             </div>
-          </nav>
+          </div>
 
-          {/* Contador de selección */}
-          <div className="px-6 pt-4 pb-2 flex justify-between items-center">
-            <div className="text-sm">
+          {/* Contador de seleccion */}
+          <div className="flex justify-between items-center px-3 sm:px-4 md:px-6 py-1 sm:py-2 pb-2 sm:pb-3">
+            <div className="text-[10px] sm:text-xs md:text-sm">
               {selectedCartas.length > 0 ? (
-                <span className="text-[#56ab91] font-semibold">
+                <span className="font-semibold highlight">
                   {selectedCartas.length} carta{selectedCartas.length !== 1 ? 's' : ''} seleccionada{selectedCartas.length !== 1 ? 's' : ''}
                 </span>
               ) : (
-                <span className="text-gray-400"> Selecciona las cartas que quieres adjuntar</span>
+                <span style={{ color: 'var(--secondary-text-color)' }}>Selecciona las cartas que quieres adjuntar</span>
               )}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-[10px] sm:text-xs" style={{ color: 'var(--secondary-text-color)' }}>
               {cartasFiltradas.length} cartas encontradas
             </div>
           </div>
+        </div>
 
-          {/* Grid de cartas */}
-          <div className="w-full overflow-y-auto custom-scrollbar px-6 py-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {cartasFiltradas.map((carta) => {
-                const isSelected = selectedCartas.some(c => c.id === carta.id);
-                return (
-                  <div
-                    key={carta.id}
-                    onClick={() => handleToggleCarta(carta)}
-                    className={`group bg-slate-800/60 rounded-2xl overflow-hidden border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-[0_0_20px_rgba(86,171,145,0.3)]
-                      ${isSelected
-                        ? 'border-[#56ab91] shadow-[0_0_15px_rgba(86,171,145,0.5)] bg-[#56ab91]/10'
-                        : 'border-[#56ab91]/20 hover:border-[#56ab91]/50'}`}
-                  >
-                    {/* Contenedor de imagen */}
-                    <div className="aspect-[2/3] w-full bg-slate-900 flex items-center justify-center overflow-hidden relative">
-                      <img
-                        src={carta.imagen}
-                        alt={carta.nombre}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/300x450/1e293b/56ab91?text=Imagen+No+Encontrada';
-                        }}
-                      />
-                      
-                      {/* Checkbox de selección */}
-                      <div className={`absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center transition-all
-                        ${isSelected ? 'bg-[#56ab91] scale-110' : 'opacity-0 group-hover:opacity-100'}`}>
-                        {isSelected ? (
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : (
-                          <div className="w-4 h-4 border-2 border-white rounded-full"></div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Info de la carta */}
-                    <div className="p-3 text-center bg-slate-800/80">
-                      <h3 className="font-bold text-xs sm:text-sm truncate uppercase mb-1">{carta.nombre}</h3>
-                      <p className="text-[#56ab91] text-xs font-bold">{carta.franquicia}</p>
-                      
-                      {isSelected && (
-                        <div className="text-[10px] text-[#56ab91] font-black mt-1 animate-pulse">
-                          ✓ SELECCIONADA
-                        </div>
+        {/* AREA DE SCROLL */}
+        <div className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 custom-scrollbar">
+          <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+            {cartasFiltradas.map((carta) => {
+              const isSelected = selectedCartas.some(c => c.id === carta.id);
+              return (
+                <div
+                  key={carta.id}
+                  onClick={() => handleToggleCarta(carta)}
+                  className="group rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 cursor-pointer hover:scale-105 hover:shadow-xl"
+                  style={{ 
+                    borderColor: isSelected ? 'var(--border-color)' : 'rgba(86, 171, 145, 0.2)',
+                    backgroundColor: isSelected ? 'var(--background-slate)' : 'rgba(51, 65, 85, 0.4)',
+                    boxShadow: isSelected ? `0 0 15px var(--border-color)` : 'none'
+                  }}
+                >
+                  <div className="aspect-[2/3] w-full overflow-hidden relative">
+                    <img
+                      src={carta.imagen}
+                      alt={carta.nombre}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/300x450/1e293b/56ab91?text=Imagen+No+Encontrada';
+                      }}
+                    />
+                    
+                    <div className={`absolute top-1 right-1 sm:top-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-black/70 flex items-center justify-center transition-all
+                      ${isSelected ? 'scale-110' : 'opacity-0 group-hover:opacity-100'}`}
+                      style={{ backgroundColor: isSelected ? 'var(--border-color)' : 'black' }}>
+                      {isSelected ? (
+                        <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 border-2 border-white rounded-full"></div>
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Mensaje cuando no hay resultados */}
-            {cartasFiltradas.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-400">No se encontraron cartas</p>
-                <p className="text-sm text-gray-500 mt-2">Intenta con otra búsqueda o franquicia</p>
-              </div>
-            )}
+                  <div className="p-1.5 sm:p-2 md:p-3 text-center">
+                    <h3 className="font-bold text-[10px] sm:text-xs md:text-sm truncate uppercase" style={{ color: 'var(--primary-text-color)' }}>
+                      {carta.nombre}
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs font-bold highlight capitalize mt-0.5 sm:mt-1">{carta.franquicia}</p>
+                    
+                    {isSelected && (
+                      <div className="text-[6px] sm:text-[8px] md:text-[10px] font-black mt-0.5 sm:mt-1 animate-pulse highlight">
+                        SELECCIONADA
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Footer - Botones de acción */}
-          <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-3 p-6 border-t border-[#56ab91]/20 bg-slate-900/50">
-            <div className="text-xs text-gray-400 order-2 sm:order-1">
-              {selectedCartas.length > 0 && (
-                <span>Presiona en las cartas para seleccionar múltiples</span>
-              )}
+          {cartasFiltradas.length === 0 && (
+            <div className="text-center py-12">
+              <p style={{ color: 'var(--secondary-text-color)' }}>No se encontraron cartas</p>
+              <p className="text-[10px] sm:text-xs mt-2" style={{ color: 'var(--secondary-text-color)' }}>Intenta con otra busqueda o franquicia</p>
             </div>
-            <div className="flex gap-3 order-1 sm:order-2">
-              <button
-                onClick={onClose}
-                className="font-bold py-2 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmar}
-                className={`font-bold py-2 px-8 rounded-xl shadow-lg transition-all transform active:scale-95
-                  ${selectedCartas.length > 0
-                    ? 'bg-gradient-to-r from-[#56ab91] to-[#3a8b6f] hover:from-[#3a8b6f] hover:to-[#2a6b5f] text-white cursor-pointer'
-                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'}`}
-                disabled={selectedCartas.length === 0}
-              >
-                Adjuntar {selectedCartas.length > 0 ? `(${selectedCartas.length})` : ''}
-              </button>
-            </div>
+          )}
+        </div>
+
+        {/* FOOTER FIJO */}
+        <div className="flex-shrink-0 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-3 p-3 sm:p-4 border-t" style={{ 
+          backgroundColor: 'var(--background-slate)',
+          borderColor: 'var(--border-color)'
+        }}>
+          <div className="text-[8px] sm:text-[10px] md:text-xs order-2 sm:order-1" style={{ color: 'var(--secondary-text-color)' }}>
+            {selectedCartas.length > 0 && (
+              <span>Presiona en las cartas para seleccionar multiples</span>
+            )}
+          </div>
+          <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
+            <button
+              onClick={onClose}
+              className="font-bold py-1.5 sm:py-2 px-3 sm:px-4 md:px-6 rounded-xl transition-all text-xs sm:text-sm"
+              style={{ 
+                backgroundColor: 'var(--button-color)',
+                color: 'var(--primary-text-color)'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmar}
+              className={`font-bold py-1.5 sm:py-2 px-4 sm:px-6 md:px-8 rounded-xl shadow-lg transition-all transform active:scale-95 text-xs sm:text-sm
+                ${selectedCartas.length > 0 ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+              style={{ 
+                backgroundColor: selectedCartas.length > 0 ? 'var(--border-color)' : 'var(--button-color)',
+                color: 'white'
+              }}
+              disabled={selectedCartas.length === 0}
+            >
+              Adjuntar {selectedCartas.length > 0 ? `(${selectedCartas.length})` : ''}
+            </button>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: #56ab91; 
-          border-radius: 10px; 
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3d7a67; }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: var(--background-slate);
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: var(--border-color);
+          border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: var(--hightlight-text-color);
+        }
       `}</style>
     </div>
   );
