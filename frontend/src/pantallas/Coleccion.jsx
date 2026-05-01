@@ -149,7 +149,7 @@ const Coleccion = () => {
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
 
-        {/* ===== MODAL ===== */}
+       
         {modalAbierto && publicacionActual && (
           <>
             <style>{`
@@ -169,14 +169,14 @@ const Coleccion = () => {
                 box-sizing: border-box;
               }
 
-              /* Contenedor interno: centrado, ancho máximo */
+              
               .modal-inner {
                 position: relative;
                 width: 100%;
                 max-width: 900px;
               }
 
-              /* Botón cerrar */
+             
               .modal-close-btn {
                 position: fixed;
                 top: 0.75rem;
@@ -209,7 +209,7 @@ const Coleccion = () => {
                 }
               }
 
-              /* Paneles con tema */
+             
               .modal-panel {
                 border: 1.5px solid var(--border-color);
                 border-radius: 1rem;
@@ -218,7 +218,7 @@ const Coleccion = () => {
                 -webkit-backdrop-filter: blur(10px);
               }
 
-              /* Botones navegación imagen */
+              
               .modal-nav-btn {
                 position: absolute;
                 top: 50%;
@@ -296,14 +296,14 @@ const Coleccion = () => {
             <div className="modal-overlay" onClick={cerrarModal}>
               <div className="modal-inner" onClick={(e) => e.stopPropagation()}>
 
-                {/* Botón cerrar */}
+             
                 <button onClick={cerrarModal} className="modal-close-btn">
                   <span style={{ color: 'white', fontSize: '1.1rem' }}>✕</span>
                 </button>
 
                 <div className="modal-grid">
 
-                  {/* ===== PANEL IMAGEN ===== */}
+                 
                   <div className="modal-panel" style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -352,10 +352,9 @@ const Coleccion = () => {
                     </div>
                   </div>
 
-                  {/* ===== PANEL DERECHO ===== */}
+                
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-                    {/* Info publicación */}
                     <div className="modal-panel" style={{ padding: '1rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                         <h2 style={{
@@ -416,7 +415,7 @@ const Coleccion = () => {
                       </div>
                     </div>
 
-                    {/* Comentarios */}
+                    
                     <div className="modal-panel" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       <h3 style={{
                         fontSize: '0.65rem',
@@ -498,7 +497,7 @@ const Coleccion = () => {
                         )}
                       </div>
 
-                      {/* Input comentario */}
+                     
                       <form onSubmit={handleModalComentario} style={{
                         border: '1px solid var(--border-color)',
                         borderRadius: '0.65rem',
@@ -535,7 +534,7 @@ const Coleccion = () => {
             </div>
           </>
         )}
-        {/* ===== FIN MODAL ===== */}
+      
 
         <Navbar />
         

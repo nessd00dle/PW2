@@ -75,13 +75,11 @@ const Feed = () => {
   console.log('Cartas mostradas:', sortedCards.length);
 
   return (
-    <div className='App' id='App'>
-      <div className="min-h-screen text-white font-sans flex flex-col">
-        
-        <Navbar />
-        
-        <div className="flex-1 w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 pt-4 sm:pt-6 pb-6 sm:pb-8">
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+<div className='App' id='App'>
+    <div className="min-h-screen text-white font-sans flex flex-col pt-4"> 
+      <Navbar />
+      <div className="flex-1 w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 pt-2 sm:pt-4 pb-6 sm:pb-8">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
             
             <aside className="hidden md:block md:w-[260px] lg:w-[280px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">

@@ -36,7 +36,7 @@ const MainLayout = ({
       <div className="min-h-screen text-white font-sans flex flex-col">
         
        
-        <div className="flex-1 w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 pt-20 sm:pt-24 pb-6 sm:pb-8">
+        <div className="flex-1 w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 pt-16 pb-6 sm:pb-8">
           
           <div className="flex flex-col md:flex-row gap-4 md:gap-6">
            
