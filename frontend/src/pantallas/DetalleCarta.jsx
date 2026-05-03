@@ -8,8 +8,7 @@ import '../pantallas/index.css'
 import useLocalStorage from 'use-local-storage';
 import ThemeOption from '../componentes/Toggle/ThemeOptions';
 
-import { useState } from 'react';
-import { useEffect } from 'react';
+
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
@@ -163,7 +162,7 @@ const DetalleCarta = () => {
                 />
                 <button onClick={handleEnviarComentario} className="primary-text hover:scale-125 transition-transform">➤</button>
               </form>
-              
+
             </div>
           </div>
         </div>

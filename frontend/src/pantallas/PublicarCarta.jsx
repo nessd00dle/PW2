@@ -233,21 +233,23 @@ const PublicarCarta = () => {
               <span className="text-base sm:text-lg md:text-xl font-bold transition-colors hover:text-red-500">X</span>
             </button>
 
-            <div className="relative">
-              <select 
-                value={franquicia}
-                onChange={(e) => setFranquicia(e.target.value)}
-                className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
-                <option value="">Selecciona franquicia</option>
-                {franquicias.map((f) => (
-                  <option key={f._id} value={f._id}>
-                    {f.nombre}
-                  </option>
-                ))}
-              </select>
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
-            </div>
-          </div>
+            <form className="space-y-5 sm:space-y-6 md:space-y-8" onSubmit={(e) => e.preventDefault()}>
+              {/* Tipo y Franquicia */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="relative w-full sm:w-auto flex-1">
+                  <select
+                    className="search-bar rounded-full py-2 px-4 sm:px-6 pr-8 sm:pr-10 outline-none appearance-none cursor-pointer text-sm font-medium w-full transition-all"
+                    style={{ color: 'white' }}
+                    value={tipoPublicacion}
+                    onChange={handleTipoChange}
+                  >
+                    <option value="" disabled>Seleccionar tipo</option>
+                    <option value="venta">Venta</option>
+                    <option value="intercambio">Intercambio</option>
+                    <option value="coleccion">Coleccion</option>
+                  </select>
+                  <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-white">▼</span>
+                </div>
 
                 <div className="relative w-full sm:w-auto flex-1">
                   <select 
@@ -256,11 +258,12 @@ const PublicarCarta = () => {
                     className="search-bar rounded-full py-2 px-4 sm:px-6 pr-8 sm:pr-10 outline-none appearance-none cursor-pointer text-sm font-medium w-full transition-all"
                     style={{ color: 'white' }}
                   >
-                    <option value="Pokemon">Pokemon</option>
-                    <option value="Magic">Magic</option>
-                    <option value="Dragon Ball">Dragon Ball</option>
-                    <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
-                    <option value="Digimon">Digimon</option>
+                    <option value="">Selecciona franquicia</option>
+                    {franquicias.map((f) => (
+                      <option key={f._id} value={f._id}>
+                        {f.nombre}
+                      </option>
+                    ))}
                   </select>
                   <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-white">▼</span>
                 </div>
