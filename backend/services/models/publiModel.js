@@ -71,12 +71,10 @@ const publicacionesSchema = new mongoose.Schema({
         default: []
     },
     Franquicia: {
-        type: String,
-        required: [true, 'La franquicia es obligatoria'],
-        enum: {
-            values: ['Pokemon', 'Magic', 'Yu-Gi-Oh', 'Digimon', 'One Piece', 'Dragon Ball', 'Otro'],
-            message: 'Franquicia no válida'
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Franquicia',
+        required: true
+
     },
     Cantidad: {
         type: Number,
@@ -148,7 +146,7 @@ publicacionesSchema.virtual('fotosUrls').get(function() {
     if (!this.Fotos || this.Fotos.length === 0) return [];
     // Asumiendo que las rutas son relativas
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-    return this.Fotos.map(foto => `${baseUrl}/uploads/${foto}`);
+    return this.Fotos.map(foto => `${baseUrl}/uploads/publicaciones/${foto}`);
 });
 
 // Método para verificar si un usuario ha dado like
@@ -180,18 +178,17 @@ publicacionesSchema.methods.agregarComentario = async function(usuarioId, texto)
 };
 
 // Middleware pre-save para validaciones adicionales
-publicacionesSchema.pre('save', function(next) {
+publicacionesSchema.pre('save', function() {
     // Validar que si es colección, tenga al menos una carta
     if (this.Tipo === 'coleccion' && (!this.CartasColeccion || this.CartasColeccion.length === 0)) {
-        next(new Error('Las publicaciones de colección deben tener al menos una carta'));
+        throw new Error('Las publicaciones de colección deben tener al menos una carta');
     }
     
     // Validar que si es venta o intercambio, tenga al menos una foto
     if ((this.Tipo === 'venta' || this.Tipo === 'intercambio') && (!this.Fotos || this.Fotos.length === 0)) {
-        next(new Error('Las publicaciones de venta/intercambio deben tener al menos una imagen'));
+        throw new Error('Las publicaciones de venta/intercambio deben tener al menos una imagen');
     }
     
-    next();
 });
 
 // Método estático para obtener publicaciones por tipo

@@ -6,7 +6,9 @@ import { fileURLToPath } from "url";
 import fs from 'fs';
 import connectDB from "./config/dbClient.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
-//import publiRoutes from "./routes/publiRoutes.js";
+import publiRoutes from "./routes/publiRoutes.js";
+import franquiciaRoutes from "./routes/franquiciaRoutes.js";
+import comentarioRoutes from "./routes/comentarioRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,7 +65,10 @@ if (fs.existsSync(uploadsPath)) {
 
 // Rutas
 app.use('/api/usuarios', usuarioRoutes);
-//app.use('/api/publicaciones', publiRoutes);
+app.use('/api/publicaciones', publiRoutes);
+app.use('/api/franquicias', franquiciaRoutes);
+app.use('/api/comentarios', comentarioRoutes);
+
 
 // Ruta de prueba
 app.get('/test', (req, res) => {

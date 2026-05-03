@@ -63,6 +63,13 @@ export const crearPublicacion = async (req, res) => {
                 message: 'Las publicaciones de venta/intercambio requieren al menos una imagen' 
             });
         }
+
+        if (!Franquicia) {
+            return res.status(400).json({
+                success: false,
+                message: 'La franquicia es obligatoria'
+            });
+        }
         
         // Optimizar imágenes subidas
         let fotos = [];
@@ -95,6 +102,7 @@ export const crearPublicacion = async (req, res) => {
             Estado: 'activo'
         });
         
+        console.log('Fotos a guardar:', fotos);
         await nuevaPublicacion.save();
         await nuevaPublicacion.populate('Idusuario', 'nombre nickname correo fotoPerfil');
         
@@ -136,7 +144,8 @@ export const obtenerPublicaciones = async (req, res) => {
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parseInt(limite))
-            .populate('Idusuario', 'nombre nickname correo fotoPerfil');
+            .populate('Idusuario', 'nombre nickname correo fotoPerfil')
+            .populate('Franquicia', 'nombre slug');
         
         const total = await Publicacion.countDocuments(query);
         

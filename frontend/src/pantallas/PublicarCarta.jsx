@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Gallery from '../componentes/Modals/Gallery';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 const PublicarCarta = () => {
   const navigate = useNavigate();
@@ -14,7 +16,27 @@ const PublicarCarta = () => {
   const [descripcion, setDescripcion] = useState('');
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState(1);
-  const [franquicia, setFranquicia] = useState('Pokemon');
+
+  //Esta contiene solo la franquicia que selecciona el usaurio (chris)
+  const [franquicia, setFranquicia] = useState('');
+
+  //Esta contiene todas las franquicias, traidas desde la BD (chris)
+  const [franquicias, setFranquicias] = useState([]);
+
+  //Aquí ya se llaman las franquicias desde la BD
+  useEffect(() => {
+    const fetchFranquicias = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/franquicias');
+        setFranquicias(res.data.franquicias);
+      } catch (error) {
+        console.error('Error cargando franquicias:', error);
+      }
+    };
+
+    fetchFranquicias();
+  }, []);
+
 
   const handleTipoChange = (e) => {
     const tipo = e.target.value;
@@ -136,8 +158,13 @@ const PublicarCarta = () => {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message);
-
+      if (!response.ok) {
+        console.log('❌ Error backend completo:', data);
+        throw new Error(
+          data.message || 
+          (data.errores ? data.errores.join(', ') : 'Error desconocido')
+        );
+      }
       console.log('✅ Publicación creada:', data);
 
       alert('Publicación creada con éxito');
@@ -180,11 +207,12 @@ const PublicarCarta = () => {
                 value={franquicia}
                 onChange={(e) => setFranquicia(e.target.value)}
                 className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]">
-                <option value="Pokemon">Pokemon</option>
-                <option value="Magic">Magic</option>
-                <option value="Dragon Ball">Dragon Ball</option>
-                <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
-                <option value="Digimon">Digimon</option>
+                <option value="">Selecciona franquicia</option>
+                {franquicias.map((f) => (
+                  <option key={f._id} value={f._id}>
+                    {f.nombre}
+                  </option>
+                ))}
               </select>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
             </div>

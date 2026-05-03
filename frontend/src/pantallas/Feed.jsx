@@ -4,18 +4,58 @@ import { useNavigate } from "react-router-dom";
 import MainLayout from "../componentes/Layout/MainLayout";
 import CardGrid from "../componentes/Cards/CardGrid";
 
+import { useEffect } from 'react';
+import axios from 'axios';
+
 const Feed = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState("all");
   const [selectedFandoms, setSelectedFandoms] = useState([]);
   const [sortBy, setSortBy] = useState("popular");
 
-  const cards = [
-    { id: 1, type: "Carta Holo", fandom: "Pokémon", fandomId: "pokemon", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlSLVcEaKMsGAkeA35IbD9_cFuXXEdATuzfQ&s/200x280", reverse: "Edición Limitada", description: "bonita", price: "$25.00", isVenta: true, isIntercambio: false },
-    { id: 2, type: "Carta Normal", fandom: "Magic", fandomId: "magic", image: "https://gatherer.wizards.com/Handlers/Image.ashx?type=card&name=Shadowmage+Infiltrator/200x280", reverse: "Foil", description: "linda", price: "$350.00", isVenta: true, isIntercambio: true },
-    { id: 3, type: "Carta Rara", fandom: "Digimon", fandomId: "digimon", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgZ856cXwx7YgoNnyCXZyIZrCx9-RoLsijJg&s/200x280", reverse: "Alternativa", description: "wow", price: "$45.00", isVenta: false, isIntercambio: true },
-    { id: 4, type: "Carta Promo", fandom: "DragonBall", fandomId: "dragonball", image: "https://mnacardz.com/cdn/shop/files/BT26-139_SCR_Metamorphic_Android_Cell_2024_124538ed-f4f5-4a0c-8428-5e7362738238.jpg?v=1753904845&width=3024/200x280", reverse: "Holo", description: "muy especial", price: "$30.00", isVenta: true, isIntercambio: false }
-  ];
+  //Aqui se contendrán las publicaciones, traidas desde la BD (chris)
+  const [publicaciones, setPublicaciones] = useState([]);
+
+  //Aquí ya se llaman las publicaciones desde la BD
+  useEffect(() => {
+    const fetchPublicaciones = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/publicaciones');
+        setPublicaciones(res.data.publicaciones);
+      } catch (error) {
+        console.error('Error cargando publicaciones:', error);
+      }
+    };
+
+    fetchPublicaciones();
+  }, []);
+
+  const cards = publicaciones.map(pub => ({
+    id: pub._id,
+
+    // Nombre del usuario
+    type: pub.Idusuario?.nickname || 'Usuario',
+
+    // Nombre de la franquicia (requiere populate)
+    fandom: pub.Franquicia?.nombre || 'Sin franquicia',
+
+    // ID de la franquicia
+    fandomId: pub.Franquicia?._id,
+
+    // Imagen principal
+    image: pub.fotosUrls?.[0] || 'https://via.placeholder.com/200x280',
+
+    reverse: pub.Texto || 'Sin descripcion',
+
+    description: pub.Titulo,
+
+    price: pub.Monto ? `$${pub.Monto}` : '',
+
+    cantidad: pub.Cantidad,
+
+    isVenta: pub.Tipo === 'venta',
+    isIntercambio: pub.Tipo === 'intercambio'
+  }));
 
   const filteredByFandom = selectedFandoms.length > 0
     ? cards.filter(card => selectedFandoms.includes(card.fandomId))

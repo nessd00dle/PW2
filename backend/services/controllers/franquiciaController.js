@@ -3,17 +3,16 @@ import Franquicia from '../models/franquiciaModel.js';
 // Obtener todas las franquicias
 export const obtenerFranquicias = async (req, res) => {
     try {
-        const franquicias = await Franquicia.obtenerActivas();
-        
+        const franquicias = await Franquicia.find().sort({ nombre: 1 });
+
         res.json({
             success: true,
             franquicias
         });
     } catch (error) {
-        console.error('Error obteniendo franquicias:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: error.message 
+        res.status(500).json({
+            success: false,
+            message: error.message
         });
     }
 };

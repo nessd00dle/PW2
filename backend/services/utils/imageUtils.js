@@ -34,7 +34,7 @@ export const optimizarImagen = async (file, tipo = 'publicaciones') => {
         // Procesar la imagen en memoria
         const optimizedBuffer = await sharp(imageBuffer)
             .resize(config.width, config.height, {
-                fit: 'cover',
+                fit: 'inside',
                 position: 'center',
                 withoutEnlargement: true
             })

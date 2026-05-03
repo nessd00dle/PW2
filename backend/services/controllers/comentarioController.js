@@ -4,7 +4,7 @@ import Publicacion from '../models/publiModel.js';
 // Obtener comentarios de una publicación
 export const obtenerComentarios = async (req, res) => {
     try {
-        const { idPublicacion } = req.params;
+        const { idPublicacion } = req.query; 
         const { pagina = 1, limite = 20 } = req.query;
         
         const resultado = await Comentario.obtenerPorPublicacion(
@@ -29,8 +29,7 @@ export const obtenerComentarios = async (req, res) => {
 // Crear comentario
 export const crearComentario = async (req, res) => {
     try {
-        const { idPublicacion } = req.params;
-        const { texto, comentarioPadre } = req.body;
+        const { idPublicacion, texto, comentarioPadre } = req.body;
         const usuarioId = req.usuario.id;
         
         // Verificar que la publicación existe
@@ -121,6 +120,37 @@ export const eliminarComentario = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: error.message 
+        });
+    }
+};
+
+export const toggleLikeComentario = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const usuarioId = req.usuario.id;
+
+        const comentario = await Comentario.findById(id);
+
+        if (!comentario) {
+            return res.status(404).json({
+                success: false,
+                message: 'Comentario no encontrado'
+            });
+        }
+
+        await comentario.toggleLike(usuarioId);
+
+        res.json({
+            success: true,
+            message: 'Like actualizado',
+            meGusta: comentario.meGusta
+        });
+
+    } catch (error) {
+        console.error('Error en like de comentario:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
         });
     }
 };
