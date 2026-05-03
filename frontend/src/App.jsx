@@ -97,13 +97,13 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      {/* Redirección por defecto */}
+   
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
 
-// Componente principal
+
 function App() {
   const selectedTheme = localStorage.getItem("theme");
 

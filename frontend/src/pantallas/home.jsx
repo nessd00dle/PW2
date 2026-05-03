@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -22,7 +21,7 @@ const Home = () => {
   const particleSystemRef = useRef(null);
 
   useEffect(() => {
-    // Definición completa de la clase ParticleSystem
+   
     class ParticleSystem {
       constructor(canvas) {
         this.canvas = canvas;
@@ -33,7 +32,7 @@ const Home = () => {
         this.isActive = true;
         this.particleCount = 50;
         
-        // Bind de métodos
+        
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.handleResize = this.handleResize.bind(this);
         
@@ -73,13 +72,13 @@ const Home = () => {
           p.x += p.speedX;
           p.y += p.speedY;
 
-          // Rebote en bordes
+          
           if (p.x < 0) p.x = this.canvas.width;
           if (p.x > this.canvas.width) p.x = 0;
           if (p.y < 0) p.y = this.canvas.height;
           if (p.y > this.canvas.height) p.y = 0;
 
-          // Efecto de mouse
+         
           if (this.mouseX && this.mouseY) {
             const dx = this.mouseX - p.x;
             const dy = this.mouseY - p.y;
@@ -175,7 +174,7 @@ const Home = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       
-      // Limpiar sistema anterior si existe
+   
       if (particleSystemRef.current) {
         particleSystemRef.current.destroy();
       }
@@ -183,7 +182,7 @@ const Home = () => {
       particleSystemRef.current = new ParticleSystem(canvas);
     };
 
-    // Pequeño delay para asegurar que el canvas está listo
+    
     const timer = setTimeout(() => {
       initParticles();
     }, 100);
@@ -201,7 +200,7 @@ const Home = () => {
     };
   }, []);
 
-  // Inicializar Swipers
+ 
   useEffect(() => {
     let swiper1 = null;
     let swiper2 = null;
@@ -265,8 +264,20 @@ const Home = () => {
     "https://i.pinimg.com/736x/de/2e/b6/de2eb6fa73ee8ca0207f369c27d93a41.jpg",
     "https://i.pinimg.com/736x/7c/f3/6d/7cf36d83567dec998f39f71e282196a9.jpg",
     "https://i.pinimg.com/736x/56/a9/e9/56a9e9a90b944a89f2420792198d849a.jpg",
-    "https://i.pinimg.com/736x/86/c8/43/86c843d39c75634618eab6599c86a5ea.jpg"
+    "https://i.pinimg.com/736x/86/c8/43/86c843d39c75634618eab6599c86a5ea.jpg", 
+    "https://i.pinimg.com/736x/41/fb/c0/41fbc08141a094d42f257c081aebebb2.jpg"
   ];
+
+
+  const getStarColor = (name) => {
+    const colorMap = {
+      "Glenda Ordonez": "text-emerald-400",
+      "Christopher Escobedo": "text-purple-400",
+      "Reyna Martínez": "text-blue-400",
+      "Vanessa Reyes": "text-orange-400"
+    };
+    return colorMap[name] || "text-yellow-400";
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-x-hidden">
@@ -341,7 +352,7 @@ const Home = () => {
                 {
                   img: cardImages[1],
                   title: "Dragón Blanco de Ojos Azules",
-                  author: "Ana Martínez",
+                  author: "Glenda Ordonez",
                   category: "Yu-Gi-Oh!",
                   likes: 187,
                   comments: 32,
@@ -351,7 +362,7 @@ const Home = () => {
                 {
                   img: cardImages[2],
                   title: "Chandra, Torch of Defiance",
-                  author: "Carlos Ruiz",
+                  author: "Christopher Escobedo",
                   category: "Magic",
                   likes: 156,
                   comments: 28,
@@ -361,10 +372,20 @@ const Home = () => {
                 {
                   img: cardImages[3],
                   title: "Pikachu Ex",
-                  author: "Laura Gómez",
+                  author: "Reyna Martínez",
                   category: "Pokémon",
                   likes: 312,
                   comments: 67,
+                  gradient: "from-red-400/20 to-orange-600/20",
+                  border: "border-red-400/30"
+                },
+                 {
+                  img: cardImages[4],
+                  title: "Gohan Super Saiyan",
+                  author: "Vanessa Reyes",
+                  category: "Dragon Ball",
+                  likes: 244,
+                  comments: 90,
                   gradient: "from-red-400/20 to-orange-600/20",
                   border: "border-red-400/30"
                 }
@@ -410,8 +431,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* El resto del contenido de home.jsx permanece igual */}
-        {/* ... mantén el resto de tu código sin cambios ... */}
+       
 
         <div className="bg-slate-800/30 py-20 my-10 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -492,7 +512,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* El resto del contenido continúa... */}
+        
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid md:grid-cols-2 gap-8">
@@ -549,42 +569,49 @@ const Home = () => {
               <div className="swiper-wrapper">
                 {[
                   {
-                    img: "https://i.pinimg.com/736x/fd/07/d0/fd07d03737bddd7aebaee111acc692d5.jpg",
+                    img: "https://i.pinimg.com/webp/1200x/58/33/e3/5833e3e097956b0582f97372a234458c.webp",
                     text: "Increíble plataforma para compartir mi colección de Pokémon. La comunidad es muy activa y siempre hay feedback positivo.",
-                    name: "María González",
+                    name: "Glenda Ordonez",
                     role: "Coleccionista Pokémon",
-                    color: "emerald"
+                    starColor: "text-emerald-400"
                   },
                   {
-                    img: "https://i.pinimg.com/736x/c3/94/3f/c3943f7c9202e4d262c80b45256317f2.jpg",
+                    img: "https://i.pinimg.com/webp/1200x/47/96/7f/47967fc136a8dc7ca59485275b9d26b9.webp",
                     text: "He hecho varios intercambios exitosos gracias a CardDial. ¡La mejor decisión unirme a esta comunidad!",
-                    name: "Carlos Ruiz",
+                    name: "Christopher Escobedo",
                     role: "Coleccionista Yu-Gi-Oh!",
-                    color: "purple"
+                    starColor: "text-purple-400"
                   },
                   {
-                    img: "https://i.pinimg.com/736x/bf/2b/33/bf2b33435d1bdc31fd48a1e6ecc3e346.jpg",
+                    img: "https://i.pinimg.com/736x/28/69/e1/2869e1ec20806667e049dc0f7f24d13c.jpg",
                     text: "Las estadísticas en tiempo real me ayudan a saber qué cartas son más populares. ¡Excelente herramienta!",
-                    name: "Ana Martínez",
+                    name: "Reyna Martínez",
                     role: "Coleccionista Magic",
-                    color: "blue"
+                    starColor: "text-blue-400"
+                  },
+                  {
+                    img: "https://i.pinimg.com/736x/10/f8/26/10f826d1cd5a216452c9e25f6d9b594f.jpg",
+                    text: "La interfaz es intuitiva y fácil de usar. Me ha permitido descubrir nuevas cartas y conectar con otros coleccionistas.",
+                    name: "Vanessa Reyes",
+                    role: "Coleccionista Dragon Ball",
+                    starColor: "text-orange-400"
                   }
                 ].map((testimonial, idx) => (
                   <div key={idx} className="swiper-slide">
                     <div className="bg-slate-800/60 backdrop-blur-sm rounded-2xl p-8 text-center hover:bg-slate-800/80 transition-all duration-300">
-                      <div className={`w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 border-${testimonial.color}-400 shadow-lg`}>
+                      <div className={`w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-2 ${testimonial.starColor.replace('text-', 'border-')} shadow-lg`}>
                         <img src={testimonial.img} alt={testimonial.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="mb-4">
                         {[...Array(5)].map((_, i) => (
-                          <FaStar key={i} className={`inline text-${testimonial.color}-400 text-sm mx-0.5`} />
+                          <FaStar key={i} className={`inline ${testimonial.starColor} text-sm mx-0.5`} />
                         ))}
                       </div>
                       <p className="text-gray-300 italic mb-4 text-lg">
                         "{testimonial.text}"
                       </p>
                       <h4 className="font-bold text-white text-lg">{testimonial.name}</h4>
-                      <p className={`text-${testimonial.color}-400 text-sm font-semibold`}>{testimonial.role}</p>
+                      <p className={`${testimonial.starColor} text-sm font-semibold`}>{testimonial.role}</p>
                     </div>
                   </div>
                 ))}

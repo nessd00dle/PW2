@@ -7,7 +7,7 @@ import axios from 'axios';
 const PublicarCarta = () => {
   const navigate = useNavigate();
   const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const [selectedCarta, setSelectedCarta] = useState(null);
+  const [selectedCartas, setSelectedCartas] = useState([]);
   const [tipoPublicacion, setTipoPublicacion] = useState('');
   const [imagenesVenta, setImagenesVenta] = useState([]);
   const [erroresImagen, setErroresImagen] = useState([]);
@@ -51,28 +51,30 @@ const PublicarCarta = () => {
     }
   };
 
-  const handleSelectCarta = (carta) => {
-    setSelectedCarta(carta);
-    console.log('Carta seleccionada para colección:', carta);
+  const handleSelectCartas = (cartas) => {
+    setSelectedCartas(cartas);
+    console.log('Cartas seleccionadas para colección:', cartas);
+  };
+
+  const eliminarCarta = (cartaId) => {
+    setSelectedCartas(prev => prev.filter(c => c.id !== cartaId));
   };
 
   const validarImagen = (file) => {
     const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
     const extensionesPermitidas = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
 
-    const extension = '.' + file.name.split('.').pop().toLowerCase();
-
-    if (!tiposPermitidos.includes(file.type) && !extensionesPermitidas.includes(extension)) {
+    if (!tiposPermitidos.includes(file.type) && !extensionesPermitidas.includes('.' + file.name.split('.').pop().toLowerCase())) {
       return {
         valido: false,
-        error: `Formato no permitido: ${file.name}. Solo se permiten imágenes (JPG, PNG, GIF, WEBP, BMP)`
+        error: `Formato no permitido: ${file.name}. Solo se permiten imagenes`
       };
     }
 
     if (file.size > 5 * 1024 * 1024) {
       return {
         valido: false,
-        error: `Archivo demasiado grande: ${file.name}. Máximo 5MB`
+        error: `Archivo demasiado grande: ${file.name}. Maximo 5MB`
       };
     }
 
@@ -85,7 +87,7 @@ const PublicarCarta = () => {
     const nuevosErrores = [];
 
     if (imagenesVenta.length + files.length > 10) {
-      alert('Máximo 10 imágenes por publicación');
+      alert('Maximo 10 imagenes por publicacion');
       return;
     }
 
@@ -124,14 +126,30 @@ const PublicarCarta = () => {
 
   const handlePublicar = async () => {
     try {
-      if (tipoPublicacion !== 'venta') {
-        alert('Solo venta por ahora');
+      if (!tipoPublicacion) {
+        alert('Por favor selecciona un tipo de publicacion');
         return;
       }
 
-      if (!titulo || !precio || imagenesVenta.length === 0) {
-        alert('Faltan datos obligatorios');
-        return;
+      if (tipoPublicacion === 'venta') {
+        if (!titulo || !precio || imagenesVenta.length === 0) {
+          alert('Faltan datos obligatorios: titulo, precio o imagenes');
+          return;
+        }
+      }
+
+      if (tipoPublicacion === 'intercambio') {
+        if (!titulo || imagenesVenta.length === 0) {
+          alert('Faltan datos obligatorios: titulo o imagenes');
+          return;
+        }
+      }
+
+      if (tipoPublicacion === 'coleccion') {
+        if (selectedCartas.length === 0) {
+          alert('Por favor selecciona al menos una carta para tu coleccion');
+          return;
+        }
       }
 
       const formDataToSend = new FormData();
@@ -139,14 +157,29 @@ const PublicarCarta = () => {
       formDataToSend.append('Titulo', titulo);
       formDataToSend.append('Texto', descripcion);
       formDataToSend.append('Tipo', tipoPublicacion);
-      formDataToSend.append('Monto', precio);
+      if (precio) formDataToSend.append('Monto', precio);
       formDataToSend.append('Franquicia', franquicia);
-      formDataToSend.append('Cantidad', cantidad);
+      
+      if (tipoPublicacion !== 'coleccion') {
+        formDataToSend.append('Cantidad', cantidad);
+      }
+      
       formDataToSend.append('Condicion', 'buena');
 
-      imagenesVenta.forEach((img) => {
-        formDataToSend.append('imagenes', img.file);
-      });
+      if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
+        imagenesVenta.forEach((img) => {
+          formDataToSend.append('imagenes', img.file);
+        });
+      }
+
+      if (tipoPublicacion === 'coleccion') {
+        formDataToSend.append('cartasSeleccionadas', JSON.stringify(selectedCartas));
+        selectedCartas.forEach((carta, index) => {
+          formDataToSend.append(`carta_${index}_id`, carta.id);
+          formDataToSend.append(`carta_${index}_nombre`, carta.nombre);
+          formDataToSend.append(`carta_${index}_franquicia`, carta.franquicia);
+        });
+      }
 
       const response = await fetch('http://localhost:3000/api/publicaciones', {
         method: 'POST',
@@ -167,40 +200,38 @@ const PublicarCarta = () => {
       }
       console.log('✅ Publicación creada:', data);
 
-      alert('Publicación creada con éxito');
+      alert('Publicacion creada con exito');
       navigate('/mi-perfil');
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('Error:', error);
       alert(error.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans p-4 flex flex-col items-center">
-      <div className="relative w-full max-w-2xl border-2 border-[#56ab91] rounded-3xl bg-slate-900/40 p-10 shadow-2xl">
-        {!showGalleryModal && (
-          <button
-            onClick={() => navigate('/mi-perfil')}
-            className="absolute top-6 right-6 w-10 h-10 bg-[#2d2a3e] rounded-full flex items-center justify-center font-bold border border-[#56ab91] hover:bg-red-600 transition-all z-10"
-          >
-            X
-          </button>
-        )}
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-          <div className="flex gap-4 mb-4">
-            <div className="relative">
-              <select
-                className="bg-[#3d7a67] rounded-full py-2 px-6 pr-10 outline-none border-none text-white appearance-none cursor-pointer text-sm font-medium min-w-[130px]"
-                value={tipoPublicacion}
-                onChange={handleTipoChange}
-              >
-                <option value="" disabled>Tipo</option>
-                <option value="venta">Venta</option>
-                <option value="intercambio">Intercambio</option>
-                <option value="coleccion">Colección</option>
-              </select>
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]">▼</span>
-            </div>
+    <>
+      {!showGalleryModal && (
+        <div className="min-h-screen font-sans p-4 sm:p-6 md:p-8 flex items-center justify-center">
+          <div className="relative w-full max-w-2xl rounded-3xl p-4 sm:p-6 md:p-10 shadow-2xl mx-auto" style={{ 
+            border: `2px solid var(--border-color)`,
+            backgroundColor: 'var(--background-slate)'
+          }}>
+            {/* Boton X Circular - Ahora sí es un círculo perfecto */}
+            <button
+              onClick={() => navigate('/mi-perfil')}
+              className="absolute -top-4 -right-4 sm:-top-5 sm:-right-5 md:-top-6 md:-right-6
+                w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14
+                rounded-full flex items-center justify-center 
+                transition-all duration-300 hover:scale-110 active:scale-95
+                shadow-lg hover:shadow-xl z-10"
+              style={{ 
+                backgroundColor: 'var(--button-color)',
+                border: `2px solid var(--border-color)`,
+                color: 'var(--primary-text-color)'
+              }}
+            >
+              <span className="text-base sm:text-lg md:text-xl font-bold transition-colors hover:text-red-500">X</span>
+            </button>
 
             <div className="relative">
               <select 
@@ -218,192 +249,309 @@ const PublicarCarta = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 items-end">
-            <div className="flex-[4]">
-              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Título</label>
-              <input
-                type="text"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
-                className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Cantidad</label>
-              <input
-                type="number"
-                value={cantidad}
-                onChange={(e) => setCantidad(e.target.value)}
-                className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400 text-center"
-                placeholder="1"
-                min="1"
-              />
-            </div>
-          </div>
+                <div className="relative w-full sm:w-auto flex-1">
+                  <select 
+                    value={franquicia}
+                    onChange={(e) => setFranquicia(e.target.value)}
+                    className="search-bar rounded-full py-2 px-4 sm:px-6 pr-8 sm:pr-10 outline-none appearance-none cursor-pointer text-sm font-medium w-full transition-all"
+                    style={{ color: 'white' }}
+                  >
+                    <option value="Pokemon">Pokemon</option>
+                    <option value="Magic">Magic</option>
+                    <option value="Dragon Ball">Dragon Ball</option>
+                    <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
+                    <option value="Digimon">Digimon</option>
+                  </select>
+                  <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-white">▼</span>
+                </div>
+              </div>
 
-          {tipoPublicacion === 'venta' && (
-            <div>
-              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Precio</label>
-              <input
-                type="number"
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-                className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-2xl py-2 px-4 outline-none focus:border-emerald-400"
-                placeholder="$0.00"
-                min="0"
-                step="0.01"
-              />
-            </div>
-          )}
-
-          {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
-            <div>
-              <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">
-                Imágenes de la carta
-                <span className="text-xs text-gray-400 ml-2">(Máximo 10 imágenes, solo formatos de imagen)</span>
-              </label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {imagenesVenta.map((img) => (
-                  <div key={img.id} className="relative group">
-                    <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-[#56ab91]/40 bg-slate-800/40 hover:border-[#56ab91] transition-all">
-                      <img
-                        src={img.preview}
-                        alt={img.nombre}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={() => eliminarImagen(img.id)}
-                        className="absolute top-2 right-2 w-7 h-7 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-700 hover:scale-110 shadow-lg"
-                      >
-                        <span className="text-white text-sm font-bold">✕</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {imagenesVenta.length < 10 && (
-                  <div className="relative group">
+              {/* Titulo y Cantidad */}
+              <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="flex-[4] w-full">
+                  <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Titulo</label>
+                  <input
+                    type="text"
+                    value={titulo}
+                    onChange={(e) => setTitulo(e.target.value)}
+                    className="w-full bg-transparent rounded-2xl py-2 px-4 outline-none transition-all"
+                    style={{ 
+                      border: `2px dashed var(--border-color)`,
+                      color: 'var(--primary-text-color)'
+                    }}
+                    placeholder="Ej: Carta rara de Pokemon"
+                  />
+                </div>
+                
+                {tipoPublicacion !== 'coleccion' && tipoPublicacion !== '' && (
+                  <div className="flex-1 w-full">
+                    <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Cantidad</label>
                     <input
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp"
-                      multiple
-                      onChange={handleImagenesChange}
-                      className="hidden"
-                      id="imagenes-input"
+                      type="number"
+                      value={cantidad}
+                      onChange={(e) => setCantidad(parseInt(e.target.value))}
+                      className="w-full bg-transparent rounded-2xl py-2 px-4 outline-none text-center transition-all"
+                      style={{ 
+                        border: `2px dashed var(--border-color)`,
+                        color: 'var(--primary-text-color)'
+                      }}
+                      min="1"
                     />
-                    <label
-                      htmlFor="imagenes-input"
-                      className="cursor-pointer block"
-                    >
-                      <div className="relative pt-[100%] rounded-xl overflow-hidden border-2 border-dashed border-[#56ab91]/60 bg-slate-800/20 hover:bg-slate-800/40 hover:border-[#56ab91] transition-all group">
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                          <span className="text-3xl group-hover:scale-110 transition-transform">📸</span>
-                          <p className="text-xs text-gray-400 text-center px-2">
-                            {imagenesVenta.length === 0 ? 'Agregar imágenes' : 'Agregar más'}
-                          </p>
-                        </div>
-                      </div>
-                    </label>
                   </div>
                 )}
               </div>
 
-              {imagenesVenta.length > 0 && (
-                <p className="text-xs text-emerald-400 mt-3 text-center">
-                  {imagenesVenta.length} / 10 imágenes seleccionadas
-                </p>
-              )}
-
-              {erroresImagen.length > 0 && (
-                <div className="mt-3 p-2 bg-red-900/50 border border-red-500 rounded-lg">
-                  {erroresImagen.map((error, idx) => (
-                    <p key={idx} className="text-xs text-red-300">{error}</p>
-                  ))}
+              {/* Precio (solo venta) */}
+              {tipoPublicacion === 'venta' && (
+                <div>
+                  <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Precio</label>
+                  <input
+                    type="number"
+                    value={precio}
+                    onChange={(e) => setPrecio(e.target.value)}
+                    className="w-full bg-transparent rounded-2xl py-2 px-4 outline-none transition-all"
+                    style={{ 
+                      border: `2px dashed var(--border-color)`,
+                      color: 'var(--primary-text-color)'
+                    }}
+                    placeholder="$0.00"
+                    min="0"
+                    step="0.01"
+                  />
                 </div>
               )}
-            </div>
-          )}
 
-          {tipoPublicacion === 'coleccion' && (
-            <div
-              className={`w-full h-40 border-2 border-dashed rounded-3xl flex items-center justify-center transition-all cursor-pointer
-                ${selectedCarta
-                  ? 'border-[#d91a7a] bg-slate-800/40'
-                  : 'border-[#56ab91]/60 hover:bg-slate-800/20'
-                }`}
-              onClick={() => setShowGalleryModal(true)}
-            >
-              {selectedCarta ? (
-                <div className="flex items-center gap-4">
-                  <img
-                    src={selectedCarta.imagen}
-                    alt={selectedCarta.nombre}
-                    className="h-28 w-auto object-contain"
-                  />
-                  <div>
-                    <p className="font-bold text-[#d91a7a]">{selectedCarta.nombre}</p>
-                    <p className="text-sm text-gray-300">Carta seleccionada ✓</p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCarta(null);
-                      }}
-                      className="text-xs text-red-400 hover:text-red-300 mt-1 underline"
-                    >
-                      Cambiar carta
-                    </button>
+              {/* Imagenes (venta e intercambio) */}
+              {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
+                <div>
+                  <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">
+                    Imagenes de la carta
+                    <span className="text-xs opacity-70 ml-2">(Maximo 10 imagenes)</span>
+                  </label>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {imagenesVenta.map((img) => (
+                      <div key={img.id} className="relative group">
+                        <div className="relative pt-[100%] rounded-xl overflow-hidden transition-all" style={{ 
+                          border: `2px solid var(--border-color)`,
+                          backgroundColor: 'var(--background-slate)'
+                        }}>
+                          <img
+                            src={img.preview}
+                            alt={img.nombre}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() => eliminarImagen(img.id)}
+                            className="absolute top-2 right-2 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
+                            style={{ backgroundColor: '#ef4444' }}
+                          >
+                            <span className="text-white text-xs sm:text-sm font-bold">X</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {imagenesVenta.length < 10 && (
+                      <div className="relative group">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/bmp"
+                          multiple
+                          onChange={handleImagenesChange}
+                          className="hidden"
+                          id="imagenes-input"
+                        />
+                        <label htmlFor="imagenes-input" className="cursor-pointer block">
+                          <div className="relative pt-[100%] rounded-xl overflow-hidden transition-all group" style={{ 
+                            border: `2px dashed var(--border-color)`,
+                            backgroundColor: 'var(--background-slate)'
+                          }}>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                              <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">📸</span>
+                              <p className="text-xs text-center px-2" style={{ color: 'var(--secondary-text-color)' }}>
+                                {imagenesVenta.length === 0 ? 'Agregar imagenes' : 'Agregar mas'}
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  {imagenesVenta.length > 0 && (
+                    <p className="text-xs mt-3 text-center highlight">
+                      {imagenesVenta.length} / 10 imagenes seleccionadas
+                    </p>
+                  )}
+
+                  {erroresImagen.length > 0 && (
+                    <div className="mt-3 p-2 rounded-lg" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444' }}>
+                      {erroresImagen.map((error, idx) => (
+                        <p key={idx} className="text-xs" style={{ color: '#ef4444' }}>{error}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Seleccion de cartas para coleccion */}
+              {tipoPublicacion === 'coleccion' && (
+                <div>
+                  <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">
+                    Cartas en tu coleccion
+                    <span className="text-xs opacity-70 ml-2">(Puedes seleccionar varias)</span>
+                  </label>
+
+                  <div
+                    className={`w-full min-h-[200px] border-2 border-dashed rounded-3xl p-4 transition-all cursor-pointer
+                      ${selectedCartas.length > 0 ? 'bg-opacity-40' : ''}`}
+                    style={{ 
+                      borderColor: 'var(--border-color)',
+                      backgroundColor: selectedCartas.length > 0 ? 'var(--background-slate)' : 'transparent'
+                    }}
+                    onClick={() => setShowGalleryModal(true)}
+                  >
+                    {selectedCartas.length > 0 ? (
+                      <div>
+                        <div className="flex justify-between items-center mb-3">
+                          <p className="text-sm font-semibold highlight">
+                            {selectedCartas.length} carta{selectedCartas.length !== 1 ? 's' : ''} seleccionada{selectedCartas.length !== 1 ? 's' : ''}
+                          </p>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCartas([]);
+                            }}
+                            className="text-xs underline transition-colors"
+                            style={{ color: '#ef4444' }}
+                          >
+                            Limpiar todas
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {selectedCartas.map((carta) => (
+                            <div key={carta.id} className="relative group rounded-xl p-2" style={{ 
+                              backgroundColor: 'var(--background-slate)',
+                              border: `1px solid var(--border-color)`
+                            }}>
+                              <div className="flex gap-2">
+                                <div className="w-12 h-16 flex-shrink-0 rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--background-slate)' }}>
+                                  <img
+                                    src={carta.imagen}
+                                    alt={carta.nombre}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.src = 'https://via.placeholder.com/300x450/1e293b/56ab91?text=Imagen+No+Encontrada';
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-bold truncate" style={{ color: 'var(--primary-text-color)' }}>{carta.nombre}</p>
+                                  <p className="text-[10px] capitalize" style={{ color: 'var(--secondary-text-color)' }}>{carta.franquicia}</p>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    eliminarCarta(carta.id);
+                                  }}
+                                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+                                  style={{ backgroundColor: '#ef4444' }}
+                                >
+                                  <span className="text-white text-[10px]">X</span>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowGalleryModal(true);
+                          }}
+                          className="mt-3 text-xs underline transition-colors highlight"
+                        >
+                          + Agregar mas cartas
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-[200px] flex flex-col items-center justify-center">
+                        <div className="button px-4 py-2 rounded-xl shadow-lg transition-all group">
+                          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--primary-text-color)' }}>
+                            Seleccionar cartas para tu coleccion
+                          </span>
+                        </div>
+                        <p className="text-xs mt-2" style={{ color: 'var(--secondary-text-color)' }}>Haz clic para seleccionar multiples cartas</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <div className="bg-[#4d5b61] px-6 py-2 rounded-xl border border-slate-500 shadow-lg group">
-                  <span className="text-gray-200 font-bold text-xs uppercase tracking-wide group-hover:text-white">
-                    Seleccionar carta para colección
-                  </span>
-                </div>
               )}
-            </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-bold mb-2 ml-1 tracking-tight">Descripción</label>
-            <textarea
-              rows="4"
-              className="w-full bg-transparent border-2 border-dashed border-[#56ab91]/60 rounded-3xl py-4 px-4 outline-none focus:border-emerald-400 resize-none"
-              placeholder={tipoPublicacion === 'coleccion'
-                ? 'Describe tu colección...'
-                : tipoPublicacion === 'venta'
-                  ? 'Describe la carta que vendes (estado, rareza, etc)...'
-                  : 'Describe la carta que ofreces para intercambio...'}
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-            />
-          </div>
+              {/* Descripcion */}
+              <div>
+                <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Descripcion</label>
+                <textarea
+                  rows="4"
+                  className="w-full bg-transparent rounded-3xl py-3 sm:py-4 px-4 outline-none resize-none text-sm transition-all"
+                  style={{ 
+                    border: `2px dashed var(--border-color)`,
+                    color: 'var(--primary-text-color)'
+                  }}
+                  placeholder={tipoPublicacion === 'coleccion'
+                    ? 'Describe tu coleccion...'
+                    : tipoPublicacion === 'venta'
+                      ? 'Describe la carta que vendes (estado, rareza, detalles)...'
+                      : tipoPublicacion === 'intercambio'
+                        ? 'Describe la carta que ofreces para intercambio...'
+                        : 'Selecciona un tipo de publicacion primero...'}
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                />
+              </div>
 
-          <div className="flex justify-center pt-2">
-            <button
-              onClick={handlePublicar}
-              type="button"
-              className="bg-[#d91a7a] hover:bg-[#f22c8e] text-white font-black py-3 px-24 rounded-xl shadow-lg transform active:scale-95 transition-all uppercase tracking-[0.2em] text-xs"
-              disabled={!tipoPublicacion}
-            >
-              Publicar
-            </button>
+              {/* Boton Publicar */}
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={handlePublicar}
+                  type="button"
+                  className={`button font-black py-3 px-8 sm:px-24 rounded-xl shadow-lg transform active:scale-95 transition-all uppercase tracking-[0.1em] sm:tracking-[0.2em] text-xs sm:text-sm
+                    ${!tipoPublicacion ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  style={{ 
+                    backgroundColor: !tipoPublicacion ? 'var(--button-color)' : 'var(--button-color)',
+                    color: 'white'
+                  }}
+                  disabled={!tipoPublicacion}
+                  onMouseEnter={(e) => {
+                    if (tipoPublicacion) {
+                      e.target.style.backgroundColor = 'var(--hover-button-color)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (tipoPublicacion) {
+                      e.target.style.backgroundColor = 'var(--button-color)';
+                    }
+                  }}
+                >
+                  Publicar
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
+        </div>
+      )}
 
       <Gallery
         isOpen={showGalleryModal}
         onClose={() => {
           setShowGalleryModal(false);
         }}
-        onSelectCarta={(carta) => {
-          handleSelectCarta(carta);
+        onSelectCartas={(cartas) => {
+          handleSelectCartas(cartas);
           setShowGalleryModal(false);
         }}
       />
-    </div>
+    </>
   );
 };
 

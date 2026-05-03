@@ -1,6 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Navbar from '../componentes/Layout/navbar';
+import Avatar from '../componentes/Avatar'; 
 import '../App.css'
 import '../pantallas/index.css'
 import useLocalStorage from 'use-local-storage';
@@ -69,14 +71,10 @@ const DetalleCarta = () => {
 
   return (
     <div className='App' id='App'>
-
       <div className="min-h-screen text-white font-sans p-4">
-
         <Navbar />
 
-
         <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full max-w-7xl mx-auto px-4">
-
           
           <button
             onClick={() => navigate('/ventas')}
@@ -98,10 +96,7 @@ const DetalleCarta = () => {
             </div>
           </div>
 
-          {/* columna der */}
           <div className="w-full md:w-[420px] lg:w-[480px] flex flex-col gap-4 flex-shrink-0">
-
-            {/* info de la carta */}
             <div className="border-2 border rounded-2xl p-6 bg-slate-900/60 relative shadow-xl">
               <div className="space-y-3 text-sm">
                 <h2 className="text-2xl font-bold text-white mb-2">{carta.description}</h2>
@@ -118,17 +113,23 @@ const DetalleCarta = () => {
                 </div>
               </div>
 
-              {/* like */}
               <div className="mt-6">
-                <button className="w-14 h-10 bg-slate border rounded-xl flex items-center justify-center hover:bg-pink-900/20 transition-all group">
-                  <span className="text-pink-500 text-2xl group-hover:scale-125 transition-transform">♥</span>
+                <button 
+                  onClick={handleLike}
+                  className="w-14 h-10 bg-slate border rounded-xl flex items-center justify-center hover:bg-pink-900/20 transition-all group"
+                >
+                  <span className={`text-2xl group-hover:scale-125 transition-transform ${liked ? 'text-pink-500' : 'text-gray-400'}`}>
+                    {liked ? '❤️' : '🤍'}
+                  </span>
                 </button>
+                <span className="ml-2 text-xs text-gray-400">{likesCount} me gusta</span>
               </div>
             </div>
 
-            {/* comentarios */}
             <div className="border-2 border rounded-2xl p-6 bg-slate-900/60 flex flex-col gap-4 shadow-xl">
-              <h3 className="text-[10px] font-black uppercase tracking-widest highlight">Comentarios</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-widest highlight">
+                Comentarios ({comentarios.length})
+              </h3>
 
               {comentarios.map((c) => (
                 <div key={c._id} className="bg-[#2d2a3e]/60 p-4 rounded-2xl flex items-start gap-3 border border">
@@ -142,9 +143,17 @@ const DetalleCarta = () => {
                 </div>
               ))}
 
-              {/* escribir comentario */}
-              <div className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border transition-colors">
-                <div className="w-8 h-8 bg-slate-700 rounded-full shrink-0"></div>
+              <form onSubmit={handleComentario} className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border-emerald-500 transition-colors">
+               
+                <div className="w-8 h-8 shrink-0">
+                  <Avatar
+                    fotoPerfil={usuario?.fotoPerfil}
+                    nombre={usuario?.nombre}
+                    size="w-full h-full"
+                    textSize="text-xs"
+                    borderColor="border-transparent"
+                  />
+                </div>
                 <input
                   type="text"
                   placeholder="Escribir comentario"
@@ -153,13 +162,14 @@ const DetalleCarta = () => {
                   className="bg-transparent flex-1 outline-none text-xs placeholder-gray-600 text-white"
                 />
                 <button onClick={handleEnviarComentario} className="primary-text hover:scale-125 transition-transform">➤</button>
-              </div>
+              </form>
+              
             </div>
-
           </div>
         </div>
       </div>
     </div>
+    
   );
 };
 
