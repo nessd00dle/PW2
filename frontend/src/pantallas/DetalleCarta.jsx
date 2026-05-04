@@ -16,8 +16,50 @@ const preference = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const DetalleCarta = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const carta = location.state?.carta;
+  const { usuario } = useAuth();
+
+  const rutaFotoPerfil="http://localhost:3000";
+
+  //Para traer la publicacion (chris)
+  const { id } = useParams();
+  const [Publicacion, setPublicacion] = useState( null);
+
+  useEffect(() => {
+    const fetchPublicacion = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/publicaciones/${id}`
+        );
+
+        const p = res.data.publicacion;
+
+        const publicacionMapeada = {
+          id: p._id,
+          titulo: p.Titulo,
+          descripcion: p.Texto,
+          precio: p.Monto,
+          cantidad: p.Cantidad,
+          fandom: p.Franquicia?.nombre || "Sin franquicia",
+          imagen: p.fotosUrls?.[0] || null,
+          imagenes: p.fotosUrls || [],
+          usuario: {
+            id: p.Idusuario?._id,
+            nombre: p.Idusuario?.nombre,
+            nickname: p.Idusuario?.nickname,
+            foto: p.Idusuario?.fotoPerfil
+          }
+        };
+
+        setPublicacion(publicacionMapeada);    
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (id) fetchPublicacion();
+  }, [id]);
+
 
   //Esto contiene el comentario que se creará (chris)
   const [comentario, setComentario] = useState('');
@@ -30,17 +72,35 @@ const DetalleCarta = () => {
   const fetchComentarios = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/comentarios?idPublicacion=${carta.id}`
+        `http://localhost:3000/api/comentarios?idPublicacion=${id}`
       );
-      setComentarios(res.data.comentarios);
+      
+      const comentariosMapeados = res.data.comentarios.map(c => ({
+        id: c._id,
+        texto: c.texto,
+        fecha: c.createdAt,
+        usuario: {
+          id: c.idUsuario?._id,
+          nickname: c.idUsuario?.nickname,
+          foto: c.idUsuario?.fotoPerfil
+        }
+        
+      }));
+
+      setComentarios(comentariosMapeados);
+
     } catch (error) {
       console.error('Error cargando comentarios:', error);
     }
   };
 
+  const formatearFecha = (fecha) => {
+    return new Date(fecha).toLocaleString();
+  };
+
   useEffect(() => {
-    if (carta?.id) fetchComentarios();
-  }, [carta]);
+    if (id) fetchComentarios();
+  }, [id]);
 
   const handleEnviarComentario = async () => {
     try {
@@ -49,7 +109,7 @@ const DetalleCarta = () => {
       await axios.post(
         "http://localhost:3000/api/comentarios",
         {
-          idPublicacion: carta.id,
+          idPublicacion: Publicacion.id,
           texto: comentario
         },
         {
@@ -67,6 +127,31 @@ const DetalleCarta = () => {
     }
   };
 
+
+  //Para likes
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(42);
+
+  const handleLike = () => {
+    let newLiked = !liked;
+    let newLikesCount = newLiked ? likesCount + 1 : likesCount - 1;
+    
+    setLiked(newLiked);
+    setLikesCount(newLikesCount);
+    
+    if (usuario && usuario.id && Publicacion.id) {
+      const savedLikes = localStorage.getItem(`Publicacion_likes_${usuario.id}`);
+      const likesState = savedLikes ? JSON.parse(savedLikes) : {};
+      likesState[Publicacion.id] = newLiked;
+      localStorage.setItem(`Publicacion_likes_${usuario.id}`, JSON.stringify(likesState));
+    }
+  };
+
+  
+
+  if (!Publicacion) {
+    return <div className="text-white p-4">Cargando publicación...</div>;
+  }
 
   return (
     <div className='App' id='App'>
@@ -87,27 +172,30 @@ const DetalleCarta = () => {
             <div className="bg-slate px-6 py-3 rounded-xl border border">
               <span className="text-gray-300 font-bold text-sm uppercase tracking-widest italic text-center block">
                 <img 
-                  src={carta.image} 
-                  alt={carta.description}
+                  src={Publicacion.imagen} 
+                  alt={Publicacion.titulo}
                   className="w-full h-full object-cover rounded-3xl"
                 />
               </span>
             </div>
           </div>
 
+          {/* columna der */}
           <div className="w-full md:w-[420px] lg:w-[480px] flex flex-col gap-4 flex-shrink-0">
+
+            {/* info de la Publicacion */}
             <div className="border-2 border rounded-2xl p-6 bg-slate-900/60 relative shadow-xl">
               <div className="space-y-3 text-sm">
-                <h2 className="text-2xl font-bold text-white mb-2">{carta.description}</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">{Publicacion.titulo}</h2>
                 <div className="space-y-1">
-                  <p className="text-xs">Precio: <span className="italic highlight">{carta.price}</span></p>
-                  <p className="text-xs">Cantidad: <span className="text-white">{carta.cantidad}</span></p>
-                  <p className="text-xs">Fandom: <span className="text-white">{carta.fandom}</span></p>
+                  <p className="text-xs">Precio: <span className="italic highlight">${Publicacion.precio}</span></p>
+                  <p className="text-xs">Cantidad: <span className="text-white">{Publicacion.cantidad}</span></p>
+                  <p className="text-xs">Fandom: <span className="text-white">{Publicacion.fandom}</span></p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-">
                   <p className="font-bold highlight text-xs uppercase italic">Descripción:</p>
                   <p className="text-xs leading-relaxed mt-1">
-                    {carta.reverse}
+                    {Publicacion.descripcion}
                   </p>
                 </div>
               </div>
@@ -130,19 +218,53 @@ const DetalleCarta = () => {
                 Comentarios ({comentarios.length})
               </h3>
 
-              {comentarios.map((c) => (
-                <div key={c._id} className="bg-[#2d2a3e]/60 p-4 rounded-2xl flex items-start gap-3 border border">
-                  <div className="w-8 h-8 bg-[#56ab91] rounded-full shrink-0 border-2 border"></div>
-                  <div>
-                    <span className="text-[10px] font-bold highlight block">
-                      {c.idUsuario?.nickname || 'Usuario'}
-                    </span>
-                    <p className="text-xs text-gray-200">{c.texto}</p>
-                  </div>
-                </div>
-              ))}
+              <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2">
+                {comentarios.map((c) => (
+                  <div key={c.id} className={`p-4 rounded-2xl flex items-start gap-3 border ${
+                      c.usuario?.id === usuario?.id 
+                      ? 'bg-emerald-900/20 border-emerald-500/50' 
+                      : 'bg-[#2d2a3e]/60 border-gray-700'
+                    }`}>
 
-              <form onSubmit={handleComentario} className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border-emerald-500 transition-colors">
+                    {/* Usar componente Avatar */}
+                    <div className="w-8 h-8 shrink-0">
+                      <Avatar
+                        fotoPerfil= {rutaFotoPerfil + c.usuario.foto}
+                        nombre={c.usuario.nickname}
+                        size="w-full h-full"
+                        textSize="text-xs"
+                        borderColor="border-emerald-500"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-bold highlight block">
+                          {c.usuario?.nickname || 'Usuario'}
+
+                          {c.usuario?.id === usuario?.id && (
+                            <span className="ml-2 text-emerald-400 text-[8px]">(Tú)</span>
+                          )}
+                        </span>
+                        {c.fecha && (
+                          <span className="text-[8px] text-gray-500">{formatearFecha(c.fecha)}</span>
+                        )}
+
+                      </div>
+                      {/* Texto del comentario JUSTIFICADO */}
+                      <p className="text-xs text-gray-200 mt-1 text-justify">{c.texto}</p>
+                      {/* Alternativa con estilos en línea:
+                      <p style={{ fontSize: '0.75rem', color: '#e5e7eb', marginTop: '0.25rem', textAlign: 'justify', lineHeight: '1.4' }}>
+                        {comentario.texto}
+                      </p>
+                      */}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+
+              <form onSubmit={handleEnviarComentario} className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border-emerald-500 transition-colors">
                
                 <div className="w-8 h-8 shrink-0">
                   <Avatar
@@ -155,12 +277,12 @@ const DetalleCarta = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Escribir comentario"
+                  placeholder={`Comentar como ${usuario?.nombre || usuario?.correo?.split('@')[0] || 'Usuario'}...`}
                   value={comentario}
                   onChange={(e) => setComentario(e.target.value)}
                   className="bg-transparent flex-1 outline-none text-xs placeholder-gray-600 text-white"
                 />
-                <button onClick={handleEnviarComentario} className="primary-text hover:scale-125 transition-transform">➤</button>
+                <button type="submit" className="primary-text hover:scale-125 transition-transform">➤</button>
               </form>
 
             </div>

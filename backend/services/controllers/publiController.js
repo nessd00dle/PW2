@@ -207,7 +207,8 @@ export const obtenerPublicacionPorId = async (req, res) => {
         
         const publicacion = await Publicacion.findById(id)
             .populate('Idusuario', 'nombre nickname correo fotoPerfil')
-            .populate('CartasColeccion');
+            .populate('Franquicia', 'nombre');
+            
         
         if (!publicacion) {
             return res.status(404).json({ 

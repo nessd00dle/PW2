@@ -111,7 +111,7 @@ const Feed = () => {
   });
 
   const handleCardClick = (card) => {
-    navigate(`/detalle/carta/${card.id}`, { state: { carta: card } });
+    navigate(`/detalle/carta/${card.id}`);
   };
 
   console.log('Filtro actual:', filterType);
