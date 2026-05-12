@@ -1,10 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-// 🟢 CONFIGURACIÓN ÚNICA - Detecta automáticamente el entorno
-const API_URL = import.meta.env.DEV 
-    ? 'http://localhost:3000'  // Desarrollo local
-    : 'https://pw2-production-ee50.up.railway.app';  // Producción en Railway
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 
 const AuthContext = createContext();
 
@@ -44,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, [token]);
 
-    // Login - MODIFICADO
+    // Login
     const login = async (correo, contrasena) => {
         try {
             const response = await axios.post(`${API_URL}/api/usuarios/login`, {
@@ -69,7 +66,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Registro - MODIFICADO
+    // Registro normal
     const registro = async (userData) => {
         try {
             const response = await axios.post(`${API_URL}/api/usuarios/registro`, userData);
@@ -91,6 +88,36 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Registro con foto
+    const registroConFoto = async (formData) => {
+        try {
+            const response = await axios.post(
+                `${API_URL}/api/usuarios/registro-con-foto`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            
+            const { token: nuevoToken, usuario: usuarioData } = response.data;
+            
+            setToken(nuevoToken);
+            setUsuario(usuarioData);
+            localStorage.setItem('token', nuevoToken);
+            localStorage.setItem('usuario', JSON.stringify(usuarioData));
+            
+            return { success: true, usuario: usuarioData };
+        } catch (error) {
+            console.error('Error en registro con foto:', error);
+            return { 
+                success: false, 
+                error: error.response?.data?.error || 'Error al registrarse' 
+            };
+        }
+    };
+
     // Logout
     const logout = () => {
         setUsuario(null);
@@ -100,7 +127,6 @@ export const AuthProvider = ({ children }) => {
         delete axios.defaults.headers.common['Authorization'];
     };
 
-    // Actualizar perfil - MODIFICADO
     const actualizarPerfil = async (datos) => {
         try {
             const response = await axios.put(
@@ -130,7 +156,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Actualizar foto perfil - MODIFICADO
     const actualizarFotoPerfil = async (formData) => {
         try {
             const response = await axios.put(
@@ -169,6 +194,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         registro,
+        registroConFoto, 
         logout,
         actualizarPerfil,
         actualizarFotoPerfil,
