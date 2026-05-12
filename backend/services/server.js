@@ -37,6 +37,7 @@ const allowedOrigins = [
     'http://localhost:3000',
     'https://carddial.com',
     'https://www.carddial.com',
+    'https://pw-2-v3vq.vercel.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
