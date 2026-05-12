@@ -4,6 +4,9 @@ import { Camera, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const AuthPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
@@ -68,8 +71,7 @@ const AuthPage = () => {
           setError(result.error);
         }
       } else {
-
-        // Validar email y contraseña antes de enviar la solicitud
+        // Validar email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.correo)) {
           setError('Por favor, ingresa un correo electrónico válido.');
@@ -77,14 +79,12 @@ const AuthPage = () => {
           return;
         }
 
-        if (formData.contrasena.length < 6) { // Ajusta la longitud mínima según tu requerimiento
+        if (formData.contrasena.length < 6) {
           setError('La contraseña debe tener al menos 6 caracteres.');
           setLoading(false);
           return;
         }
 
-
-        // Registro con foto
         const formDataToSend = new FormData();
         formDataToSend.append('nombre', formData.nombre);
         formDataToSend.append('nickname', formData.nickname);
@@ -95,8 +95,9 @@ const AuthPage = () => {
           formDataToSend.append('fotoPerfil', formData.fotoPerfil);
         }
 
+        
         const response = await axios.post(
-          '${API_URL}api/usuarios/registro-con-foto',
+          `${API_URL}/api/usuarios/registro-con-foto`,
           formDataToSend,
           {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -105,7 +106,7 @@ const AuthPage = () => {
 
         alert('¡Registro exitoso! Por favor inicia sesión');
 
-        // Limpiar el formulario y cambiar a modo login
+        // Limpiar el formulario
         setIsLogin(true);
         setFormData({
           nombre: '',
@@ -115,26 +116,15 @@ const AuthPage = () => {
           fotoPerfil: null
         });
         setPreview(null);
-
-        // Permanecer en la misma página (auth) pero en modo login
-        // No necesitamos navegar porque ya estamos en /auth
       }
     } catch (error) {
       console.error('Error:', error);
-      let errorMessage = 'Ingresa un correo electrónico válido';
+      let errorMessage = 'Error al procesar la solicitud';
 
-      // Verificar si el error es específico del backend
       if (error.response?.data?.error) {
-        const backendError = error.response.data.error;
-
-        // Ejemplo de mensajes que podrías recibir del backend
-        if (backendError.includes('correo') || backendError.includes('email')) {
-          errorMessage = 'El correo electrónico ya está registrado o no es válido.';
-        } else if (backendError.includes('contrasena') || backendError.includes('password')) {
-          errorMessage = 'La contraseña no cumple con los requisitos mínimos.';
-        } else {
-          errorMessage = backendError;
-        }
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       setError(errorMessage);
@@ -143,7 +133,6 @@ const AuthPage = () => {
     }
   };
 
-  // Función para navegar a la página principal
   const goToHome = () => {
     navigate('/');
   };
@@ -152,7 +141,6 @@ const AuthPage = () => {
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
       <div className="bg-[#56ab91] rounded-[40px] p-8 w-full max-w-md shadow-2xl relative">
 
-        {/* Botón para volver al home */}
         <button
           onClick={goToHome}
           className="absolute top-4 left-4 w-8 h-8 bg-[#2d2a3e] rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-all"
