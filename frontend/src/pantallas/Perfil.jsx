@@ -7,26 +7,22 @@ import CartaConEfecto from '../componentes/Cards/CartaConEfecto';
 import '../App.css';
 import '../pantallas/index.css';
 import '../componentes/Cards/cartas_efecto.css';
-
 import axios from 'axios';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 
 const Perfil = () => {
   const navigate = useNavigate();
   const { usuario, logout, isAuthenticated, loading: authLoading } = useAuth();
-  const [carruselIndex, setCarruselIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const [cartasUsuario, setCartasUsuario] = useState([]);
   const [loadingCartas, setLoadingCartas] = useState(true);
-
-  //Para hacer carruseles independientes
   const [carruseles, setCarruseles] = useState({});
+  const [collections, setCollections] = useState([]);
+
   const getCarrusel = (colId, total) => {
     return carruseles[colId] || { index: 0, animando: false, total };
   };
-
-  //Aquí se guardarán las collections del usuario
-  const [collections, setCollections] = useState([]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -45,49 +41,61 @@ const Perfil = () => {
     });
   };
 
-
-
+  // CORREGIDO: URL bien escrita y manejo de errores mejorado
   useEffect(() => {
     const fetchColecciones = async () => {
       try {
-        const res = await axios.get('${API_URL}api/colecciones/usuario', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+        const token = localStorage.getItem('token');
+        if (!token) {
+          console.log('No hay token, no se pueden cargar colecciones');
+          setLoadingCartas(false);
+          return;
+        }
+
+        // ✅ URL CORREGIDA: Usa backticks (`) y ${API_URL}
+        const res = await axios.get(`${API_URL}/api/colecciones/usuario`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        const colecciones = res.data.colecciones;
+        console.log('Respuesta de colecciones:', res.data);
+        
+      
+        const colecciones = Array.isArray(res.data.colecciones) ? res.data.colecciones : [];
         setCollections(colecciones);
-
-    
   
-        if (colecciones.length > 0) {
+        if (colecciones.length > 0 && colecciones[0].deck && Array.isArray(colecciones[0].deck)) {
           const cartas = colecciones[0].deck.map(c => ({
             id: c._id,
             nombre: c.nombre,
-            imagen: c.imagen,
+            imagen: c.imagen || c.imagenUrl,
             rareza: c.rareza || 'N/A'
           }));
-
           setCartasUsuario(cartas);
+        } else {
+          setCartasUsuario([]);
         }
 
       } catch (error) {
         console.error('Error cargando colecciones:', error);
+        setCollections([]);
+        setCartasUsuario([]);
       } finally {
         setLoadingCartas(false);
       }
     };
 
-    fetchColecciones();
-  }, []);
+    if (isAuthenticated) {
+      fetchColecciones();
+    } else {
+      setLoadingCartas(false);
+    }
+  }, [isAuthenticated]);
 
   const cartasMostrar = cartasUsuario.slice(0, 10);
   const totalCartas = cartasMostrar.length;
 
   const siguienteCarrusel = (colId, total) => {
     const carrusel = getCarrusel(colId, total);
-
     if (!carrusel.animando && total > 0) {
       setCarruseles(prev => ({
         ...prev,
@@ -97,14 +105,10 @@ const Perfil = () => {
           index: (carrusel.index + 1) % total
         }
       }));
-
       setTimeout(() => {
         setCarruseles(prev => ({
           ...prev,
-          [colId]: {
-            ...prev[colId],
-            animando: false
-          }
+          [colId]: { ...prev[colId], animando: false }
         }));
       }, 500);
     }
@@ -112,7 +116,6 @@ const Perfil = () => {
 
   const anteriorCarrusel = (colId, total) => {
     const carrusel = getCarrusel(colId, total);
-
     if (!carrusel.animando && total > 0) {
       setCarruseles(prev => ({
         ...prev,
@@ -122,14 +125,10 @@ const Perfil = () => {
           index: (carrusel.index - 1 + total) % total
         }
       }));
-
       setTimeout(() => {
         setCarruseles(prev => ({
           ...prev,
-          [colId]: {
-            ...prev[colId],
-            animando: false
-          }
+          [colId]: { ...prev[colId], animando: false }
         }));
       }, 500);
     }
@@ -137,16 +136,10 @@ const Perfil = () => {
 
   const getCartaStyle = (idx, colId, total) => {
     const { index } = getCarrusel(colId, total);
-
     let relativeIndex = (idx - index + total) % total;
-
-    if (relativeIndex > total / 2) {
-      relativeIndex -= total;
-    }
-
+    if (relativeIndex > total / 2) relativeIndex -= total;
     const position = relativeIndex;
     const abs = Math.abs(position);
-
     return {
       transform: `translateX(${position * 220}px) rotateY(${position * -25}deg) scale(${position === 0 ? 1.2 : 1 - abs * 0.15})`,
       opacity: position === 0 ? 1 : Math.max(0.4, 1 - abs * 0.3),
@@ -175,7 +168,6 @@ const Perfil = () => {
         <Navbar />
         <div className="border-2 border rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
-            {/* Avatar */}
             <Avatar
               fotoPerfil={usuario.fotoPerfil}
               nombre={usuario.nombre}
@@ -191,59 +183,47 @@ const Perfil = () => {
               <p className="highlight mb-2 font-bold">Colección: {cartasUsuario.length} cartas</p>
 
               {usuario.bio ? (
-                <p className="max-w-md italic">
-                  {usuario.bio}
-                </p>
+                <p className="max-w-md italic">{usuario.bio}</p>
               ) : (
-                <p className="max-w-md italic">
-                  Sin descripción aún. ¡Agrega una en editar perfil!
-                </p>
+                <p className="max-w-md italic">Sin descripción aún. ¡Agrega una en editar perfil!</p>
               )}
 
               <div className="mt-6 flex gap-4 justify-center md:justify-start">
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all"
-                >
-                  Cerrar sesión
-                </button>
-                <button
-                  onClick={() => navigate('/editar-perfil')}
-                  className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all"
-                >
-                  Editar perfil
-                </button>
-                <button
-                  onClick={() => navigate('/estadistica')}
-                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl"
-                >
-                  Ver Estadísticas
-                </button>
+                <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all">Cerrar sesión</button>
+                <button onClick={() => navigate('/editar-perfil')} className="bg-[#2d2a3e] px-4 py-2 rounded-lg text-sm hover:bg-slate-700 transition-all">Editar perfil</button>
+                <button onClick={() => navigate('/estadistica')} className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 rounded-lg text-sm hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">Ver Estadísticas</button>
               </div>
             </div>
           </div>
         </div>
 
-        {collections.map((col) => {
-          const cartas = col.deck.map(c => ({
-            id: c._id,
-            nombre: c.nombre,
-            imagen: c.imagenUrl,
-            rareza: c.rareza || 'N/A',
-            descripcion: c.descripcion || 'Sin descripción'
-          }));
+        {/* ✅ SECCIÓN CORREGIDA: Validación antes de mapear */}
+        {!loadingCartas && collections.length > 0 ? (
+          collections.map((col) => {
+            // Validar que la colección y su deck existan
+            if (!col || !col.deck || !Array.isArray(col.deck) || col.deck.length === 0) {
+              return null;
+            }
 
-          const cartasMostrar = cartas.slice(0, 10);
-          const total = cartasMostrar.length;
-          const { index } = getCarrusel(col._id, total);
+            const cartas = col.deck.map(c => ({
+              id: c._id,
+              nombre: c.nombre,
+              imagen: c.imagenUrl || c.imagen,
+              rareza: c.rareza || 'N/A',
+              descripcion: c.descripcion || 'Sin descripción'
+            }));
 
-          return (
-            <div key={col._id} className="mb-12">
-              <h2 className="text-2xl font-bold highlight">
-                {col.idFranquicia?.nombre || 'Colección'}
-              </h2>
+            const cartasMostrar = cartas.slice(0, 10);
+            const total = cartasMostrar.length;
+            
+            if (total === 0) return null;
 
-              {!loadingCartas && cartasMostrar.length > 0 && (
+            return (
+              <div key={col._id} className="mb-12">
+                <h2 className="text-2xl font-bold highlight">
+                  {col.idFranquicia?.nombre || 'Colección'}
+                </h2>
+
                 <div className="mb-12">
                   <div className="flex justify-between items-center mb-6 px-4">
                     <h2 className="text-2xl font-bold highlight">Mi Colección</h2>
@@ -253,26 +233,22 @@ const Perfil = () => {
                   <div className="relative min-h-[500px] flex items-center justify-center">
                     <div className="relative w-full flex justify-center items-center" style={{ perspective: '1200px', overflow: 'visible' }}>
                       <div className="relative flex justify-center items-center" style={{ height: '450px' }}>
-
                         {cartasMostrar.map((carta, idx) => {
+                          const { index } = getCarrusel(col._id, total);
                           const style = getCartaStyle(idx, col._id, total);
-                          const isCenter = (idx  - index + total) % total === 0;
+                          const isCenter = (idx - index + total) % total === 0;
                           
                           const handleCardNavigation = () => {
                             const diff = (idx - index + total) % total;
                             if (diff <= total / 2) {
-                              for (let i = 0; i < diff; i++) siguienteCarrusel();
+                              for (let i = 0; i < diff; i++) siguienteCarrusel(col._id, total);
                             } else {
-                              for (let i = 0; i < total - diff; i++) anteriorCarrusel();
+                              for (let i = 0; i < total - diff; i++) anteriorCarrusel(col._id, total);
                             }
                           };
 
                           return (
-                            <div
-                              key={carta.id}
-                              className="absolute transition-all duration-500"
-                              style={style}
-                            >
+                            <div key={carta.id} className="absolute transition-all duration-500" style={style}>
                               <CartaConEfecto 
                                 carta={carta}
                                 isCenter={isCenter}
@@ -286,18 +262,12 @@ const Perfil = () => {
 
                     {total > 0 && (
                       <>
-                        <button
-                          onClick={() => anteriorCarrusel(col._id, total)}
-                          className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border hover:bg-emerald-600 transition-all z-30 hover:scale-110"
-                        >
+                        <button onClick={() => anteriorCarrusel(col._id, total)} className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border hover:bg-emerald-600 transition-all z-30 hover:scale-110">
                           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                           </svg>
                         </button>
-                        <button
-                          onClick={() => siguienteCarrusel(col._id, total)}
-                          className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 hover:bg-emerald-600 transition-all z-30 hover:scale-110"
-                        >
+                        <button onClick={() => siguienteCarrusel(col._id, total)} className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center border-2 hover:bg-emerald-600 transition-all z-30 hover:scale-110">
                           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
@@ -306,14 +276,22 @@ const Perfil = () => {
                     )}
                   </div>
                 </div>
-              )}
-
+              </div>
+            );
+          })
+        ) : (
+          !loadingCartas && (
+            <div className="text-center py-12">
+              <p className="text-gray-400">No tienes colecciones aún. ¡Crea una desde "Publicar"!</p>
+              <button 
+                onClick={() => navigate('/publicar')}
+                className="mt-4 px-6 py-2 bg-emerald-600 rounded-full text-white hover:bg-emerald-700 transition-colors"
+              >
+                Crear mi primera colección
+              </button>
             </div>
-          );
-        })}
-
-        
-        
+          )
+        )}
       </div>
     </div>
   );

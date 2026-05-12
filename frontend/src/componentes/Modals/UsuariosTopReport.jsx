@@ -4,10 +4,20 @@ import axios from 'axios';
 import '../../App.css';
 import '../../pantallas/index.css';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const UsuariosTopReport = ({ onClose }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+
+  // Función para obtener URL completa de imagen
+  const getImagenUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${API_URL}${url}`;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -15,7 +25,7 @@ const UsuariosTopReport = ({ onClose }) => {
         const token = localStorage.getItem('token');
         console.log('Token:', token ? 'Existe' : 'No existe');
         
-        const response = await axios.get('${API_URL}api/reportes/top-usuarios', {
+        const response = await axios.get(`${API_URL}/api/reportes/top-usuarios`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -54,14 +64,12 @@ const UsuariosTopReport = ({ onClose }) => {
     return 'text-gray-400 bg-gray-500/20';
   };
 
-  // Estado para controlar errores de imagen
   const [imagenesConError, setImagenesConError] = useState({});
 
   const handleImageError = (usuarioId) => {
     setImagenesConError(prev => ({ ...prev, [usuarioId]: true }));
   };
 
-  // Si no hay usuarios después de cargar, mostrar mensaje
   if (!cargando && !error && usuarios.length === 0) {
     return (
       <div className="w-full">
@@ -159,7 +167,7 @@ const UsuariosTopReport = ({ onClose }) => {
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-slate-700 flex-shrink-0">
                       {!imagenesConError[usuario._id] && usuario.fotoPerfil ? (
                         <img 
-                          src={usuario.fotoPerfil.startsWith('http') ? usuario.fotoPerfil : `http://localhost:3000${usuario.fotoPerfil}`} 
+                          src={getImagenUrl(usuario.fotoPerfil)} 
                           alt={usuario.nickname}
                           className="w-full h-full object-cover"
                           onError={() => handleImageError(usuario._id)}

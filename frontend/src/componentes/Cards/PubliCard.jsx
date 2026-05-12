@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useReaccion } from '../../hooks/useReaccion';
 import { useAuth } from '../../../context/AuthContext';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const PubliCard = ({ 
   publicacion,
   abrirModal,
@@ -27,7 +30,6 @@ const PubliCard = ({
   const [nuevoComentario, setNuevoComentario] = useState('');
   const [comentariosLocal, setComentariosLocal] = useState(publicacion?.comentarios || []);
 
-  
   useEffect(() => {
     if (forceUpdateKey) {
       refreshLikes(); 
@@ -44,7 +46,7 @@ const PubliCard = ({
     try {
       const token = tokenActual || localStorage.getItem("token");
       const response = await axios.get(
-        `${API_URL}api/publicaciones/${publicacion.id}/comentarios`,
+        `${API_URL}/api/publicaciones/${publicacion.id}/comentarios`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -73,10 +75,7 @@ const PubliCard = ({
   const handleLike = async () => {
     const estadoAnterior = tieneLike;
     await toggleLike();
-    
-   
     await refreshLikes();
-    
     
     const nuevoContador = estadoAnterior ? cantidadLikes - 1 : cantidadLikes + 1;
     
@@ -93,7 +92,7 @@ const PubliCard = ({
       const token = tokenActual || localStorage.getItem("token");
       
       await axios.post(
-        `${API_URL}api/publicaciones/${publicacion.id}/comentarios`, 
+        `${API_URL}/api/publicaciones/${publicacion.id}/comentarios`, 
         { texto: nuevoComentario },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -105,6 +104,13 @@ const PubliCard = ({
       console.error('Error al agregar comentario:', error);
       alert('Error al comentar: ' + (error.response?.data?.message || error.message));
     }
+  };
+  
+  // Función para obtener URL completa de imagen
+  const getImagenUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${API_URL}${url}`;
   };
   
   if (!publicacion) return null;
@@ -119,9 +125,10 @@ const PubliCard = ({
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-[#56ab91]">
             <img
-              src={publicacion.avatar}
+              src={getImagenUrl(publicacion.avatar)}
               alt={publicacion.usuario}
               className="w-full h-full object-cover"
+              onError={(e) => { e.target.src = 'https://via.placeholder.com/40/1e293b/56ab91?text=User'; }}
             />
           </div>
           <div>
@@ -173,9 +180,10 @@ const PubliCard = ({
               }}
             >
               <img
-                src={img}
+                src={getImagenUrl(img)}
                 alt={`Imagen ${idx + 1}`}
                 className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/300x400/1e293b/56ab91?text=Sin+Imagen'; }}
               />
               {publicacion.imagenes.length === 4 && idx === 3 && (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center hover:bg-black/60 transition-colors">
@@ -231,7 +239,6 @@ const PubliCard = ({
       </div>
 
       {/* Sección de comentarios */}
-
       {mostrarComentarios && (
         <div className="px-3 pb-3 pt-1 border-t border-[#56ab91]/20">
           <div className="max-h-48 overflow-y-auto space-y-2 mb-3">
@@ -240,15 +247,10 @@ const PubliCard = ({
                 <div key={comentario.id} className="flex gap-2">
                   <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
                     <img 
-                      src={
-                        comentario.usuario?.fotoPerfil 
-                          ? comentario.usuario.fotoPerfil.startsWith('http') 
-                            ? comentario.usuario.fotoPerfil 
-                            : `http://localhost:3000${comentario.usuario.fotoPerfil}`
-                          : "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
-                      } 
+                      src={getImagenUrl(comentario.usuario?.fotoPerfil) || "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"} 
                       alt={comentario.usuario?.nickname || 'Usuario'} 
                       className="w-full h-full object-cover" 
+                      onError={(e) => { e.target.src = "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"; }}
                     />
                   </div>
                   <div className="flex-1 bg-slate-800/50 rounded-lg px-2 py-1">
@@ -273,14 +275,10 @@ const PubliCard = ({
           <form onSubmit={handleAgregarComentario} className="flex items-center gap-2">
             <div className="w-7 h-7 bg-slate-700 rounded-full overflow-hidden flex-shrink-0">
               <img 
-                src={usuario?.fotoPerfil 
-                  ? usuario.fotoPerfil.startsWith('http') 
-                    ? usuario.fotoPerfil 
-                    : `http://localhost:3000${usuario.fotoPerfil}`
-                  : "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
-                } 
+                src={getImagenUrl(usuario?.fotoPerfil) || "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"} 
                 alt="Avatar" 
                 className="w-full h-full object-cover" 
+                onError={(e) => { e.target.src = "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"; }}
               />
             </div>
             <div className="flex-1 relative">
