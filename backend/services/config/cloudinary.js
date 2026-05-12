@@ -4,11 +4,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configurar Cloudinary con tus credenciales
+
 cloudinary.config({
-    cloud_name: process.env.ROOT,
-    api_key: process.env.936615152173786,
-    api_secret: process.env.AFTy2knzq_AEPF0oNsvCkjZ68s0
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Configurar el almacenamiento para multer
@@ -36,4 +36,4 @@ export const eliminarImagenCloudinary = async (publicId) => {
     }
 };
 
-export default cloudinary;
+export default cloudinary; 
