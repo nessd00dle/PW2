@@ -50,7 +50,7 @@ const Coleccion = () => {
     
     setCargandoComentarios(true);
     try {
-      const res = await axios.get(`http://localhost:3000/api/publicaciones/${publicacionId}/comentarios`);
+      const res = await axios.get(`${API_URL}api/publicaciones/${publicacionId}/comentarios`);
       console.log('Comentarios recibidos:', res.data);
       
       const comentariosMapeados = (res.data.comentarios || []).map(c => ({
@@ -76,7 +76,7 @@ const Coleccion = () => {
 
   const fetchPublicaciones = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/publicaciones?tipo=coleccion');
+      const res = await axios.get('${API_URL}api/publicaciones?tipo=coleccion');
       console.log('Publicaciones recibidas:', res.data.publicaciones);
 
       const pubs = res.data.publicaciones.map(p => {
@@ -99,7 +99,7 @@ const Coleccion = () => {
               if (!c.imagen) return null;
               if (c.imagen.startsWith('http')) return c.imagen;
               if (c.imagen.startsWith('/uploads')) return `http://localhost:3000${c.imagen}`;
-              return `http://localhost:3000/uploads/cartas/${c.imagen}`;
+              return `${API_URL}uploads/cartas/${c.imagen}`;
             })
             .filter(Boolean),
           likes: p.MeGusta || 0,
@@ -203,7 +203,7 @@ const Coleccion = () => {
     
     try {
       await axios.post(
-        `http://localhost:3000/api/publicaciones/${publicacionIdActual}/comentarios`,
+        `${API_URL}api/publicaciones/${publicacionIdActual}/comentarios`,
         { texto: texto.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );

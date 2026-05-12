@@ -44,7 +44,7 @@ const PubliCard = ({
     try {
       const token = tokenActual || localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:3000/api/publicaciones/${publicacion.id}/comentarios`,
+        `${API_URL}api/publicaciones/${publicacion.id}/comentarios`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -93,7 +93,7 @@ const PubliCard = ({
       const token = tokenActual || localStorage.getItem("token");
       
       await axios.post(
-        `http://localhost:3000/api/publicaciones/${publicacion.id}/comentarios`, 
+        `${API_URL}api/publicaciones/${publicacion.id}/comentarios`, 
         { texto: nuevoComentario },
         { headers: { Authorization: `Bearer ${token}` } }
       );
