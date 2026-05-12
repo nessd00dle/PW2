@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-
+// 🟢 CONFIGURACIÓN ÚNICA - Detecta automáticamente el entorno
 const API_URL = import.meta.env.DEV 
     ? 'http://localhost:3000'  // Desarrollo local
-    : 'https://pw2-production-ee50.up.railway.app';
+    : 'https://pw2-production-ee50.up.railway.app';  // Producción en Railway
 
 const AuthContext = createContext();
 
