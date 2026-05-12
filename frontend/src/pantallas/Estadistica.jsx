@@ -13,6 +13,9 @@ import axios from 'axios';
 import '../App.css'
 import '../pantallas/index.css'
 
+// 🔥 URL FIJA DE RAILWAY
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const Estadistica = () => {
   const navigate = useNavigate();
   const [periodo, setPeriodo] = useState('semana');
@@ -20,7 +23,6 @@ const Estadistica = () => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   
-  // Estados para los datos
   const [datosPrincipales, setDatosPrincipales] = useState({
     publicaciones: 0,
     comentarios: 0,
@@ -37,7 +39,6 @@ const Estadistica = () => {
   const [datosGrafica, setDatosGrafica] = useState([]);
   const [datosDistribucion, setDatosDistribucion] = useState([]);
 
-  // Cargar datos al montar el componente y cuando cambia el período
   useEffect(() => {
     const cargarDatos = async () => {
       setCargando(true);
@@ -46,8 +47,7 @@ const Estadistica = () => {
       try {
         const token = localStorage.getItem('token');
         
-        // Cargar estadísticas principales
-        const statsResponse = await axios.get('${API_URL}api/estadisticas/usuario', {
+        const statsResponse = await axios.get(`${API_URL}/api/estadisticas/usuario`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -55,8 +55,7 @@ const Estadistica = () => {
           setDatosPrincipales(statsResponse.data.data);
         }
         
-        // Cargar datos para la gráfica según el período
-        const graficaResponse = await axios.get(`${API_URL}api/estadisticas/grafica?periodo=${periodo}`, {
+        const graficaResponse = await axios.get(`${API_URL}/api/estadisticas/grafica?periodo=${periodo}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -64,8 +63,7 @@ const Estadistica = () => {
           setDatosGrafica(graficaResponse.data.data);
         }
         
-        // Cargar distribución de interacciones
-        const distribucionResponse = await axios.get('${API_URL}api/estadisticas/distribucion', {
+        const distribucionResponse = await axios.get(`${API_URL}/api/estadisticas/distribucion`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

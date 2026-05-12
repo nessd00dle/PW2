@@ -9,6 +9,9 @@ import '../App.css';
 import '../index.css';
 import axios from 'axios';
 
+// 🔥 URL FIJA DE RAILWAY
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const Coleccion = () => {
   const navigate = useNavigate();
   const { usuario, token, isAuthenticated } = useAuth();
@@ -25,7 +28,6 @@ const Coleccion = () => {
   
   const comentarioInputRef = useRef(null);
   const comentarioValueRef = useRef('');
-
 
   const { 
     tieneLike: modalTieneLike, 
@@ -50,7 +52,7 @@ const Coleccion = () => {
     
     setCargandoComentarios(true);
     try {
-      const res = await axios.get(`${API_URL}api/publicaciones/${publicacionId}/comentarios`);
+      const res = await axios.get(`${API_URL}/api/publicaciones/${publicacionId}/comentarios`);
       console.log('Comentarios recibidos:', res.data);
       
       const comentariosMapeados = (res.data.comentarios || []).map(c => ({
@@ -76,7 +78,7 @@ const Coleccion = () => {
 
   const fetchPublicaciones = async () => {
     try {
-      const res = await axios.get('${API_URL}api/publicaciones?tipo=coleccion');
+      const res = await axios.get(`${API_URL}/api/publicaciones?tipo=coleccion`);
       console.log('Publicaciones recibidas:', res.data.publicaciones);
 
       const pubs = res.data.publicaciones.map(p => {
@@ -89,7 +91,7 @@ const Coleccion = () => {
           usuario: p.Idusuario?.nombre || 'Usuario',
           usuarioId: p.Idusuario?._id,
           avatar: p.Idusuario?.fotoPerfil
-            ? `http://localhost:3000${p.Idusuario.fotoPerfil}`
+            ? `${API_URL}${p.Idusuario.fotoPerfil}`
             : null,
           franquicia: p.Franquicia?.nombre || 'General',
           titulo: p.Titulo || '',
@@ -98,8 +100,8 @@ const Coleccion = () => {
             .map(c => {
               if (!c.imagen) return null;
               if (c.imagen.startsWith('http')) return c.imagen;
-              if (c.imagen.startsWith('/uploads')) return `http://localhost:3000${c.imagen}`;
-              return `${API_URL}uploads/cartas/${c.imagen}`;
+              if (c.imagen.startsWith('/uploads')) return `${API_URL}${c.imagen}`;
+              return `${API_URL}/uploads/cartas/${c.imagen}`;
             })
             .filter(Boolean),
           likes: p.MeGusta || 0,
@@ -121,7 +123,6 @@ const Coleccion = () => {
     fetchPublicaciones();
   }, []);
 
-  
   const handleLikeChange = useCallback((publicacionId, nuevoEstado, nuevoContador) => {
     setPublicaciones(prev => prev.map(pub => 
       pub.id === publicacionId 
@@ -129,7 +130,6 @@ const Coleccion = () => {
         : pub
     ));
   }, []);
-
 
   const handleComentarioChange = useCallback((publicacionId, nuevoContador) => {
     setPublicaciones(prev => prev.map(pub => 
@@ -165,7 +165,6 @@ const Coleccion = () => {
     setImagenesPublicacion([]);
     setImagenActual(0);
     setModalComentarios([]);
-  
     setForceUpdateKey(prev => prev + 1);
   };
 
@@ -203,7 +202,7 @@ const Coleccion = () => {
     
     try {
       await axios.post(
-        `${API_URL}api/publicaciones/${publicacionIdActual}/comentarios`,
+        `${API_URL}/api/publicaciones/${publicacionIdActual}/comentarios`,
         { texto: texto.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -242,7 +241,6 @@ const Coleccion = () => {
   return (      
     <div className='App' id='App'>
       <div className="min-h-screen primary-text font-sans p-4">
-       
         {modalAbierto && publicacionActual && (
           <>
             <style>{`

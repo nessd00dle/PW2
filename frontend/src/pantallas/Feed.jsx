@@ -12,6 +12,9 @@ import '../pantallas/index.css';
 import { useEffect } from 'react';
 import axios from 'axios';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const Feed = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState("all");
@@ -20,30 +23,25 @@ const Feed = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileReportsOpen, setMobileReportsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [fandomsList, setFandomsList] = useState([]); // Para guardar la lista de fandoms
-
-  // Aquí se contendrán las publicaciones, traidas desde la BD
+  const [fandomsList, setFandomsList] = useState([]);
   const [publicaciones, setPublicaciones] = useState([]);
 
-  // Cargar publicaciones
   useEffect(() => {
     const fetchPublicaciones = async () => {
       try {
-        const res = await axios.get('${API_URL}api/publicaciones?tipo=feed');
+        const res = await axios.get(`${API_URL}/api/publicaciones?tipo=feed`);
         setPublicaciones(res.data.publicaciones);
       } catch (error) {
         console.error('Error cargando publicaciones:', error);
       }
     };
-
     fetchPublicaciones();
   }, []);
 
-  // Cargar fandoms desde el backend
   useEffect(() => {
     const fetchFandoms = async () => {
       try {
-        const res = await axios.get('${API_URL}api/franquicias');
+        const res = await axios.get(`${API_URL}/api/franquicias`);
         if (res.data.success && res.data.franquicias) {
           setFandomsList(res.data.franquicias);
         }
@@ -54,7 +52,6 @@ const Feed = () => {
     fetchFandoms();
   }, []);
 
-  // Mapear publicaciones a cards
   const cards = publicaciones.map(pub => ({
     id: pub._id,
     type: pub.Idusuario?.nickname || 'Usuario',
@@ -69,7 +66,7 @@ const Feed = () => {
     cantidad: pub.Cantidad,
     isVenta: pub.Tipo === 'venta',
     isIntercambio: pub.Tipo === 'intercambio',
-    isColeccion: pub.Tipo === 'coleccion', // Asegúrate de incluir este campo
+    isColeccion: pub.Tipo === 'coleccion',
     comentariosCount: pub.comentariosCount || 0
   }));
 
@@ -81,12 +78,10 @@ const Feed = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Filtro por fandom
   const filteredByFandom = selectedFandoms.length > 0
     ? cards.filter(card => selectedFandoms.includes(card.fandomId))
     : cards;
 
-  // Filtro por tipo de publicación 
   const filteredByType = filteredByFandom.filter(card => {
     if (filterType === 'all') return true;
     if (filterType === 'sale') return card.isVenta === true;
@@ -95,7 +90,6 @@ const Feed = () => {
     return true;
   });
 
-  // Ordenamiento
   const sortedCards = [...filteredByType].sort((a, b) => {
     switch (sortBy) {
       case 'price_asc': {
@@ -109,7 +103,7 @@ const Feed = () => {
         return priceB - priceA;
       }
       case 'recent':
-        return new Date(b.id) - new Date(a.id); // Mejor usar fechas si las tienes
+        return new Date(b.id) - new Date(a.id);
       default:
         return 0;
     }
@@ -119,7 +113,6 @@ const Feed = () => {
     navigate(`/detalle/carta/${card.id}`);
   };
 
-  // Función para obtener el nombre del fandom por su ID
   const getFandomName = (fandomId) => {
     const fandom = fandomsList.find(f => f._id === fandomId);
     return fandom ? fandom.nombre : fandomId;
@@ -132,7 +125,6 @@ const Feed = () => {
         <div className="flex-1 w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 pt-2 sm:pt-4 pb-6 sm:pb-8">
           <div className="flex flex-col md:flex-row gap-4 md:gap-6">
             
-            {/* Sidebar desktop - AHORA USA FandomFilter */}
             <aside className="hidden md:block md:w-[260px] lg:w-[280px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
                 <FandomFilter 
@@ -155,7 +147,6 @@ const Feed = () => {
                 onMobileReportsClick={() => setMobileReportsOpen(true)}
               />
               
-              {/* Indicador de filtros activos - ACTUALIZADO para usar nombres dinámicos */}
               {(filterType !== 'all' || selectedFandoms.length > 0) && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {filterType !== 'all' && (
@@ -199,7 +190,6 @@ const Feed = () => {
         </div>
       </div>
 
-      {/* Mobile Filters Sidebar - ACTUALIZADO para usar FandomFilter */}
       {isMobile && mobileFiltersOpen && (
         <>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={() => setMobileFiltersOpen(false)} />
@@ -212,13 +202,11 @@ const Feed = () => {
                 </button>
               </div>
               
-              {/* Filtro de franquicias - usa el nuevo componente */}
               <FandomFilter 
                 selectedFandoms={selectedFandoms} 
                 onFandomChange={setSelectedFandoms} 
               />
               
-              {/* Filtro de tipo dentro del sidebar */}
               <div className="mt-6 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
                 <h3 className="text-sm font-semibold highlight mb-3">Tipo de publicación</h3>
                 <div className="space-y-2">
@@ -246,7 +234,6 @@ const Feed = () => {
         </>
       )}
 
-      {/* Mobile Reports Sidebar */}
       {isMobile && mobileReportsOpen && (
         <>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" onClick={() => setMobileReportsOpen(false)} />
@@ -264,7 +251,6 @@ const Feed = () => {
         </>
       )}
 
-      {/* Botones flotantes */}
       {isMobile && !mobileFiltersOpen && !mobileReportsOpen && (
         <>
           <button onClick={() => setMobileFiltersOpen(true)} className="fixed bottom-6 left-6 z-30 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300" style={{ backgroundColor: 'var(--button-color)', border: `2px solid var(--border-color)` }}>

@@ -4,6 +4,9 @@ import Gallery from '../componentes/Modals/Gallery';
 import { useEffect } from 'react';
 import axios from 'axios';
 
+// 🔥 URL FIJA DE RAILWAY
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const PublicarCarta = () => {
   const navigate = useNavigate();
   const [showGalleryModal, setShowGalleryModal] = useState(false);
@@ -17,27 +20,19 @@ const PublicarCarta = () => {
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState(1);
 
-  //Esto contiene las cartas que se adjuntaron desde gallery (chris)
   const [deck, setDeck] = useState([]);
-
-
-  //Esta contiene solo la franquicia que selecciona el usaurio (chris)
   const [franquicia, setFranquicia] = useState('');
-
-  //Esta contiene todas las franquicias, traidas desde la BD (chris)
   const [franquicias, setFranquicias] = useState([]);
 
-  //Aquí ya se llaman las franquicias desde la BD
   useEffect(() => {
     const fetchFranquicias = async () => {
       try {
-        const res = await axios.get('${API_URL}api/franquicias');
+        const res = await axios.get(`${API_URL}/api/franquicias`);
         setFranquicias(res.data.franquicias);
       } catch (error) {
         console.error('Error cargando franquicias:', error);
       }
     };
-
     fetchFranquicias();
   }, []);
 
@@ -61,11 +56,8 @@ const PublicarCarta = () => {
 
   const handleSelectCartas = (cartas) => {
     setSelectedCartas(cartas);
-
-    //Se extraen los ID de las cartas seleccionadas (chris _ publicaciones de tipo coleccion)
     const ids = cartas.map(c => c.id);
     setDeck(ids);
-
     console.log('Cartas seleccionadas para colección:', cartas);
   };
 
@@ -189,7 +181,7 @@ const PublicarCarta = () => {
         formDataToSend.append('CartasColeccion', JSON.stringify(deck));
       }
 
-      const response = await fetch('${API_URL}api/publicaciones', {
+      const response = await fetch(`${API_URL}/api/publicaciones`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -224,7 +216,6 @@ const PublicarCarta = () => {
             border: `2px solid var(--border-color)`,
             backgroundColor: 'var(--background-slate)'
           }}>
-            {/* Boton X Circular - Ahora sí es un círculo perfecto */}
             <button
               onClick={() => navigate('/mi-perfil')}
               className="absolute -top-4 -right-4 sm:-top-5 sm:-right-5 md:-top-6 md:-right-6
@@ -242,7 +233,6 @@ const PublicarCarta = () => {
             </button>
 
             <form className="space-y-5 sm:space-y-6 md:space-y-8" onSubmit={(e) => e.preventDefault()}>
-              {/* Tipo y Franquicia */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div className="relative w-full sm:w-auto flex-1">
                   <select
@@ -277,7 +267,6 @@ const PublicarCarta = () => {
                 </div>
               </div>
 
-              {/* Titulo y Cantidad */}
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-[4] w-full">
                   <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Titulo</label>
@@ -312,7 +301,6 @@ const PublicarCarta = () => {
                 )}
               </div>
 
-              {/* Precio (solo venta) */}
               {tipoPublicacion === 'venta' && (
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Precio</label>
@@ -332,7 +320,6 @@ const PublicarCarta = () => {
                 </div>
               )}
 
-              {/* Imagenes (venta e intercambio) */}
               {(tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') && (
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">
@@ -406,7 +393,6 @@ const PublicarCarta = () => {
                 </div>
               )}
 
-              {/* Seleccion de cartas para coleccion */}
               {tipoPublicacion === 'coleccion' && (
                 <div>
                   <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">
@@ -505,7 +491,6 @@ const PublicarCarta = () => {
                 </div>
               )}
 
-              {/* Descripcion */}
               <div>
                 <label className="block text-sm font-bold mb-2 ml-1 tracking-tight highlight">Descripcion</label>
                 <textarea
@@ -527,7 +512,6 @@ const PublicarCarta = () => {
                 />
               </div>
 
-              {/* Boton Publicar */}
               <div className="flex justify-center pt-4">
                 <button
                   onClick={handlePublicar}
@@ -539,16 +523,6 @@ const PublicarCarta = () => {
                     color: 'white'
                   }}
                   disabled={!tipoPublicacion}
-                  onMouseEnter={(e) => {
-                    if (tipoPublicacion) {
-                      e.target.style.backgroundColor = 'var(--hover-button-color)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (tipoPublicacion) {
-                      e.target.style.backgroundColor = 'var(--button-color)';
-                    }
-                  }}
                 >
                   Publicar
                 </button>

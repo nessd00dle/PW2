@@ -8,10 +8,13 @@ import '../App.css'
 import '../pantallas/index.css'
 import axios from 'axios';
 
+// 🔥 URL FIJA DE RAILWAY
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const DetalleCarta = () => {
   const navigate = useNavigate();
   const { usuario, isAuthenticated, token } = useAuth(); 
-  const rutaFotoPerfil = "http://localhost:3000";
+  const rutaFotoPerfil = API_URL;
   const { id } = useParams();
   
   const [Publicacion, setPublicacion] = useState(null);
@@ -19,9 +22,7 @@ const DetalleCarta = () => {
   const [comentarios, setComentarios] = useState([]);
   const [cargandoComentario, setCargandoComentario] = useState(false);
 
-
   const { tieneLike, cantidadLikes, cargando: cargandoLike, toggleLike } = useReaccion(id);
-
 
   useEffect(() => {
     console.log('Usuario autenticado:', isAuthenticated);
@@ -29,11 +30,10 @@ const DetalleCarta = () => {
     console.log('Usuario:', usuario);
   }, [isAuthenticated, token, usuario]);
 
-  // Traer la publicación
   useEffect(() => {
     const fetchPublicacion = async () => {
       try {
-        const res = await axios.get(`${API_URL}api/publicaciones/${id}`);
+        const res = await axios.get(`${API_URL}/api/publicaciones/${id}`);
         const p = res.data.publicacion;
 
         const publicacionMapeada = {
@@ -60,10 +60,7 @@ const DetalleCarta = () => {
     if (id) fetchPublicacion();
   }, [id]);
 
-  
-
-
-const handleEnviarComentario = async (e) => {
+  const handleEnviarComentario = async (e) => {
     e.preventDefault();
     if (!comentario.trim()) return;
     
@@ -74,14 +71,11 @@ const handleEnviarComentario = async (e) => {
     
     setCargandoComentario(true);
     try {
-       
-        
         const response = await axios.post(
-            `${API_URL}api/publicaciones/${id}/comentarios`, 
+            `${API_URL}/api/publicaciones/${id}/comentarios`, 
             { texto: comentario },
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        
         
         await fetchComentarios();
         setComentario("");
@@ -92,14 +86,11 @@ const handleEnviarComentario = async (e) => {
     } finally {
         setCargandoComentario(false);
     }
-};
+  };
 
-
-const fetchComentarios = async () => {
+  const fetchComentarios = async () => {
     try {
-       
-        const res = await axios.get(`${API_URL}api/publicaciones/${id}/comentarios`);
-
+        const res = await axios.get(`${API_URL}/api/publicaciones/${id}/comentarios`);
         const comentariosMapeados = (res.data.comentarios || []).map(c => ({
             id: c._id,
             texto: c.texto,
@@ -118,7 +109,7 @@ const fetchComentarios = async () => {
         console.error(' Error cargando comentarios:', error);
         console.error(' Detalles:', error.response?.data);
     }
-};
+  };
 
   const formatearFecha = (fecha) => {
     if (!fecha) return '';
@@ -128,8 +119,6 @@ const fetchComentarios = async () => {
   useEffect(() => {
     if (id) fetchComentarios();
   }, [id]);
-
- 
 
   const handleLikeClick = async () => {
     if (!isAuthenticated) {
@@ -157,7 +146,6 @@ const fetchComentarios = async () => {
             X
           </button>
 
-          {/* Imagen */}
           <div className="w-full md:w-[350px] min-h-[500px] border-2 border rounded-3xl bg-slate-900/40 flex items-center justify-center relative shadow-2xl">
             <div className="bg-slate px-6 py-3 rounded-xl border border">
               <span className="text-gray-300 font-bold text-sm uppercase tracking-widest italic text-center block">
@@ -170,10 +158,8 @@ const fetchComentarios = async () => {
             </div>
           </div>
 
-          {/* Columna derecha */}
           <div className="w-full md:w-[420px] lg:w-[480px] flex flex-col gap-4 flex-shrink-0">
 
-            {/* Info de la Publicacion */}
             <div className="border-2 border rounded-2xl p-6 bg-slate-900/60 relative shadow-xl">
               <div className="space-y-3 text-sm">
                 <h2 className="text-2xl font-bold text-white mb-2">{Publicacion.titulo}</h2>
@@ -190,7 +176,6 @@ const fetchComentarios = async () => {
                 </div>
               </div>
 
-              {/* Botón de Like */}
               <div className="mt-6">
                 <button 
                   onClick={handleLikeClick}
@@ -205,7 +190,6 @@ const fetchComentarios = async () => {
               </div>
             </div>
 
-            {/* Sección de Comentarios */}
             <div className="border-2 border rounded-2xl p-6 bg-slate-900/60 flex flex-col gap-4 shadow-xl">
               <h3 className="text-[10px] font-black uppercase tracking-widest highlight">
                 Comentarios ({comentarios.length})
@@ -251,7 +235,6 @@ const fetchComentarios = async () => {
                 )}
               </div>
               
-              {/* Formulario para nuevo comentario */}
               <form onSubmit={handleEnviarComentario} className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border-emerald-500 transition-colors">
                 <div className="w-8 h-8 shrink-0">
                   <Avatar
