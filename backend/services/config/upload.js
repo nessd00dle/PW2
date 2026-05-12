@@ -1,92 +1,91 @@
 import multer from 'multer';
+import { storage, eliminarImagenCloudinary } from './cloudinary.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Directorios base - Adaptado para producción 
+const usarCloudinary = process.env.NODE_ENV === 'production' && process.env.CLOUDINARY_CLOUD_NAME;
+
+
 const getUploadsBase = () => {
-    // En producción, usar /tmp/uploads 
-    if (process.env.NODE_ENV === 'production') {
-        const prodPath = process.env.UPLOADS_PATH || '/tmp/uploads';
-        console.log(` Usando directorio de producción: ${prodPath}`);
-        return prodPath;
+    if (process.env.NODE_ENV !== 'production') {
+        return path.join(process.cwd(), 'uploads');
     }
-    // En desarrollo, usar la carpeta local
-    return path.join(__dirname, '../../uploads');
+    return '/tmp/uploads';
 };
 
 const UPLOADS_BASE = getUploadsBase();
 
 export const DIRECTORIOS = {
-    perfiles: path.join(UPLOADS_BASE, 'perfiles'),
-    publicaciones: path.join(UPLOADS_BASE, 'publicaciones'),
-    cartas: path.join(UPLOADS_BASE, 'cartas')
+    perfiles: usarCloudinary ? null : path.join(UPLOADS_BASE, 'perfiles'),
+    publicaciones: usarCloudinary ? null : path.join(UPLOADS_BASE, 'publicaciones'),
+    cartas: usarCloudinary ? null : path.join(UPLOADS_BASE, 'cartas')
 };
-
-// Crear directorios si no existen
-Object.values(DIRECTORIOS).forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-        console.log(`📁 Directorio creado: ${dir}`);
-    }
-});
-
-console.log('📂 Configuración de uploads:');
-console.log(`   Base: ${UPLOADS_BASE}`);
-console.log(`   Perfiles: ${DIRECTORIOS.perfiles}`);
-console.log(`   Publicaciones: ${DIRECTORIOS.publicaciones}`);
-console.log(`   Cartas: ${DIRECTORIOS.cartas}`);
-
-// Configuración de almacenamiento dinámico
-const storage = (tipo) => multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, DIRECTORIOS[tipo]);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-        const ext = path.extname(file.originalname);
-        const prefix = tipo === 'perfiles' ? 'perf' : (tipo === 'publicaciones' ? 'pub' : 'carta');
-        cb(null, `${prefix}-${uniqueSuffix}${ext}`);
-    }
-});
 
 // Filtro común para imágenes
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp|bmp/;
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     
     if (mimetype && extname) {
         cb(null, true);
     } else {
-        cb(new Error('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WEBP, BMP)'));
+        cb(new Error('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WEBP)'));
     }
 };
 
-// Configuración base de multer
-const crearMulter = (tipo, maxFiles = 1, maxSize = 5 * 1024 * 1024) => {
+// Configuración de multer para Cloudinary
+const cloudinaryMulter = (maxCount = 1) => {
     return multer({
-        storage: storage(tipo),
-        limits: {
-            fileSize: maxSize,
-            files: maxFiles
-        },
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024, files: maxCount },
         fileFilter: fileFilter
     });
 };
 
-// Middlewares específicos
-export const uploadPerfil = crearMulter('perfiles', 1);
-export const uploadPublicacion = crearMulter('publicaciones', 10);
-export const uploadCartas = crearMulter('cartas', 20);
+// Configuración de multer para desarrollo local
+const localMulter = (tipo, maxCount = 1) => {
+    // Crear directorios si no existen
+    if (DIRECTORIOS[tipo] && !fs.existsSync(DIRECTORIOS[tipo])) {
+        fs.mkdirSync(DIRECTORIOS[tipo], { recursive: true });
+    }
+    
+    const diskStorage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, DIRECTORIOS[tipo]);
+        },
+        filename: (req, file, cb) => {
+            const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+            const ext = path.extname(file.originalname);
+            const prefix = tipo === 'perfiles' ? 'perf' : (tipo === 'publicaciones' ? 'pub' : 'carta');
+            cb(null, `${prefix}-${uniqueSuffix}${ext}`);
+        }
+    });
+    
+    return multer({
+        storage: diskStorage,
+        limits: { fileSize: 5 * 1024 * 1024, files: maxCount },
+        fileFilter: fileFilter
+    });
+};
 
-// Middleware para subir imágenes de publicación
+// Exportar middlewares según el entorno
+export const uploadPerfil = usarCloudinary 
+    ? cloudinaryMulter(1).single('fotoPerfil')
+    : localMulter('perfiles', 1).single('fotoPerfil');
+
+export const uploadPublicacion = usarCloudinary
+    ? cloudinaryMulter(10).array('imagenes', 10)
+    : localMulter('publicaciones', 10).array('imagenes', 10);
+
+export const uploadCartas = usarCloudinary
+    ? cloudinaryMulter(20).array('cartas', 20)
+    : localMulter('cartas', 20).array('cartas', 20);
+
+// Middleware para publicaciones
 export const uploadPublicacionImages = (req, res, next) => {
-    const upload = uploadPublicacion.array('imagenes', 10);
-    upload(req, res, (err) => {
+    uploadPublicacion(req, res, (err) => {
         if (err) {
             if (err instanceof multer.MulterError) {
                 if (err.code === 'FILE_TOO_LARGE') {
@@ -109,18 +108,19 @@ export const uploadPublicacionImages = (req, res, next) => {
         }
         
         if (req.files && req.files.length > 0) {
-            console.log(`📸 ${req.files.length} imágenes subidas para publicación`);
+            console.log(` ${req.files.length} imágenes subidas`);
+            
+            if (usarCloudinary) {
+                req.files = req.files.map(f => ({
+                    ...f,
+                    url: f.path, 
+                    filename: f.filename
+                }));
+            }
         }
         
         next();
     });
 };
 
-//  ADVERTENCIA IMPORTANTE sobre imágenes en Railway/Render
-if (process.env.NODE_ENV === 'production') {
-    console.log('\n IMPORTANTE - MANEJO DE IMÁGENES EN PRODUCCIÓN:');
-    console.log('   Los archivos subidos a /tmp/uploads NO son persistentes');
-    console.log('   Se perderán cada vez que el servidor se reinicie');
-    console.log('   Recomendación: Usar Cloudinary, AWS S3 o MongoDB GridFS');
-    console.log('   Para pruebas: Las imágenes funcionarán temporalmente\n');
-}
+console.log(`📁 Configuración de uploads: ${usarCloudinary ? 'Cloudinary (PRODUCCIÓN)' : 'Sistema local (DESARROLLO)'}`);

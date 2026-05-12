@@ -118,7 +118,7 @@ export const crearUsuarioConFoto = async (req, res) => {
         }
 
         // Procesar foto de perfil si existe
-        let fotoPerfilUrl = null;
+        /*let fotoPerfilUrl = null;
         if (req.file) {
             // Optimizar la imagen
             const optimizado = await optimizarImagen(req.file, 'perfiles');
@@ -131,7 +131,22 @@ export const crearUsuarioConFoto = async (req, res) => {
                 fotoPerfilUrl = `/uploads/perfiles/${req.file.filename}`;
                 console.log('Usando imagen sin optimizar:', fotoPerfilUrl);
             }
-        }
+        }*/
+       // En crearUsuarioConFoto - donde se guarda fotoPerfilUrl
+            let fotoPerfilUrl = null;
+            if (req.file) {
+    
+                fotoPerfilUrl = req.file.path; 
+                console.log('Foto subida a Cloudinary:', fotoPerfilUrl);
+            }
+
+    
+            if (req.file) {
+                
+                fotoPerfilUrl = req.file.path;
+            }
+
+          
 
         const salt = await bcrypt.genSalt(10);
         const contrasenaEncriptada = await bcrypt.hash(contrasena, salt);
