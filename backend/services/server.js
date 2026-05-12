@@ -4,16 +4,16 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from 'fs';
-import connectDB from "./config/dbClient.js";
-import usuarioRoutes from "./routes/usuarioRoutes.js";
-import publiRoutes from "./routes/publiRoutes.js";
-import reaccionRoutes from './routes/reaccionRoutes.js';
-import franquiciaRoutes from "./routes/franquiciaRoutes.js";
-import comentarioRoutes from "./routes/comentarioRoutes.js";
-import cartaRoutes from "./routes/cartaRoutes.js";
-import coleccionRoutes from "./routes/coleccionRoutes.js";
-import reporteRoutes from './routes/reporteRoutes.js';
-import estadisticaRoutes from './routes/estadisticaRoutes.js';
+import connectDB from "../config/dbClient.js";
+import usuarioRoutes from "../routes/usuarioRoutes.js";
+import publiRoutes from "../routes/publiRoutes.js";
+import reaccionRoutes from '../routes/reaccionRoutes.js';
+import franquiciaRoutes from "../routes/franquiciaRoutes.js";
+import comentarioRoutes from "../routes/comentarioRoutes.js";
+import cartaRoutes from "../routes/cartaRoutes.js";
+import coleccionRoutes from "../routes/coleccionRoutes.js";
+import reporteRoutes from '../routes/reporteRoutes.js';
+import estadisticaRoutes from '../routes/estadisticaRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,130 +22,156 @@ dotenv.config();
 
 const app = express();
 
+// Conectar a MongoDB
 connectDB();
 
-// Middlewares
+// Configurar CORS para producción
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://pw-2-v3vq.vercel.app/', 
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: function(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            console.log('Origen bloqueado por CORS:', origin);
+            callback(null, true); 
+        }
+    },
     credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-
-
-const uploadsPath = path.join(__dirname, '..', 'uploads');
+// Configuración de rutas de archivos estáticos
+const uploadsPath = process.env.UPLOADS_PATH || path.join(__dirname, '..', 'uploads');
 
 console.log('========================================');
 console.log('CONFIGURACION DE SERVIDOR');
 console.log('========================================');
 console.log('Directorio actual:', __dirname);
 console.log('Ruta de uploads:', uploadsPath);
-console.log('Existe uploads?', fs.existsSync(uploadsPath));
+console.log('Puerto:', process.env.PORT || 3000);
+console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Configurada' : 'No configurada ');
 
-// Verificar estructura de carpetas
-if (fs.existsSync(uploadsPath)) {
-    console.log('Contenido de uploads:', fs.readdirSync(uploadsPath));
+// Crear directorio uploads si no existe (para producción)
+if (!fs.existsSync(uploadsPath)) {
+    console.log('Creando directorio uploads...');
+    fs.mkdirSync(uploadsPath, { recursive: true });
     
-    const cartasPath = path.join(uploadsPath, 'cartas');
-    if (fs.existsSync(cartasPath)) {
-        console.log('Contenido de cartas:', fs.readdirSync(cartasPath));
-        
-        // Verificar subcarpetas
-        const subCarpetas = fs.readdirSync(cartasPath);
-        subCarpetas.forEach(carpeta => {
-            const carpetaPath = path.join(cartasPath, carpeta);
-            if (fs.statSync(carpetaPath).isDirectory()) {
-                const archivos = fs.readdirSync(carpetaPath);
-                console.log(`  ${carpeta}: ${archivos.length} archivos`);
-                if (archivos.length > 0) {
-                    console.log(`    Ejemplo: ${archivos[0]}`);
-                }
-            }
-        });
-    } else {
-        console.log('ERROR: No existe carpeta cartas');
-    }
-} else {
-    console.log('ERROR: No existe carpeta uploads');
+    // Crear subdirectorios necesarios
+    const subdirs = ['cartas', 'perfiles', 'publicaciones'];
+    subdirs.forEach(dir => {
+        const subPath = path.join(uploadsPath, dir);
+        if (!fs.existsSync(subPath)) {
+            fs.mkdirSync(subPath, { recursive: true });
+            console.log(`Directorio creado: ${subPath}`);
+        }
+    });
+    
+    // Crear subdirectorios de cartas
+    const cartasSubdirs = ['imagesPokemon', 'imagesMagic', 'imagesDB', 'imagesYugioh', 'imagesDigimon'];
+    cartasSubdirs.forEach(subdir => {
+        const subPath = path.join(uploadsPath, 'cartas', subdir);
+        if (!fs.existsSync(subPath)) {
+            fs.mkdirSync(subPath, { recursive: true });
+            console.log(`Directorio creado: ${subPath}`);
+        }
+    });
 }
 
-
-app.use('/uploads', express.static(uploadsPath, {
-    setHeaders: (res, filePath) => {
-        console.log('Sirviendo archivo:', filePath);
-    }
-}));
-
-
+// Servir archivos estáticos
+app.use('/uploads', express.static(uploadsPath));
 app.use('/uploads/cartas', express.static(path.join(uploadsPath, 'cartas')));
 app.use('/uploads/perfiles', express.static(path.join(uploadsPath, 'perfiles')));
 app.use('/uploads/publicaciones', express.static(path.join(uploadsPath, 'publicaciones')));
-
-
 app.use('/imagesPokemon', express.static(path.join(uploadsPath, 'cartas', 'imagesPokemon')));
 app.use('/imagesMagic', express.static(path.join(uploadsPath, 'cartas', 'imagesMagic')));
 app.use('/imagesDB', express.static(path.join(uploadsPath, 'cartas', 'imagesDB')));
 app.use('/imagesYugioh', express.static(path.join(uploadsPath, 'cartas', 'imagesYugioh')));
 app.use('/imagesDigimon', express.static(path.join(uploadsPath, 'cartas', 'imagesDigimon')));
 
-
-app.get('/debug/imagen/:ruta', (req, res) => {
-    const rutaCompleta = path.join(uploadsPath, 'cartas', req.params.ruta);
-    const existe = fs.existsSync(rutaCompleta);
-    
-    res.json({
-        buscado: req.params.ruta,
-        rutaCompleta: rutaCompleta,
-        existe: existe,
-        uploadsPath: uploadsPath
-    });
-});
-
-
-app.get('/debug/listar-imagenes', (req, res) => {
-    const cartasPath = path.join(uploadsPath, 'cartas');
-    const resultado = {};
-    
-    if (fs.existsSync(cartasPath)) {
-        const carpetas = fs.readdirSync(cartasPath);
-        carpetas.forEach(carpeta => {
-            const carpetaPath = path.join(cartasPath, carpeta);
-            if (fs.statSync(carpetaPath).isDirectory()) {
-                resultado[carpeta] = fs.readdirSync(carpetaPath);
-            }
+// Rutas de debug (solo para desarrollo)
+if (process.env.NODE_ENV !== 'production') {
+    app.get('/debug/imagen/:ruta', (req, res) => {
+        const rutaCompleta = path.join(uploadsPath, 'cartas', req.params.ruta);
+        const existe = fs.existsSync(rutaCompleta);
+        res.json({
+            buscado: req.params.ruta,
+            rutaCompleta: rutaCompleta,
+            existe: existe,
+            uploadsPath: uploadsPath
         });
-    }
-    
-    res.json({
-        uploadsPath: uploadsPath,
-        cartasPath: cartasPath,
-        imagenes: resultado
     });
-});
 
-// Ruta de prueba para imagen
-app.get('/test-imagen', (req, res) => {
-    const testPath = path.join(uploadsPath, 'cartas', 'imagesPokemon', 'bulbasaur.png');
-    const existe = fs.existsSync(testPath);
-    
-    res.send(`
-        <html>
-            <body>
-                <h1>Test de Imagen</h1>
-                <p>Ruta: ${testPath}</p>
-                <p>Existe: ${existe}</p>
-                ${existe ? '<img src="/uploads/cartas/imagesPokemon/bulbasaur.png" />' : '<p>Imagen no encontrada</p>'}
-                <br/>
-                <a href="/debug/listar-imagenes">Ver todas las imagenes</a>
-            </body>
-        </html>
-    `);
-});
+    app.get('/debug/listar-imagenes', (req, res) => {
+        const cartasPath = path.join(uploadsPath, 'cartas');
+        const resultado = {};
+        if (fs.existsSync(cartasPath)) {
+            const carpetas = fs.readdirSync(cartasPath);
+            carpetas.forEach(carpeta => {
+                const carpetaPath = path.join(cartasPath, carpeta);
+                if (fs.statSync(carpetaPath).isDirectory()) {
+                    resultado[carpeta] = fs.readdirSync(carpetaPath);
+                }
+            });
+        }
+        res.json({
+            uploadsPath: uploadsPath,
+            cartasPath: cartasPath,
+            imagenes: resultado
+        });
+    });
 
+    app.get('/test-imagen', (req, res) => {
+        const testPath = path.join(uploadsPath, 'cartas', 'imagesPokemon', 'bulbasaur.png');
+        const existe = fs.existsSync(testPath);
+        res.send(`
+            <html>
+                <body>
+                    <h1>Test de Imagen</h1>
+                    <p>Ruta: ${testPath}</p>
+                    <p>Existe: ${existe}</p>
+                    ${existe ? '<img src="/uploads/cartas/imagesPokemon/bulbasaur.png" />' : '<p>Imagen no encontrada</p>'}
+                    <br/>
+                    <a href="/debug/listar-imagenes">Ver todas las imagenes</a>
+                </body>
+            </html>
+        `);
+    });
 
+    app.get('/debug/usuario/:id', async (req, res) => {
+        try {
+            const Usuario = (await import('../models/Usuario.js')).default;
+            const usuario = await Usuario.findById(req.params.id).select('nombre nickname fotoPerfil');
+            res.json({
+                id: usuario._id,
+                nombre: usuario.nombre,
+                nickname: usuario.nickname,
+                fotoPerfil: usuario.fotoPerfil,
+                urlCompleta: `${process.env.BACKEND_URL || 'http://localhost:3000'}${usuario.fotoPerfil}`
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
 
+    app.get('/check-image/:filename', (req, res) => {
+        const imagePath = path.join(uploadsPath, 'perfiles', req.params.filename);
+        if (fs.existsSync(imagePath)) {
+            res.json({ exists: true, path: imagePath });
+        } else {
+            res.json({ exists: false, path: imagePath });
+        }
+    });
+}
+
+// Rutas de la API
 app.use('/api/publicaciones', publiRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/franquicias', franquiciaRoutes);
@@ -156,39 +182,27 @@ app.use('/api/publicaciones/:idPublicacion/reacciones', reaccionRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/estadisticas', estadisticaRoutes);
 
-
+// Ruta de prueba
 app.get('/test', (req, res) => {
     res.json({ mensaje: 'Servidor funcionando correctamente' });
 });
 
-app.get('/debug/usuario/:id', async (req, res) => {
-    try {
-        const Usuario = (await import('./models/Usuario.js')).default;
-        const usuario = await Usuario.findById(req.params.id).select('nombre nickname fotoPerfil');
-        res.json({
-            id: usuario._id,
-            nombre: usuario.nombre,
-            nickname: usuario.nickname,
-            fotoPerfil: usuario.fotoPerfil,
-            urlCompleta: `http://localhost:3000${usuario.fotoPerfil}`
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+// Manejador de errores 404
+app.use((req, res) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-app.get('/check-image/:filename', (req, res) => {
-    const imagePath = path.join(uploadsPath, 'perfiles', req.params.filename);
-    if (fs.existsSync(imagePath)) {
-        res.json({ exists: true, path: imagePath });
-    } else {
-        res.json({ exists: false, path: imagePath });
-    }
+// Manejador de errores global
+app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`\n========================================`);
-    
+    console.log(` Servidor corriendo en puerto ${PORT}`);
+    console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`========================================\n`);
 });

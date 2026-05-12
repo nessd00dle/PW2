@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LeftSidebar from "../Sidebar/LeftSidebar";
 import FeedControls from "../Filtros/FeedControls";
-import Navbar from './navbar';
+import Navbar from './Navbar';
 import '../../App.css';
 import '../../pantallas/index.css';
 import ReportesAside from "./ReportesAside";

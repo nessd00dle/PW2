@@ -6,8 +6,20 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Directorios base
-const UPLOADS_BASE = path.join(__dirname, '../../uploads');
+// Directorios base - Adaptado para producción 
+const getUploadsBase = () => {
+    // En producción, usar /tmp/uploads 
+    if (process.env.NODE_ENV === 'production') {
+        const prodPath = process.env.UPLOADS_PATH || '/tmp/uploads';
+        console.log(` Usando directorio de producción: ${prodPath}`);
+        return prodPath;
+    }
+    // En desarrollo, usar la carpeta local
+    return path.join(__dirname, '../../uploads');
+};
+
+const UPLOADS_BASE = getUploadsBase();
+
 export const DIRECTORIOS = {
     perfiles: path.join(UPLOADS_BASE, 'perfiles'),
     publicaciones: path.join(UPLOADS_BASE, 'publicaciones'),
@@ -18,9 +30,15 @@ export const DIRECTORIOS = {
 Object.values(DIRECTORIOS).forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
-        console.log(`Directorio creado: ${dir}`);
+        console.log(`📁 Directorio creado: ${dir}`);
     }
 });
+
+console.log('📂 Configuración de uploads:');
+console.log(`   Base: ${UPLOADS_BASE}`);
+console.log(`   Perfiles: ${DIRECTORIOS.perfiles}`);
+console.log(`   Publicaciones: ${DIRECTORIOS.publicaciones}`);
+console.log(`   Cartas: ${DIRECTORIOS.cartas}`);
 
 // Configuración de almacenamiento dinámico
 const storage = (tipo) => multer.diskStorage({
@@ -97,3 +115,12 @@ export const uploadPublicacionImages = (req, res, next) => {
         next();
     });
 };
+
+//  ADVERTENCIA IMPORTANTE sobre imágenes en Railway/Render
+if (process.env.NODE_ENV === 'production') {
+    console.log('\n IMPORTANTE - MANEJO DE IMÁGENES EN PRODUCCIÓN:');
+    console.log('   Los archivos subidos a /tmp/uploads NO son persistentes');
+    console.log('   Se perderán cada vez que el servidor se reinicie');
+    console.log('   Recomendación: Usar Cloudinary, AWS S3 o MongoDB GridFS');
+    console.log('   Para pruebas: Las imágenes funcionarán temporalmente\n');
+}

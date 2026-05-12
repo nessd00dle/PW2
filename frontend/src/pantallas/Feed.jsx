@@ -5,7 +5,7 @@ import LeftSidebar from "../componentes/Sidebar/LeftSidebar";
 import FeedControls from "../componentes/Filtros/FeedControls";
 import CardGrid from "../componentes/Cards/CardGrid";
 import ReportesAside from "../componentes/Layout/ReportesAside";
-import FandomFilter from "../componentes/Filtros/FandomFilter"; // Importa el nuevo componente
+import FandomFilter from "../componentes/Filtros/FandomFilter"; 
 import '../App.css';
 import '../pantallas/index.css';
 
