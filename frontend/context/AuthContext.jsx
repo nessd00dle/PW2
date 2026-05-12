@@ -1,7 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+
 const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
+console.log('API URL configurada:', API_URL);
 
 const AuthContext = createContext();
 
@@ -18,7 +21,6 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('token'));
 
-    // Configurar axios con el token
     useEffect(() => {
         if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -27,7 +29,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, [token]);
 
-    // Verificar si hay usuario guardado al cargar
     useEffect(() => {
         const usuarioGuardado = localStorage.getItem('usuario');
         if (usuarioGuardado && token) {
@@ -41,9 +42,9 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, [token]);
 
-    // Login
     const login = async (correo, contrasena) => {
         try {
+            console.log('Login URL:', `${API_URL}/api/usuarios/login`);
             const response = await axios.post(`${API_URL}/api/usuarios/login`, {
                 correo,
                 contrasena
@@ -66,9 +67,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Registro normal
     const registro = async (userData) => {
         try {
+            console.log('Registro URL:', `${API_URL}/api/usuarios/registro`);
             const response = await axios.post(`${API_URL}/api/usuarios/registro`, userData);
             
             const { token: nuevoToken, usuario: usuarioData } = response.data;
@@ -88,9 +89,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Registro con foto
     const registroConFoto = async (formData) => {
         try {
+            console.log('Registro con foto URL:', `${API_URL}/api/usuarios/registro-con-foto`);
             const response = await axios.post(
                 `${API_URL}/api/usuarios/registro-con-foto`,
                 formData,
@@ -111,6 +112,7 @@ export const AuthProvider = ({ children }) => {
             return { success: true, usuario: usuarioData };
         } catch (error) {
             console.error('Error en registro con foto:', error);
+            console.error('URL que falló:', `${API_URL}/api/usuarios/registro-con-foto`);
             return { 
                 success: false, 
                 error: error.response?.data?.error || 'Error al registrarse' 
@@ -118,7 +120,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Logout
     const logout = () => {
         setUsuario(null);
         setToken(null);
@@ -194,7 +195,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         registro,
-        registroConFoto, 
+        registroConFoto,
         logout,
         actualizarPerfil,
         actualizarFotoPerfil,
