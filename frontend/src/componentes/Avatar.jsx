@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
+
 const Avatar = ({ 
   fotoPerfil, 
   nombre, 
@@ -9,41 +12,33 @@ const Avatar = ({
 }) => {
   const [fotoError, setFotoError] = useState(false);
   const [fotoUrl, setFotoUrl] = useState(null);
-  const [forceFallback, setForceFallback] = useState(false);
 
   useEffect(() => {
-    if (!fotoPerfil || forceFallback) {
+    if (!fotoPerfil) {
       setFotoUrl(null);
       return;
     }
 
-    
-    if (fotoPerfil.startsWith('blob:')) {
-      setFotoUrl(fotoPerfil);
-      setFotoError(false);
-      return;
-    }
-
-   
+    // Si ya es una URL completa (http o https) - para desarrollo local
     if (fotoPerfil.startsWith('http://') || fotoPerfil.startsWith('https://')) {
       setFotoUrl(fotoPerfil);
-      setFotoError(false);
       return;
     }
     
-   
-    let url = null;
+    // Si es ruta relativa, construir URL completa con API_URL
     if (fotoPerfil.startsWith('/uploads')) {
-      url = `http://localhost:3000${fotoPerfil}`;
-    } else if (fotoPerfil.startsWith('/')) {
-      url = `http://localhost:3000${fotoPerfil}`;
-    } else {
-      url = `${API_URL}uploads/perfiles/${fotoPerfil}`;
+      setFotoUrl(`${API_URL}${fotoPerfil}`);
+      return;
     }
     
-    setFotoUrl(url);
-    setFotoError(false);
-  }, [fotoPerfil, forceFallback]);
+    // Si es solo el nombre del archivo
+    if (!fotoPerfil.startsWith('/')) {
+      setFotoUrl(`${API_URL}/uploads/perfiles/${fotoPerfil}`);
+      return;
+    }
+    
+    setFotoUrl(null);
+  }, [fotoPerfil]);
 
   const getInitiales = () => {
     if (!nombre) return '??';
@@ -56,7 +51,7 @@ const Avatar = ({
   };
 
   // Si no hay foto o hubo error, mostrar iniciales
-  if (!fotoPerfil || fotoError || forceFallback) {
+  if (!fotoPerfil || fotoError || !fotoUrl) {
     return (
       <div className={`${size} bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl border-4 ${borderColor}`}>
         <span className={`${textSize} font-bold text-white`}>
@@ -66,21 +61,15 @@ const Avatar = ({
     );
   }
 
-
   return (
     <div className={`${size} rounded-full overflow-hidden shadow-xl border-4 ${borderColor}`}>
       <img
-        key={fotoUrl}
         src={fotoUrl}
         alt={`Foto de ${nombre}`}
         className="w-full h-full object-cover"
         onError={() => {
-          console.warn('Error cargando avatar, usando fallback');
-          setForceFallback(true);
-        }}
-        onLoad={() => {
-          console.log('Avatar cargado correctamente');
-          setFotoError(false);
+          console.warn('Error cargando avatar:', fotoUrl);
+          setFotoError(true);
         }}
       />
     </div>

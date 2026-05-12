@@ -59,8 +59,8 @@ const Perfil = () => {
         const colecciones = res.data.colecciones;
         setCollections(colecciones);
 
-        // 🔥 Aquí decides qué mostrar
-        // Ej: solo la primera colección
+    
+  
         if (colecciones.length > 0) {
           const cartas = colecciones[0].deck.map(c => ({
             id: c._id,

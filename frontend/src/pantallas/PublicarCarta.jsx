@@ -4,7 +4,7 @@ import Gallery from '../componentes/Modals/Gallery';
 import { useEffect } from 'react';
 import axios from 'axios';
 
-// 🔥 URL FIJA DE RAILWAY
+
 const API_URL = 'https://pw2-production-ee50.up.railway.app';
 
 const PublicarCarta = () => {
