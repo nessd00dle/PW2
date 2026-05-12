@@ -1,6 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+
+const API_URL = import.meta.env.DEV 
+    ? 'http://localhost:3000'  // Desarrollo local
+    : 'https://pw2-production-ee50.up.railway.app';
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -39,10 +44,10 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, [token]);
 
-    // Login
+    // Login - MODIFICADO
     const login = async (correo, contrasena) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/usuarios/login', {
+            const response = await axios.post(`${API_URL}/api/usuarios/login`, {
                 correo,
                 contrasena
             });
@@ -64,10 +69,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Registro
+    // Registro - MODIFICADO
     const registro = async (userData) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/usuarios/registro', userData);
+            const response = await axios.post(`${API_URL}/api/usuarios/registro`, userData);
             
             const { token: nuevoToken, usuario: usuarioData } = response.data;
             
@@ -95,10 +100,11 @@ export const AuthProvider = ({ children }) => {
         delete axios.defaults.headers.common['Authorization'];
     };
 
+    // Actualizar perfil - MODIFICADO
     const actualizarPerfil = async (datos) => {
         try {
             const response = await axios.put(
-                'http://localhost:3000/api/usuarios/perfil',
+                `${API_URL}/api/usuarios/perfil`,
                 datos,
                 {
                     headers: {
@@ -124,38 +130,38 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    
-   const actualizarFotoPerfil = async (formData) => {
-    try {
-        const response = await axios.put(
-            'http://localhost:3000/api/usuarios/perfil/foto',
-            formData,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
+    // Actualizar foto perfil - MODIFICADO
+    const actualizarFotoPerfil = async (formData) => {
+        try {
+            const response = await axios.put(
+                `${API_URL}/api/usuarios/perfil/foto`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
                 }
-            }
-        );
-        
-        console.log('Respuesta actualizar foto:', response.data);
-        
-        const { token: nuevoToken, usuario: usuarioActualizado } = response.data;
-        
-        setToken(nuevoToken);
-        setUsuario(usuarioActualizado);
-        localStorage.setItem('token', nuevoToken);
-        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
-        
-        return { success: true, usuario: usuarioActualizado };
-    } catch (error) {
-        console.error('Error actualizando foto:', error);
-        return { 
-            success: false, 
-            error: error.response?.data?.error || 'Error al actualizar foto' 
-        };
-    }
-};
+            );
+            
+            console.log('Respuesta actualizar foto:', response.data);
+            
+            const { token: nuevoToken, usuario: usuarioActualizado } = response.data;
+            
+            setToken(nuevoToken);
+            setUsuario(usuarioActualizado);
+            localStorage.setItem('token', nuevoToken);
+            localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+            
+            return { success: true, usuario: usuarioActualizado };
+        } catch (error) {
+            console.error('Error actualizando foto:', error);
+            return { 
+                success: false, 
+                error: error.response?.data?.error || 'Error al actualizar foto' 
+            };
+        }
+    };
 
     const value = {
         usuario,
