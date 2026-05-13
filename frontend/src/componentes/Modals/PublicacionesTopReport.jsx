@@ -3,6 +3,7 @@ import { X, Heart, MessageCircle, TrendingUp, Calendar, User } from 'lucide-reac
 import axios from 'axios';
 import '../../App.css';
 import '../../pantallas/index.css';
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 
 const PublicacionesTopReport = ({ onClose }) => {
   const [publicaciones, setPublicaciones] = useState([]);
@@ -14,7 +15,7 @@ const PublicacionesTopReport = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('${API_URL}api/reportes/top-publicaciones', {
+        const response = await axios.get(`${API_URL}api/reportes/top-publicaciones`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setPublicaciones(response.data.data);

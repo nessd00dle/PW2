@@ -4,6 +4,7 @@ import '../../App.css';
 import '../../pantallas/index.css';
 import { useEffect } from 'react';
 import axios from 'axios';
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 
 const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, selectedCartas, setSelectedCartas }) => {
   const [cartas, setCartas] = useState([]);
@@ -16,7 +17,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
   useEffect(() => {
     const fetchFranquicias = async () => {
       try {
-        const res = await axios.get('${API_URL}api/franquicias');
+        const res = await axios.get(`${API_URL}api/franquicias`);
         setFranquicias(res.data.franquicias);
         console.log('Franquicias cargadas:', res.data.franquicias.length);
       } catch (error) {
@@ -29,7 +30,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
   useEffect(() => {
     const fetchCartas = async () => {
       try {
-        const res = await axios.get('${API_URL}api/cartas');
+        const res = await axios.get(`${API_URL}api/cartas`);
         console.log('Cartas recibidas:', res.data.cartas.length);
 
         const cartasMapeadas = res.data.cartas.map(carta => {

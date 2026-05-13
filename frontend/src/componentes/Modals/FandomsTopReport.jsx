@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../../App.css';
 import '../../pantallas/index.css';
 
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 const FandomsTopReport = ({ onClose }) => {
   const [fandoms, setFandoms] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -13,7 +14,7 @@ const FandomsTopReport = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('${API_URL}api/reportes/top-fandoms', {
+        const response = await axios.get(`${API_URL}api/reportes/top-fandoms`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFandoms(response.data.data);

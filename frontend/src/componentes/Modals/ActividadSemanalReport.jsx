@@ -4,6 +4,7 @@ import axios from 'axios';
 import '../../App.css';
 import '../../pantallas/index.css';
 
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 const ActividadSemanalReport = ({ onClose }) => {
   const [actividad, setActividad] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -24,7 +25,7 @@ const ActividadSemanalReport = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('${API_URL}api/reportes/actividad-semanal', {
+        const response = await axios.get(`${API_URL}api/reportes/actividad-semanal?=`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setActividad(response.data.data);
