@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import '../../App.css'
-
+const API_URL = 'https://pw2-production-ee50.up.railway.app';
 const FandomFilter = ({ selectedFandoms, onFandomChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
